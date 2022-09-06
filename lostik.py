@@ -2,7 +2,7 @@
 #                                                                      #
 #          NAME:  Ronoth LoStik Hardware Driver/Module                 #
 #  DEVELOPED BY:  Chris Clement (K7CTC)                                #
-#       VERSION:  v0.2                                                 #
+#       VERSION:  v0.2.1                                               #
 #                                                                      #
 ########################################################################
 
@@ -47,59 +47,137 @@ except:
 del assigned_port
 
 #function: read line from serial interface
-# returns: ascii string from serial interface
+# returns: ascii string
 def read():
     line = lostik_port.readline().decode('ASCII').rstrip()
     return line
 
-#function: write command to serial interface
-# accepts: command as ascii string
+#function: write line to serial interface
+# accepts: LoStik command as ascii string
 def write(command):
     if type(command) != str:
         print('[ERROR] Failed to process LoStik command!')
-        print('HELP: Command must be of string type.')
+        print('HELP: Invalid type, command must be a string.')
         exit(1)
     else:
         command = command.encode('ASCII')
         lostik_port.write(b''.join([command, b'\r\n']))
 
+#function: read system firmware version from LoStik device
+# returns: firmware version (as string)
+def get_ver():
+    write('sys get ver')
+    return read()
+
 #check LoStik firmware version before proceeding
-write('sys get ver')
-if read() != lostik_settings.FIRMWARE_VERSION:
+if get_ver() != lostik_settings.FIRMWARE_VERSION:
     print('[ERROR] LoStik failed to return expected firmware version!')
     exit(1)
 
-#attempt to pause mac (LoRaWAN) as required to issue commands directly to the radio
-write('mac pause')
-if read() != '4294967245':
-    print('[ERROR] Failed to disable LoRaWAN!')
-    exit(1)
+#function: disable LoRaWAN via "mac pause" command (page 25 in RN2903 command reference)
+#    note: terminate on error
+def disable_lorawan():
+    write('mac pause')
+    if read() != '4294967245':
+        print('[ERROR] Failed to disable LoRaWAN!')
+        exit(1)
+
+#disable LoRaWAN before proceeding (required to issue commands directly to the radio)
+disable_lorawan()
+
+#functions: read radio settings from LoStik device
+#  returns: setting value (as string)
+def get_pwr():
+    write('radio get pwr')
+    return read()
+def get_freq():
+    write('radio get freq')
+    return read()
+def get_sf():
+    write('radio get sf')
+    return read()
+def get_bw():
+    write('radio get bw')
+    return read()
+def get_cr():
+    write('radio get cr')
+    return read()
+def get_wdt():
+    write('radio get wdt')
+    return read()
+def get_mod():
+    write('radio get mod')
+    return read()
+def get_crc():
+    write('radio get crc')
+    return read()
+def get_iqi():
+    write('radio get iqi')
+    return read()
+def get_sync():
+    write('radio get sync')
+    return read()
+
+#functions: write radio settings to LoStik device
+#  accepts: setting value as ascii string
+#     note: terminate on error
+def set_pwr(pwr):
+    write(f'radio set pwr {pwr}')
+    if read() != 'ok':
+        print('[ERROR] Failed to set LoStik transmit power!')
+        exit(1)
+def set_freq(freq):
+    write(f'radio set freq {freq}')
+    if read() != 'ok':
+        print('[ERROR] Failed to set LoStik frequency!')
+        exit(1)
+def set_sf(sf):
+    write(f'radio set sf {sf}')
+    if read() != 'ok':
+        print('[ERROR] Failed to set LoStik spreading factor!')
+        exit(1)
+def set_bw(bw):
+    write(f'radio set bw {bw}')
+    if read() != 'ok':
+        print('[ERROR] Failed to set LoStik radio bandwidth!')
+        exit(1)
+def set_cr(cr):
+    write(f'radio set cr {cr}')
+    if read() != 'ok':
+        print('[ERROR] Failed to set LoStik coding rate!')
+        exit(1)
+def set_wdt(wdt):
+    write(f'radio set wdt {wdt}')
+    if read() != 'ok':
+        print('[ERROR] Failed to set LoStik watchdog timer time-out!')
+        exit(1)
+def set_mod(mod):
+    write(f'radio set mod {mod}')
+    if read() != 'ok':
+        print('[ERROR] Failed to set LoStik modulation mode!')
+        exit(1)
+def set_crc(crc):
+    write(f'radio set crc {crc}')
+    if read() != 'ok':
+        print('[ERROR] Failed to set LoStik CRC header!')
+        exit(1)
+def set_iqi(iqi):
+    write(f'radio set iqi {iqi}')
+    if read() != 'ok':
+        print('[ERROR] Failed to set LoStik IQ inversion!')
+        exit(1)
+def set_sync(sync):
+    write(f'radio set sync {sync}')
+    if read() != 'ok':
+        print('[ERROR] Failed to set LoStik sync word!')
+        exit(1)
 
 #apply settings from lostik_settings.py
-write(f'radio set pwr {lostik_settings.SET_PWR}')
-if read() != 'ok':
-    print('[ERROR] Failed to set LoStik transmit power!')
-    exit(1)
-write(f'radio set freq {lostik_settings.SET_FREQ}')
-if read() != 'ok':
-    print('[ERROR] Failed to set LoStik frequency!')
-    exit(1)
-write(f'radio set sf {lostik_settings.SET_SF}')
-if read() != 'ok':
-    print('[ERROR] Failed to set LoStik spreading factor!')
-    exit(1)
-write(f'radio set bw {lostik_settings.SET_BW}')
-if read() != 'ok':
-    print('[ERROR] Failed to set LoStik radio bandwidth!')
-    exit(1)
-write(f'radio set cr {lostik_settings.SET_CR}')
-if read() != 'ok':
-    print('[ERROR] Failed to set LoStik coding rate!')
-    exit(1)
-write(f'radio set wdt {lostik_settings.SET_WDT}')
-if read() != 'ok':
-    print('[ERROR] Failed to set LoStik watchdog timer time-out!')
-    exit(1)
+set_pwr(lostik_settings.PWR)
+set_freq(lostik_settings.FREQ)
+set_sf(lostik_settings.SF)
+set_bw(lostik_settings.BW)
+set_cr(lostik_settings.CR)
 
 #function: obtain rssi of last received packet
 # returns: rssi
@@ -186,6 +264,12 @@ def tx(packet):
             print('[ERROR] Transmit failure!')
             exit(1)
 
+
+
+#i do not feel the following functions belong in this module.  need to refactor
+
+
+
 def await_ack():
     rx(True)
     rx_payload = ''
@@ -204,3 +288,4 @@ def await_ack():
 
 def send_ack():
     tx('41434B')
+    
