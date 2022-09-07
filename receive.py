@@ -18,41 +18,29 @@ import os
 import lzma
 import base64
 
-#listen for file transfer details
-lostik.set_wdt('0')
-lostik.rx(True)
-rx_payload = ''
-while rx_payload == '':
-    console.print('Listening...')
-    rx_payload = lostik.read()
-else:
-    if rx_payload == 'busy':
-        console.print('[bright_red][ERROR][/] LoStik busy!')
-        exit(1)
-lostik.rx(False)
-#process file transfer details
-rx_payload_list = rx_payload.split()
-payload_hex = rx_payload_list[1]
-payload_ascii = bytes.fromhex(payload_hex).decode('ASCII')
-transfer_info = payload_ascii.split('|')
+#listen for incoming file details
+lostik.set_wdt('300000') #five minutes
+print('Listening...')
+incoming_file_details = lostik.rx('ascii')
+incoming_file_details_list = incoming_file_details.split('|')
+name = incoming_file_details_list[0]
+blocks = incoming_file_details_list[1]
+secure_hash = incoming_file_details_list[2]
+del incoming_file_details, incoming_file_details_list
+
+print(f'   Incoming File Name: {name}')
+print(f'Secure Hash (BLAKE2b): {secure_hash}')
+print(f'               Blocks: {blocks}')
+
+received_blocks = {block: '' for block in range(blocks)}
+
+#send READY
+lostik.tx('READY'.encode('ASCII').hex())
 
 
-#BOOKMARK
 
 
 
-file_name = file_info[0]
-file_blocks = file_info[1]
-file_secure_hash = file_info[2]
-
-del rx_payload
-
-del rx_payload_list
-
-
-print(f'   Incoming File Name: {file_name}')
-print(f'Secure Hash (BLAKE2b): {file_secure_hash}')
-print(f'               Blocks: {file_blocks}')
 
 #send ACK
 lostik.send_ack()

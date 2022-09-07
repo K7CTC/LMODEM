@@ -7,6 +7,7 @@
 ########################################################################
 
 #import from required 3rd party libraries
+from errno import ENOANO
 import serial
 import serial.tools.list_ports
 
@@ -211,29 +212,6 @@ def red_led(state):
         write('sys set pindig GPIO11 0') #GPIO11 0 = red tx led off
     read()
 
-#function: control lostik receive state
-# accepts: boolean
-#    note: terminate on error
-def rx(state):
-    if state == True:
-        #place LoStik in continuous receive mode
-        write('radio rx 0')
-        if read() == 'ok':
-            blue_led(True)
-        else:
-            print('[ERROR] Serial interface is busy, unable to communicate with LoStik!')
-            print('HELP: Disconnect and reconnect LoStik device, then try again.')
-            exit(1)
-    else:
-        #halt LoStik continuous receive mode
-        write('radio rxstop')
-        if read() == 'ok':
-            blue_led(False)
-        else:
-            print('[ERROR] Serial interface is busy, unable to communicate with LoStik!')
-            print('HELP: Disconnect and reconnect LoStik device, then try again.')
-            exit(1)
-
 #function: attempt to transmit outbound packet
 # accepts: packet as hex string
 # returns: time_sent and air_time
@@ -250,42 +228,63 @@ def tx(packet):
     else:
         print('[ERROR] Transmit failure!')
         exit(1)
-    response = ''
-    while response == '':
-        response = read()
-    else:
-        if response == 'radio_tx_ok':
-            tx_end_time = int(round(time()*1000))
-            time_sent = tx_end_time
-            air_time = tx_end_time - tx_start_time
-            red_led(False)
-            return time_sent, air_time
-        elif response == 'radio_err':
-            print('[ERROR] Transmit failure!')
-            exit(1)
+    reply = ''
+    while reply == '':
+        reply = read()
+    if reply == 'radio_tx_ok':
+        tx_end_time = int(round(time()*1000))
+        time_sent = tx_end_time
+        air_time = tx_end_time - tx_start_time
+        red_led(False)
+        return time_sent, air_time
+    elif reply == 'radio_err':
+        print('[ERROR] Transmit failure!')
+        exit(1)
 
+#function: attempt to receive inbound packet
+# accepts: encoding (hex or ascii) - determines encoding of returned packet
+# returns: packet contents in chosen encoding or none if no packet received before time-out
+def rx(decode = False):
+    write('radio rx 0')
+    if read() != 'ok':
+        print('[ERROR] Serial interface is busy, unable to communicate with LoStik!')
+        print('HELP: Disconnect and reconnect LoStik device, then try again.')
+        exit(1)
+    blue_led(True)
+    reply = ''
+    while reply == '':
+        reply = read()
+    blue_led(False)
+    if reply == 'busy':
+        print('[ERROR] LoStik busy!')
+        exit(1)
+    if reply == 'radio_err': #time-out
+        return None
+    reply = reply[10:] #remove 'radio_rx  ' from beginning of string
+    if decode == False:
+        return reply
+    if decode == True:
+        return bytes.fromhex(reply).decode('ASCII')
 
-
-#i do not feel the following functions belong in this module.  need to refactor
-
-
-
-def await_ack():
-    rx(True)
-    rx_payload = ''
-    while rx_payload == '':
-        rx_payload = read()
-    else:
-        if rx_payload == 'busy':
-            print('[ERROR] LoStik busy!')
-            exit(1)
-        if rx_payload == 'radio_err':
-            print('[ERROR] Reception failure or time-out occurred!')
-            exit(1)
-        if rx_payload == 'radio_rx 41434B':
-            rx(False)
-            return True
-
-def send_ack():
-    tx('41434B')
-    
+# #function: control lostik receive state
+# # accepts: boolean
+# #    note: terminate on error
+# def rx(state):
+#     if state == True:
+#         #place LoStik in continuous receive mode
+#         write('radio rx 0')
+#         if read() == 'ok':
+#             blue_led(True)
+#         else:
+#             print('[ERROR] Serial interface is busy, unable to communicate with LoStik!')
+#             print('HELP: Disconnect and reconnect LoStik device, then try again.')
+#             exit(1)
+#     else:
+#         #halt LoStik continuous receive mode
+#         write('radio rxstop')
+#         if read() == 'ok':
+#             blue_led(False)
+#         else:
+#             print('[ERROR] Serial interface is busy, unable to communicate with LoStik!')
+#             print('HELP: Disconnect and reconnect LoStik device, then try again.')
+#             exit(1)

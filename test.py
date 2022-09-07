@@ -1,32 +1,57 @@
 import base64
+import re
 import textwrap
 import lzma
-from hashlib import blake2b
-
-# first we want to get a secure hash of the source file
-# for this project I will be using the BLAKE2 hash algorythm with a message digest size of 32 bytes
-with open('input.jpg', 'rb') as input_file:
-    secure_hash = blake2b(digest_size=32)
-    secure_hash.update(input_file.read())
-
-
-# with open('input.heic', 'rb') as input_file:
-#     b64_bytes = base64.b64encode(input_file.read())
+from rich import print
 
 
 
-# b64_bytes_compressed = lzma.compress(b64_bytes)
-# del b64_bytes
+with open('jt_strng.xm', 'rb') as input_file:
+    b64_bytes = base64.b64encode(input_file.read())
 
-# hex_string_compressed = b64_bytes_compressed.hex()
-# del b64_bytes_compressed
+b64_bytes_compressed = lzma.compress(b64_bytes)
+del b64_bytes
+
+hex_string_compressed = b64_bytes_compressed.hex()
+del b64_bytes_compressed
+
+blocks = textwrap.wrap(hex_string_compressed, 256)
+del hex_string_compressed
+
+print(len(blocks))
+
+#create dictionary for storage on the other end
+received_blocks = {block: '' for block in range(len(blocks))}
+
+print(received_blocks)
+print(len(received_blocks))
+
+# for block in blocks:
+#     received_blocks[blocks.index(block)] = block
+
+# #mess up the data
+# received_blocks[7] = ''
+# received_blocks[13] = ''
+# received_blocks[20] = ''
 
 
-# blocks = textwrap.wrap(hex_string_compressed, 256)
-# del hex_string_compressed
 
-# print(blocks[0])
-# print(type(blocks[0]))
+# print(received_blocks)
+# print(len(received_blocks))
+
+# missing_blocks = ''
+
+# for block in received_blocks:
+#     if received_blocks[block] == '':
+#          missing_blocks = missing_blocks + str(block) + '|'
+
+# if len(missing_blocks) != 0:
+#     missing_blocks = missing_blocks.rstrip(missing_blocks[-1])
+
+
+# print(missing_blocks)
+
+
 
 
 # # SIMULATE DATA TRANSFER BY ITERATING THROUGH PACKETS

@@ -5,6 +5,26 @@ FIRMWARE_VERSION = 'RN2903 1.0.5 Nov 06 2018 10:45:27'
 #values: 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 20
 PWR = '16'
 
+#LMODEM robustness options
+
+# if args.power == 'low':
+#     SET_PWR = b'6'
+#     PWR_LABEL = 'LOW'
+#     PWR_LABEL_DBM = '7.0 dBm'
+#     PWR_LABEL_MW = '5.0 mW'
+# elif args.power =='medium':
+#     SET_PWR = b'12'
+#     PWR_LABEL = 'MEDIUM'
+#     PWR_LABEL_DBM = '13.0 dBm'
+#     PWR_LABEL_MW = '20.0 mW'
+# elif args.power == 'high':
+#     SET_PWR = b'20'
+#     PWR_LABEL = 'HIGH'
+#     PWR_LABEL_DBM = '18.5 dBm'
+#     PWR_LABEL_MW = '70.8 mW'
+
+
+
 #Frequency (hardware default=923300000)
 #value range: 902000000 to 928000000
 FREQ = '923300000'
