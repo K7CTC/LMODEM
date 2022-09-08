@@ -35,14 +35,8 @@ print(f'               Blocks: {blocks}')
 received_blocks = {block: '' for block in range(blocks)}
 
 #send READY
-lostik.tx('READY'.encode('ASCII').hex())
+lostik.tx('READY', encode = True)
 
-
-
-
-
-#send ACK
-lostik.send_ack()
 
 # #get file
 # received_hex_string_compressed = ''
