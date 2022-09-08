@@ -21,7 +21,7 @@ import base64
 #listen for incoming file details
 lostik.set_wdt('300000') #five minutes
 print('Listening...')
-incoming_file_details = lostik.rx('ascii')
+incoming_file_details = lostik.rx(decode = True)
 incoming_file_details_list = incoming_file_details.split('|')
 name = incoming_file_details_list[0]
 blocks = incoming_file_details_list[1]
@@ -36,7 +36,6 @@ received_blocks = {block: '' for block in range(blocks)}
 
 #send READY
 lostik.tx('READY'.encode('ASCII').hex())
-
 
 
 
