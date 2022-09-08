@@ -8,6 +8,8 @@
 
 #import from project library
 from multiprocessing import current_process
+from struct import pack
+from tkinter import E
 import lostik
 from console import console
 
@@ -49,13 +51,23 @@ with open(args.outgoing_file, 'rb') as file:
 #compress outgoing file
 with open(args.outgoing_file, 'rb') as file:
     outgoing_file_compressed = lzma.compress(file.read())
+
 #base85 encode compressed outgoing file
 outgoing_file_compressed_b85 = b85encode(outgoing_file_compressed)
+
 #hex encode base85 encoded compressed outgoing file
 outgoing_file_compressed_b85_hex = outgoing_file_compressed_b85.hex()
 
 #split hex encoded base85 encoded compressed outgoing file into 128 byte blocks
 outgoing_file_blocks = textwrap.wrap(outgoing_file_compressed_b85_hex, 256)
+
+#concatenate zero filled block number and block contents to create numbered "packet"
+outgoing_file_packets = []
+for block in outgoing_file_blocks:
+    block_index_zfill = str(outgoing_file_blocks.index(block)).zfill(3)
+    block_index_zfill_hex = block_index_zfill.encode('ASCII').hex()
+    packet = block_index_zfill_hex + block
+    outgoing_file_packets.append(packet)
 
 #LMODEM maximum OTA file size will henceforth be limited to 32kb
 if len(outgoing_file_compressed_b85) > 32768:
@@ -73,30 +85,28 @@ print(f'Secure Hash: {outgoing_file_secure_hash.hexdigest()}')
 print(f'     Blocks: {len(outgoing_file_blocks)}')
 print()
 
-#provide receiving station with the file transfer details
-#  file name
-#  number of blocks
-#  secure hash
+# provide receiving station with the file transfer details
+# file name | number of blocks to expect | secure hash
 packet = args.outgoing_file + '|' + str(len(outgoing_file_blocks)) + '|' + outgoing_file_secure_hash.hexdigest()
 print('Sending file transfer details to receiving station...')
-lostik.tx(packet, encode=True)
+# lostik.tx(packet, encode=True)
+del packet
 
+#wait for receiving station to tell us it is ready to receive
+if lostik.rx(decode=True) == 'READY':
+    print('File transfer details received.  Sending File...')
+    print()
+for packet in outgoing_file_packets:
+    lostik.tx(packet)
+    sent_packet_number = outgoing_file_packets.index(packet) + 1
+    print(f'Sent block {str(sent_packet_number).zfill(3)} of {str(len(outgoing_file_packets)).zfill(3)}', end='\r')
+    sleep(.5)
+print()
+print()
 
-
-
-
-# #listen for acknowledgement
-# lostik.await_ack()
-# print('Acknowledgement received.  Begin file transfer...')
-
-# for block in blocks:
-#     lostik.tx(block)
-#     current_block = blocks.index(block) + 1
-#     print(f'Sent block {current_block} of {len(blocks)}')
-#     sleep(.25)
-#     # lostik.await_ack()
-
-# #send OEF (end of file) message
-# lostik.tx('454F46')
-# print('DONE!')
-# print()
+#send end of file message
+lostik.tx('END',encode=True)
+lostik.tx('END',encode=True)
+lostik.tx('END',encode=True)
+print('DONE!')
+print()

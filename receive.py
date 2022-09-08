@@ -29,6 +29,7 @@ incoming_file_blocks = incoming_file_details_list[1]
 incoming_file_secure_hash = incoming_file_details_list[2]
 del incoming_file_details, incoming_file_details_list
 
+#show file transfer details
 console.clear()
 print('File Transfer Details - Incoming File')
 print('-------------------------------------')
@@ -36,18 +37,28 @@ print(f'       Name: {incoming_file_name}')
 print(f'Secure Hash: {incoming_file_secure_hash}')
 print(f'     Blocks: {incoming_file_blocks}')
 
-received_blocks = {block: '' for block in range(incoming_file_blocks)}
+#create dictionary to store received blocks
+received_blocks = {block: '' for block in range(int(incoming_file_blocks))}
 
+#tell sender that we are ready to receive
+lostik.tx('READY', encode=True)
+
+#receive incoming file
+while True:
+    incoming_packet = lostik.rx()
+    if incoming_packet == '454E44': #end
+        break
+    incoming_block_number_hex = incoming_packet[:6]
+    incoming_block_number_int = int(bytes.fromhex(incoming_block_number_hex).decode('ASCII'))
+    incoming_block = incoming_packet[6:]
+    received_blocks[incoming_block_number_int] = incoming_block
 
 print(received_blocks)
 
 
 
-# #send READY
-# lostik.tx('READY', encode = True)
 
-
-# #get file
+# #receive file
 # received_hex_string_compressed = ''
 # while True:
 #     lostik.rx(True)
