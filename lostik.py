@@ -1,13 +1,12 @@
 ########################################################################
 #                                                                      #
-#          NAME:  Ronoth LoStik Hardware Driver/Module                 #
+#          NAME:  Ronoth LoStik Device Driver                          #
 #  DEVELOPED BY:  Chris Clement (K7CTC)                                #
-#       VERSION:  v0.2.1                                               #
+#       VERSION:  v0.8                                                 #
 #                                                                      #
 ########################################################################
 
 #import from required 3rd party libraries
-from errno import ENOANO
 import serial
 import serial.tools.list_ports
 
@@ -47,14 +46,14 @@ except:
     exit(1)
 del assigned_port
 
-#function: read line from serial interface
+#function: read line from serial interface and remove CRLF from end
 # returns: ascii string
 def read():
     line = lostik_port.readline().decode('ASCII').rstrip()
     return line
 
 #function: write line to serial interface
-# accepts: LoStik command as ascii string
+# accepts: LoStik command as ASCII string
 def write(command):
     if type(command) != str:
         print('[ERROR] Failed to process LoStik command!')
@@ -64,18 +63,18 @@ def write(command):
         command = command.encode('ASCII')
         lostik_port.write(b''.join([command, b'\r\n']))
 
-#function: read system firmware version from LoStik device
-# returns: firmware version (as string)
+# function: get firmware version
+#  returns: firmware version
 def get_ver():
     write('sys get ver')
     return read()
 
-#check LoStik firmware version before proceeding
+#confirm expected LoStik firmware version before proceeding
 if get_ver() != lostik_settings.FIRMWARE_VERSION:
     print('[ERROR] LoStik failed to return expected firmware version!')
     exit(1)
 
-#function: disable LoRaWAN via "mac pause" command (page 25 in RN2903 command reference)
+#function: disable LoRaWAN via "mac pause" command
 #    note: terminate on error
 def disable_lorawan():
     write('mac pause')
@@ -86,7 +85,7 @@ def disable_lorawan():
 #disable LoRaWAN before proceeding (required to issue commands directly to the radio)
 disable_lorawan()
 
-#functions: read radio settings from LoStik device
+#functions: read radio settings from LoStik 
 #  returns: setting value (as string)
 def get_pwr():
     write('radio get pwr')
@@ -119,8 +118,8 @@ def get_sync():
     write('radio get sync')
     return read()
 
-#functions: write radio settings to LoStik device
-#  accepts: setting value as ascii string
+#functions: write radio settings to LoStik 
+#  accepts: setting value as ASCII string
 #     note: terminate on error
 def set_pwr(pwr):
     write(f'radio set pwr {pwr}')
@@ -180,14 +179,14 @@ set_sf(lostik_settings.SF)
 set_bw(lostik_settings.BW)
 set_cr(lostik_settings.CR)
 
-#function: obtain rssi of last received packet
+#function: obtain received signal strength indicator of last received packet
 # returns: rssi
 def get_rssi():
     write('radio get rssi')
     rssi = read()
     return rssi
 
-#function: obtain snr of last received packet
+#function: obtain signal-to-noise ratio of last received packet
 # returns: snr
 def get_snr():
     write('radio get snr')
@@ -198,9 +197,9 @@ def get_snr():
 # accepts: boolean
 def blue_led(state):
     if state == True:
-        write('sys set pindig GPIO10 1') #GPIO10 1 = blue tx led on
+        write('sys set pindig GPIO10 1') #GPIO10 1 = blue rx led on
     else:
-        write('sys set pindig GPIO10 0') #GPIO10 0 = blue tx led off
+        write('sys set pindig GPIO10 0') #GPIO10 0 = blue rx led off
     read()
 
 #function: control red led
@@ -213,15 +212,19 @@ def red_led(state):
     read()
 
 #function: attempt to transmit outbound packet
-# accepts: packet as hex string
+# accepts: packet as hexadecimal string by default, optionally accepts ASCII string
+#  option: encode (boolean) - allows function to accept and encode ASCII instead of hexadecimal
 # returns: time_sent and air_time
 #    note: terminate on error
-def tx(packet):
+def tx(packet, encode = False):
     tx_start_time = 0
     tx_end_time = 0
     time_sent = 0
     air_time = 0
-    write(f'radio tx {packet}')
+    if encode == False:
+        write(f'radio tx {packet}')
+    if encode == True:
+        write(f'radio tx {packet.encode('ASCII').hex()}')
     if read() == 'ok':
         tx_start_time = int(round(time()*1000))
         red_led(True)
@@ -242,7 +245,7 @@ def tx(packet):
         exit(1)
 
 #function: attempt to receive inbound packet
-# accepts: encoding (hex or ascii) - determines encoding of returned packet
+#  option: decode (boolean) - allows returned packed to be decoded from hexadecmial to ASCII
 # returns: packet contents in chosen encoding or none if no packet received before time-out
 def rx(decode = False):
     write('radio rx 0')
@@ -266,25 +269,13 @@ def rx(decode = False):
     if decode == True:
         return bytes.fromhex(reply).decode('ASCII')
 
-# #function: control lostik receive state
-# # accepts: boolean
-# #    note: terminate on error
-# def rx(state):
-#     if state == True:
-#         #place LoStik in continuous receive mode
-#         write('radio rx 0')
-#         if read() == 'ok':
-#             blue_led(True)
-#         else:
-#             print('[ERROR] Serial interface is busy, unable to communicate with LoStik!')
-#             print('HELP: Disconnect and reconnect LoStik device, then try again.')
-#             exit(1)
-#     else:
-#         #halt LoStik continuous receive mode
-#         write('radio rxstop')
-#         if read() == 'ok':
-#             blue_led(False)
-#         else:
-#             print('[ERROR] Serial interface is busy, unable to communicate with LoStik!')
-#             print('HELP: Disconnect and reconnect LoStik device, then try again.')
-#             exit(1)
+#function: force radio to halt continuous receive mode
+#    note: terminate on error
+def rxstop():
+    write('radio rxstop')
+    if read() == 'ok':
+        blue_led(False)
+    else:
+        print('[ERROR] Serial interface is busy, unable to communicate with LoStik!')
+        print('HELP: Disconnect and reconnect LoStik device, then try again.')
+        exit(1)
