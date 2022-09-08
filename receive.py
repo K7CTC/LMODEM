@@ -46,62 +46,69 @@ lostik.tx('READY', encode=True)
 #receive incoming file
 while True:
     incoming_packet = lostik.rx()
-    if incoming_packet == '454E44': #end
+    if incoming_packet == '454E44': #END
         break
     incoming_block_number_hex = incoming_packet[:6]
-    incoming_block_number_int = int(bytes.fromhex(incoming_block_number_hex).decode('ASCII'))
+    incoming_block_number_ascii = bytes.fromhex(incoming_block_number_hex).decode('ASCII')
+    incoming_block_number_int = int(incoming_block_number_ascii)
     incoming_block = incoming_packet[6:]
     received_blocks[incoming_block_number_int] = incoming_block
 
-print(received_blocks)
+# #mess with the data to test resend feature
+# received_blocks[3] = ''
+# received_blocks[6] = ''
+# received_blocks[9] = ''
+
+#check for missing blocks
+missing_blocks = ''
+for block in received_blocks:
+    if received_blocks[block] == '':
+        missing_blocks = missing_blocks + str(block) + '|'
+
+if len(missing_blocks) != 0:
+    missing_blocks = missing_blocks[:-1]
+
+print(missing_blocks)
+
+#ask for missing blocks
+#check again, fail if blocks still missing
+
+#if all blocks, send ACK
 
 
+#rebuild file and check integrity
 
+# REBUILD FILE ON THE "OTHER END"
+output_file_compressed_b85_hex = ''
+for block in received_blocks:
+    output_file_compressed_b85_hex = output_file_compressed_b85_hex + block
 
-# #receive file
-# received_hex_string_compressed = ''
-# while True:
-#     lostik.rx(True)
-#     rx_payload = ''
-#     while rx_payload == '':
-#         rx_payload = lostik.read()
-#     else:
-#         if rx_payload == 'busy':
-#             console.print('[bright_red][ERROR][/] LoStik busy!')
-#             exit(1)
-#         if rx_payload == 'radio_err':
-#             print('[ERROR] Time-out!')
-#             exit(1)
-#         if rx_payload == 'radio_rx  454F46': #EOF
-#             print('End of file.')
-#             break
-#         rx_payload_list = rx_payload.split()
-#         payload_hex = rx_payload_list[1]
-#         received_hex_string_compressed = received_hex_string_compressed + payload_hex
-#         print('Block received.')
-#         lostik.rx(False)
+#decode from hex
+output_file_compressed_b85 = bytes.fromhex(output_file_compressed_b85_hex)
 
+#decode from b85
+output_file_compressed = b85decode(output_file_compressed_b85)
 
+#decompress
+output_file = lzma.decompress(output_file_compressed)
 
-# received_b64_bytes_compressed = bytes.fromhex(received_hex_string_compressed)
-# del received_hex_string_compressed
+#write to disk
+with open(incoming_file_name, 'wb') as file:
+    file.write(output_file)
 
-# received_b64_bytes_decompressed = lzma.decompress(received_b64_bytes_compressed)
-# del received_b64_bytes_compressed
+#obtain secure hash for received file
+with open(incoming_file_name, 'rb') as file:
+    output_file_secure_hash = blake2b(digest_size=32)
+    output_file_secure_hash.update(file.read())
 
-# with open(file_name, 'wb') as file:
-#     file.write(base64.b64decode(received_b64_bytes_decompressed))
+print(f'Incoming File Secure Hash: {incoming_file_secure_hash.hexdigest()}')
+print(f'  Output File Secure Hash: {output_file_secure_hash.hexdigest()}')
 
-# #check secure hash
-# with open(file_name, 'rb') as file:
-#     secure_hash = blake2b(digest_size=32)
-#     secure_hash.update(file.read())
+if incoming_file_secure_hash != output_file_secure_hash.hexdigest():
+    print('[ERROR] Secure has mismatch.  File integrity check failed!')
+    os.remove(incoming_file_name)
+    exit(1)
 
-# if file_secure_hash != secure_hash.hexdigest():
-#     print('[ERROR] Secure has mismatch.  File integrity check failed!')
-#     os.remove(file_name)
-#     exit(1)
+print('File integrity check PASSED!  File transfer complete.')
 
-# print('File integrity check PASSED!  File transfer complete.')
-
-# exit(0)
+exit(0)

@@ -89,7 +89,7 @@ print()
 # file name | number of blocks to expect | secure hash
 packet = args.outgoing_file + '|' + str(len(outgoing_file_blocks)) + '|' + outgoing_file_secure_hash.hexdigest()
 print('Sending file transfer details to receiving station...')
-# lostik.tx(packet, encode=True)
+lostik.tx(packet, encode=True)
 del packet
 
 #wait for receiving station to tell us it is ready to receive
