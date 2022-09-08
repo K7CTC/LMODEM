@@ -224,7 +224,8 @@ def tx(packet, encode = False):
     if encode == False:
         write(f'radio tx {packet}')
     if encode == True:
-        write(f'radio tx {packet.encode('ASCII').hex()}')
+        hex = packet.encode('ASCII').hex()
+        write(f'radio tx {hex}')
     if read() == 'ok':
         tx_start_time = int(round(time()*1000))
         red_led(True)

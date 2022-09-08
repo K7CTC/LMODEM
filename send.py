@@ -12,10 +12,10 @@ import lostik
 from console import console
 
 #import from standard library
-import base64
 import textwrap
 import lzma
 import argparse
+from base64 import b85encode
 from time import sleep
 from pathlib import Path
 from hashlib import blake2b
@@ -27,80 +27,76 @@ parser.add_argument('outgoing_file')
 args = parser.parse_args()
 del parser
 
-#note: file name cannot contain spaces (for obvious reasons)
-
-#check if specified file actually exists
+#check if outgoing file actually exists
 if not Path(args.outgoing_file).is_file():
     print(f'[ERROR] {args.outgoing_file} does not exist in current working directory!')
     exit(1)
 
-#really long file names could be problematic so let's set the maximum length to 32 characters
+#LMODEM maximum file name length will henceforth be limited to 32 characters
 if len(args.outgoing_file) > 32:
     print('[ERROR] File name exceeds 32 character limit!')
     print('HELP: Come on, this is LoRa we are working with here.')
     exit(1)
 
-#get size of source file (in bytes)
-file_size = Path(args.outgoing_file).stat().st_size
+#get size of outgoing file
+outgoing_file_size = Path(args.outgoing_file).stat().st_size
 
-#base64 encode outgoing file
+#get secure hash for outgoing file
 with open(args.outgoing_file, 'rb') as file:
-    b64_bytes = base64.b64encode(file.read())
+    outgoing_file_secure_hash = blake2b(digest_size=32)
+    outgoing_file_secure_hash.update(file.read())
 
-#compress base64 encoded file
-b64_bytes_compressed = lzma.compress(b64_bytes)
-del b64_bytes
+#compress outgoing file
+with open(args.outgoing_file, 'rb') as file:
+    outgoing_file_compressed = lzma.compress(file.read())
+#base85 encode compressed outgoing file
+outgoing_file_compressed_b85 = b85encode(outgoing_file_compressed)
+#hex encode base85 encoded compressed outgoing file
+outgoing_file_compressed_b85_hex = outgoing_file_compressed_b85.hex()
 
-#get compressed file size (in bytes)
-compressed_file_size = len(b64_bytes_compressed)
+#split hex encoded base85 encoded compressed outgoing file into 128 byte blocks
+outgoing_file_blocks = textwrap.wrap(outgoing_file_compressed_b85_hex, 256)
 
-#make sure file is not too big to send
-if compressed_file_size > 32768:
+#LMODEM maximum OTA file size will henceforth be limited to 32kb
+if len(outgoing_file_compressed_b85) > 32768:
     print('[ERROR] Compressed file exceeds maximum size of 32,768 bytes!')
+    print('HELP: Come on, this is LoRa we are working with here.')
     exit(1)
 
-#encode compressed base64 encoded file as a hex string
-hex_string_compressed = b64_bytes_compressed.hex()
-del b64_bytes_compressed
-
-#split hex string into 128 byte blocks (2 hex characters = 1 byte)
-blocks = textwrap.wrap(hex_string_compressed, 256)
-del hex_string_compressed
-
-#obtain secure hash for outgoing file
-with open(args.outgoing_file, 'rb') as file:
-    secure_hash = blake2b(digest_size=32)
-    secure_hash.update(file.read())
-
-#ui
+#show file transfer details
 console.clear()
-print(f'    Outgoing File Name: {args.outgoing_file}')
-print(f'             File Size: {file_size} bytes')
-print(f'File Size (compressed): {compressed_file_size} bytes')
-print(f' Secure Hash (BLAKE2b): {secure_hash.hexdigest()}')
-print(f'                Blocks: {len(blocks)}')
+print('File Transfer Details - Outgoing File')
+print('-------------------------------------')
+print(f'       Name: {args.outgoing_file}')
+print(f'       Size: {outgoing_file_size} bytes (on disk) / {len(outgoing_file_compressed_b85)} bytes (over-the-air)')
+print(f'Secure Hash: {outgoing_file_secure_hash.hexdigest()}')
+print(f'     Blocks: {len(outgoing_file_blocks)}')
 print()
 
 #provide receiving station with the file transfer details
 #  file name
 #  number of blocks
 #  secure hash
-packet = args.outgoing_file + '|' + str(len(blocks)) + '|' + secure_hash.hexdigest()
+packet = args.outgoing_file + '|' + str(len(outgoing_file_blocks)) + '|' + outgoing_file_secure_hash.hexdigest()
 print('Sending file transfer details to receiving station...')
-lostik.tx(packet.encode('ASCII').hex())
+lostik.tx(packet, encode=True)
 
-#listen for acknowledgement
-lostik.await_ack()
-print('Acknowledgement received.  Begin file transfer...')
 
-for block in blocks:
-    lostik.tx(block)
-    current_block = blocks.index(block) + 1
-    print(f'Sent block {current_block} of {len(blocks)}')
-    sleep(.25)
-    # lostik.await_ack()
 
-#send OEF (end of file) message
-lostik.tx('454F46')
-print('DONE!')
-print()
+
+
+# #listen for acknowledgement
+# lostik.await_ack()
+# print('Acknowledgement received.  Begin file transfer...')
+
+# for block in blocks:
+#     lostik.tx(block)
+#     current_block = blocks.index(block) + 1
+#     print(f'Sent block {current_block} of {len(blocks)}')
+#     sleep(.25)
+#     # lostik.await_ack()
+
+# #send OEF (end of file) message
+# lostik.tx('454F46')
+# print('DONE!')
+# print()

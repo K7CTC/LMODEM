@@ -14,6 +14,7 @@ import lostik
 from sys import exit
 from time import sleep
 from hashlib import blake2b
+from base64 import b85decode
 import os
 import lzma
 import base64
@@ -21,21 +22,29 @@ import base64
 #listen for incoming file details
 lostik.set_wdt('300000') #five minutes
 print('Listening...')
-incoming_file_details = lostik.rx(decode = True)
+incoming_file_details = lostik.rx(decode=True)
 incoming_file_details_list = incoming_file_details.split('|')
-name = incoming_file_details_list[0]
-blocks = incoming_file_details_list[1]
-secure_hash = incoming_file_details_list[2]
+incoming_file_name = incoming_file_details_list[0]
+incoming_file_blocks = incoming_file_details_list[1]
+incoming_file_secure_hash = incoming_file_details_list[2]
 del incoming_file_details, incoming_file_details_list
 
-print(f'   Incoming File Name: {name}')
-print(f'Secure Hash (BLAKE2b): {secure_hash}')
-print(f'               Blocks: {blocks}')
+console.clear()
+print('File Transfer Details - Incoming File')
+print('-------------------------------------')
+print(f'       Name: {incoming_file_name}')
+print(f'Secure Hash: {incoming_file_secure_hash}')
+print(f'     Blocks: {incoming_file_blocks}')
 
-received_blocks = {block: '' for block in range(blocks)}
+received_blocks = {block: '' for block in range(incoming_file_blocks)}
 
-#send READY
-lostik.tx('READY', encode = True)
+
+print(received_blocks)
+
+
+
+# #send READY
+# lostik.tx('READY', encode = True)
 
 
 # #get file
