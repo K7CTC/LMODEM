@@ -8,10 +8,12 @@
 
 #import from project library
 from multiprocessing import current_process
+from re import T
 from struct import pack
 from tkinter import E
 import lostik
 from console import console
+import lostik_settings
 
 #import from standard library
 import textwrap
@@ -48,7 +50,7 @@ with open(args.outgoing_file, 'rb') as file:
     outgoing_file_secure_hash = blake2b(digest_size=32)
     outgoing_file_secure_hash.update(file.read())
 
-#compress outgoing file
+#compress outgoing file (in memory)
 with open(args.outgoing_file, 'rb') as file:
     outgoing_file_compressed = lzma.compress(file.read())
 
@@ -85,28 +87,47 @@ print(f'Secure Hash: {outgoing_file_secure_hash.hexdigest()}')
 print(f'     Blocks: {len(outgoing_file_blocks)}')
 print()
 
+#handshake
+print('Connecting...', end='\r')
+lostik.set_wdt('2000')
+while True:
+    lostik.tx('DTR', encode=True)
+    if lostik.rx(decode=True) == 'DTR':
+        break
+print('Connected!   ')
+lostik.set_wdt(lostik_settings.WDT)
+sleep(.5)
+
 # provide receiving station with the file transfer details
 # file name | number of blocks to expect | secure hash
 packet = args.outgoing_file + '|' + str(len(outgoing_file_blocks)) + '|' + outgoing_file_secure_hash.hexdigest()
-print('Sending file transfer details to receiving station...')
 lostik.tx(packet, encode=True)
+print('File transfer details sent...')
 del packet
 
-#wait for receiving station to tell us it is ready to receive
-if lostik.rx(decode=True) == 'READY':
-    print('File transfer details received.  Sending File...')
+#await ready to receive packet
+if lostik.rx(decode=True) == 'RTR':
+    print('Receive station ready.  Sending File...')
     print()
+total_air_time = 0
 for packet in outgoing_file_packets:
-    lostik.tx(packet)
+    time_sent, air_time = lostik.tx(packet)
+    total_air_time += air_time
     sent_packet_number = outgoing_file_packets.index(packet) + 1
-    print(f'Sent block {str(sent_packet_number).zfill(3)} of {str(len(outgoing_file_packets)).zfill(3)}', end='\r')
+    print(f'Sent block {str(sent_packet_number).zfill(3)} of {str(len(outgoing_file_packets)).zfill(3)} (air time: {air_time}  total air time: {total_air_time}', end='\r')
     sleep(.5)
 print()
 print()
 
-#send end of file message
-lostik.tx('END',encode=True)
-lostik.tx('END',encode=True)
-lostik.tx('END',encode=True)
-print('DONE!')
-print()
+#send end of file message 3x
+for i in range(3):
+    lostik.tx('FIN',encode=True)
+
+#await ACK or NAK
+reply = lostik.rx(decode=True)
+if reply[:3] == 'ACK':
+    print('File transfer successful!')
+    exit(0)
+if reply[:3] == 'NAK':
+    print('Fail!')
+    exit(1)

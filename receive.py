@@ -9,6 +9,7 @@
 #import from project library
 from console import console
 import lostik
+import lostik_settings
 
 #import from standard library
 from sys import exit
@@ -19,9 +20,17 @@ import os
 import lzma
 import base64
 
+#handshake
+print('Connecting...', end='\r')
+lostik.set_wdt('2000')
+while True:
+    if lostik.rx(decode=True) == 'DTR':
+        lostik.tx('DTR', encode=True)
+        break
+print('Connected!   ')
+lostik.set_wdt(lostik_settings.WDT)
+
 #listen for incoming file details
-lostik.set_wdt('300000') #five minutes
-print('Listening...')
 incoming_file_details = lostik.rx(decode=True)
 incoming_file_details_list = incoming_file_details.split('|')
 incoming_file_name = incoming_file_details_list[0]
@@ -40,13 +49,13 @@ print(f'     Blocks: {incoming_file_blocks}')
 #create dictionary to store received blocks
 received_blocks = {block: '' for block in range(int(incoming_file_blocks))}
 
-#tell sender that we are ready to receive
-lostik.tx('READY', encode=True)
+#send ready to receive packet
+lostik.tx('RTR', encode=True)
 
 #receive incoming file
 while True:
     incoming_packet = lostik.rx()
-    if incoming_packet == '454E44': #END
+    if incoming_packet == '46494E': #FIN
         break
     incoming_block_number_hex = incoming_packet[:6]
     incoming_block_number_ascii = bytes.fromhex(incoming_block_number_hex).decode('ASCII')
@@ -78,37 +87,38 @@ print(missing_blocks)
 
 #rebuild file and check integrity
 
-# REBUILD FILE ON THE "OTHER END"
-output_file_compressed_b85_hex = ''
-for block in received_blocks:
-    output_file_compressed_b85_hex = output_file_compressed_b85_hex + block
+if len(missing_blocks) == 0:
+    # REBUILD FILE ON THE "OTHER END"
+    output_file_compressed_b85_hex = ''
+    for block in received_blocks:
+        output_file_compressed_b85_hex = output_file_compressed_b85_hex + block
 
-#decode from hex
-output_file_compressed_b85 = bytes.fromhex(output_file_compressed_b85_hex)
+    #decode from hex
+    output_file_compressed_b85 = bytes.fromhex(output_file_compressed_b85_hex)
 
-#decode from b85
-output_file_compressed = b85decode(output_file_compressed_b85)
+    #decode from b85
+    output_file_compressed = b85decode(output_file_compressed_b85)
 
-#decompress
-output_file = lzma.decompress(output_file_compressed)
+    #decompress
+    output_file = lzma.decompress(output_file_compressed)
 
-#write to disk
-with open(incoming_file_name, 'wb') as file:
-    file.write(output_file)
+    #write to disk
+    with open(incoming_file_name, 'wb') as file:
+        file.write(output_file)
 
-#obtain secure hash for received file
-with open(incoming_file_name, 'rb') as file:
-    output_file_secure_hash = blake2b(digest_size=32)
-    output_file_secure_hash.update(file.read())
+    #obtain secure hash for received file
+    with open(incoming_file_name, 'rb') as file:
+        output_file_secure_hash = blake2b(digest_size=32)
+        output_file_secure_hash.update(file.read())
 
-print(f'Incoming File Secure Hash: {incoming_file_secure_hash.hexdigest()}')
-print(f'  Output File Secure Hash: {output_file_secure_hash.hexdigest()}')
+    print(f'Incoming File Secure Hash: {incoming_file_secure_hash.hexdigest()}')
+    print(f'  Output File Secure Hash: {output_file_secure_hash.hexdigest()}')
 
-if incoming_file_secure_hash != output_file_secure_hash.hexdigest():
-    print('[ERROR] Secure has mismatch.  File integrity check failed!')
-    os.remove(incoming_file_name)
-    exit(1)
+    if incoming_file_secure_hash != output_file_secure_hash.hexdigest():
+        print('[ERROR] Secure has mismatch.  File integrity check failed!')
+        os.remove(incoming_file_name)
+        exit(1)
 
-print('File integrity check PASSED!  File transfer complete.')
+    print('File integrity check PASSED!  File transfer complete.')
 
-exit(0)
+    exit(0)

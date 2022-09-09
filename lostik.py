@@ -263,7 +263,7 @@ def rx(decode = False):
         print('[ERROR] LoStik busy!')
         exit(1)
     if reply == 'radio_err': #time-out
-        return None
+        return 'TOT'
     reply = reply[10:] #remove 'radio_rx  ' from beginning of string
     if decode == False:
         return reply
