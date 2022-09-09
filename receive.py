@@ -58,8 +58,11 @@ while True:
     if incoming_packet == '46494E': #FIN
         break
     incoming_block_number_hex = incoming_packet[:6]
+    print(f'Packet Number HEX: {incoming_block_number_hex}')
     incoming_block_number_ascii = bytes.fromhex(incoming_block_number_hex).decode('ASCII')
+    print(f'Packet Number ASCII: {incoming_block_number_ascii}')
     incoming_block_number_int = int(incoming_block_number_ascii)
+    print(f'Packet Number INT: {incoming_block_number_int}')
     incoming_block = incoming_packet[6:]
     received_blocks[incoming_block_number_int] = incoming_block
 
@@ -90,39 +93,38 @@ print(f'Missing Blocks: {missing_blocks}')
 if len(missing_blocks) == 0:
     # REBUILD FILE ON THE "OTHER END"
     output_file_compressed_b85_hex = ''
-    for block in received_blocks:
-        print(block)
+    for block in received_blocks.values():
+        output_file_compressed_b85_hex = output_file_compressed_b85_hex + block
 
+    #decode from hex
+    output_file_compressed_b85 = bytes.fromhex(output_file_compressed_b85_hex)
 
+    #decode from b85
+    output_file_compressed = b85decode(output_file_compressed_b85)
 
-    #     output_file_compressed_b85_hex = output_file_compressed_b85_hex + block
+    #decompress
+    output_file = lzma.decompress(output_file_compressed)
 
-    # #decode from hex
-    # output_file_compressed_b85 = bytes.fromhex(output_file_compressed_b85_hex)
+    #write to disk
+    with open(incoming_file_name, 'wb') as file:
+        file.write(output_file)
 
-    # #decode from b85
-    # output_file_compressed = b85decode(output_file_compressed_b85)
+    #obtain secure hash for received file
+    with open(incoming_file_name, 'rb') as file:
+        output_file_secure_hash = blake2b(digest_size=32)
+        output_file_secure_hash.update(file.read())
 
-    # #decompress
-    # output_file = lzma.decompress(output_file_compressed)
+    print(f'Incoming File Secure Hash: {incoming_file_secure_hash}')
+    print(f'  Output File Secure Hash: {output_file_secure_hash.hexdigest()}')
 
-    # #write to disk
-    # with open(incoming_file_name, 'wb') as file:
-    #     file.write(output_file)
+    if incoming_file_secure_hash != output_file_secure_hash.hexdigest():
+        print('[ERROR] Secure has mismatch.  File integrity check failed!')
+        os.remove(incoming_file_name)
+        exit(1)
 
-    # #obtain secure hash for received file
-    # with open(incoming_file_name, 'rb') as file:
-    #     output_file_secure_hash = blake2b(digest_size=32)
-    #     output_file_secure_hash.update(file.read())
+    print('File integrity check PASSED!  File transfer complete.')
+    lostik.tx('ACK', encode=True)
+    lostik.tx('ACK', encode=True)
+    lostik.tx('ACK', encode=True)
 
-    # print(f'Incoming File Secure Hash: {incoming_file_secure_hash.hexdigest()}')
-    # print(f'  Output File Secure Hash: {output_file_secure_hash.hexdigest()}')
-
-    # if incoming_file_secure_hash != output_file_secure_hash.hexdigest():
-    #     print('[ERROR] Secure has mismatch.  File integrity check failed!')
-    #     os.remove(incoming_file_name)
-    #     exit(1)
-
-    # print('File integrity check PASSED!  File transfer complete.')
-
-    # exit(0)
+    exit(0)
