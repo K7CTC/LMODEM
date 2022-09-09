@@ -77,7 +77,7 @@ for block in received_blocks:
 if len(missing_blocks) != 0:
     missing_blocks = missing_blocks[:-1]
 
-print(missing_blocks)
+print(f'Missing Blocks: {missing_blocks}')
 
 #ask for missing blocks
 #check again, fail if blocks still missing
@@ -91,34 +91,38 @@ if len(missing_blocks) == 0:
     # REBUILD FILE ON THE "OTHER END"
     output_file_compressed_b85_hex = ''
     for block in received_blocks:
-        output_file_compressed_b85_hex = output_file_compressed_b85_hex + block
+        print(block)
 
-    #decode from hex
-    output_file_compressed_b85 = bytes.fromhex(output_file_compressed_b85_hex)
 
-    #decode from b85
-    output_file_compressed = b85decode(output_file_compressed_b85)
 
-    #decompress
-    output_file = lzma.decompress(output_file_compressed)
+    #     output_file_compressed_b85_hex = output_file_compressed_b85_hex + block
 
-    #write to disk
-    with open(incoming_file_name, 'wb') as file:
-        file.write(output_file)
+    # #decode from hex
+    # output_file_compressed_b85 = bytes.fromhex(output_file_compressed_b85_hex)
 
-    #obtain secure hash for received file
-    with open(incoming_file_name, 'rb') as file:
-        output_file_secure_hash = blake2b(digest_size=32)
-        output_file_secure_hash.update(file.read())
+    # #decode from b85
+    # output_file_compressed = b85decode(output_file_compressed_b85)
 
-    print(f'Incoming File Secure Hash: {incoming_file_secure_hash.hexdigest()}')
-    print(f'  Output File Secure Hash: {output_file_secure_hash.hexdigest()}')
+    # #decompress
+    # output_file = lzma.decompress(output_file_compressed)
 
-    if incoming_file_secure_hash != output_file_secure_hash.hexdigest():
-        print('[ERROR] Secure has mismatch.  File integrity check failed!')
-        os.remove(incoming_file_name)
-        exit(1)
+    # #write to disk
+    # with open(incoming_file_name, 'wb') as file:
+    #     file.write(output_file)
 
-    print('File integrity check PASSED!  File transfer complete.')
+    # #obtain secure hash for received file
+    # with open(incoming_file_name, 'rb') as file:
+    #     output_file_secure_hash = blake2b(digest_size=32)
+    #     output_file_secure_hash.update(file.read())
 
-    exit(0)
+    # print(f'Incoming File Secure Hash: {incoming_file_secure_hash.hexdigest()}')
+    # print(f'  Output File Secure Hash: {output_file_secure_hash.hexdigest()}')
+
+    # if incoming_file_secure_hash != output_file_secure_hash.hexdigest():
+    #     print('[ERROR] Secure has mismatch.  File integrity check failed!')
+    #     os.remove(incoming_file_name)
+    #     exit(1)
+
+    # print('File integrity check PASSED!  File transfer complete.')
+
+    # exit(0)

@@ -114,7 +114,7 @@ for packet in outgoing_file_packets:
     time_sent, air_time = lostik.tx(packet)
     total_air_time += air_time
     sent_packet_number = outgoing_file_packets.index(packet) + 1
-    print(f'Sent block {str(sent_packet_number).zfill(3)} of {str(len(outgoing_file_packets)).zfill(3)} (air time: {air_time}  total air time: {total_air_time}', end='\r')
+    print(f'Sent block {str(sent_packet_number).zfill(3)} of {str(len(outgoing_file_packets)).zfill(3)} (air time: {air_time}  total air time: {total_air_time})', end='\r')
     sleep(.5)
 print()
 print()
@@ -130,4 +130,7 @@ if reply[:3] == 'ACK':
     exit(0)
 if reply[:3] == 'NAK':
     print('Fail!')
+    exit(1)
+if reply[:3] == 'TOT':
+    print('Time-out!')
     exit(1)
