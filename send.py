@@ -139,6 +139,9 @@ if lostik.rx(decode=True) == 'RTR':
     
 #await ACK or NAK
 reply = lostik.rx(decode=True)
+print(reply)
+
+
 if reply[:3] == 'ACK':
     print('File transfer successful!')
     exit(0)
