@@ -105,15 +105,15 @@ print('File transfer details sent...')
 del packet
 
 #total air time needs to be global so we can calculare resent packets as well
-total_air_time = 0
 
 def send_file():
+    total_air_time = 0
     for packet in outgoing_packets:
         time_sent, air_time = lostik.tx(packet)
         total_air_time += air_time
         sent_packet_number = outgoing_packets.index(packet) + 1
         print(f'Sent block {str(sent_packet_number).zfill(3)} of {str(len(outgoing_packets)).zfill(3)} (air time: {str(air_time).zfill(3)}  total air time: {str(total_air_time).zfill(4)})', end='\r')
-        sleep(.15)
+        # sleep(.15)
     #send end of file message 3x
     for i in range(3):
         lostik.tx('FIN',encode=True)

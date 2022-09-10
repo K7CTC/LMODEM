@@ -54,17 +54,14 @@ lostik.tx('RTR', encode=True)
 #receive incoming file
 while True:
     incoming_packet = lostik.rx()
-    if incoming_packet == '46494E': #FIN
+    if incoming_packet == '454E44' or incoming_packet == 'TOT':
         break
     incoming_block_number_hex = incoming_packet[:6]
-    print(f'Packet Number HEX: {incoming_block_number_hex}')
     incoming_block_number_ascii = bytes.fromhex(incoming_block_number_hex).decode('ASCII')
-    print(f'Packet Number ASCII: {incoming_block_number_ascii}')
     incoming_block_number_int = int(incoming_block_number_ascii)
-    print(f'Packet Number INT: {incoming_block_number_int}')
     incoming_block = incoming_packet[6:]
     received_blocks[incoming_block_number_int] = incoming_block
-    print(f'Received block {str(incoming_block_number_int).zfill(3)} of {str(incoming_file_blocks).zfill(3)}')
+    print(f'Received block {str(incoming_block_number_int).zfill(3)} of {str(incoming_file_blocks).zfill(3)}', end='\r')
 
 # #mess with the data to test resend feature
 # received_blocks[3] = ''
@@ -77,9 +74,6 @@ for block in received_blocks:
     if received_blocks[block] == '':
         missing_blocks = missing_blocks + str(block) + '|'
 
-if len(missing_blocks) != 0:
-    missing_blocks = missing_blocks[:-1]
-    print(f'Missing Blocks: {missing_blocks}')
 
 if len(missing_blocks) == 0:
     # REBUILD FILE ON THE "OTHER END"
@@ -119,3 +113,11 @@ if len(missing_blocks) == 0:
     lostik.tx('ACK', encode=True)
 
     exit(0)
+
+
+
+if len(missing_blocks) != 0:
+    missing_blocks = missing_blocks[:-1]
+    print(f'Missing Blocks: {missing_blocks}')
+    lostik.tx('NAK' + missing_blocks, encode=True)
+
