@@ -118,6 +118,7 @@ if len(missing_blocks) == 0:
 
 if len(missing_blocks) != 0:
     missing_blocks = missing_blocks[:-1]
-    print(f'Missing Blocks: {missing_blocks}')
-    lostik.tx('NAK' + missing_blocks, encode=True)
+    packet = 'NAK' + missing_blocks
+    print(packet)
+    lostik.tx(packet, encode=True)
 

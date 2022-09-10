@@ -116,7 +116,7 @@ def send_file():
         # sleep(.15)
     #send end of file message 3x
     for i in range(3):
-        lostik.tx('FIN',encode=True)
+        lostik.tx('END',encode=True)
         sleep(.15)
 
 def send_missing_packets(missing_packets):
