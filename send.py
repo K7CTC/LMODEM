@@ -136,7 +136,9 @@ if lostik.rx(decode=True) == 'RTR':
     print('Receive station ready.  Sending File...')
     print()
     send_file()
-    
+
+print()
+print('File Sent')
 #await ACK or NAK
 reply = lostik.rx(decode=True)
 print(reply)
