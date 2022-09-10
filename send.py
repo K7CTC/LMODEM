@@ -105,6 +105,7 @@ print('File transfer details sent...')
 del packet
 
 #total air time needs to be global so we can calculare resent packets as well
+total_air_time = 0
 
 def send_file():
     for packet in outgoing_packets:
