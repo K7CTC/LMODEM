@@ -7,13 +7,9 @@
 ########################################################################
 
 #import from project library
-from multiprocessing import current_process
-from re import T
-from struct import pack
-from tkinter import E
 import lostik
-from console import console
 import lostik_settings
+from console import console
 
 #import from standard library
 import textwrap
@@ -95,6 +91,7 @@ while True:
     if lostik.rx(decode=True) == 'DTR':
         break
 print('Connected!   ')
+print()
 lostik.set_wdt(lostik_settings.WDT)
 sleep(.5)
 
@@ -114,9 +111,8 @@ for packet in outgoing_file_packets:
     time_sent, air_time = lostik.tx(packet)
     total_air_time += air_time
     sent_packet_number = outgoing_file_packets.index(packet) + 1
-    print(f'Sent block {str(sent_packet_number).zfill(3)} of {str(len(outgoing_file_packets)).zfill(3)} (air time: {air_time}  total air time: {total_air_time})', end='\r')
-    sleep(.5)
-print()
+    print(f'Sent block {str(sent_packet_number).zfill(3)} of {str(len(outgoing_file_packets)).zfill(3)} (air time: {str(air_time).zfill(3)}  total air time: {str(total_air_time).zfill(4)})', end='\r')
+    # sleep(.15)
 print()
 
 #send end of file message 3x
@@ -134,3 +130,4 @@ if reply[:3] == 'NAK':
 if reply[:3] == 'TOT':
     print('Time-out!')
     exit(1)
+    

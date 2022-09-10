@@ -18,7 +18,6 @@ from hashlib import blake2b
 from base64 import b85decode
 import os
 import lzma
-import base64
 
 #handshake
 print('Connecting...', end='\r')
@@ -65,6 +64,7 @@ while True:
     print(f'Packet Number INT: {incoming_block_number_int}')
     incoming_block = incoming_packet[6:]
     received_blocks[incoming_block_number_int] = incoming_block
+    print(f'Received block {str(incoming_block_number_int).zfill(3)} of {str(incoming_file_blocks).zfill(3)}')
 
 # #mess with the data to test resend feature
 # received_blocks[3] = ''
@@ -79,16 +79,7 @@ for block in received_blocks:
 
 if len(missing_blocks) != 0:
     missing_blocks = missing_blocks[:-1]
-
-print(f'Missing Blocks: {missing_blocks}')
-
-#ask for missing blocks
-#check again, fail if blocks still missing
-
-#if all blocks, send ACK
-
-
-#rebuild file and check integrity
+    print(f'Missing Blocks: {missing_blocks}')
 
 if len(missing_blocks) == 0:
     # REBUILD FILE ON THE "OTHER END"
