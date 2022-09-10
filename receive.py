@@ -122,5 +122,6 @@ if len(missing_blocks) != 0:
     print(packet)
     sleep(.25)
     lostik.tx(packet, encode=True)
+    sleep(.25)
     lostik.tx(packet, encode=True)
 
