@@ -7,19 +7,18 @@
 ########################################################################
 
 #import from project library
-import re
 import lostik
 import lostik_settings
 from console import console
 
 #import from standard library
-import textwrap
 import lzma
+import textwrap
 import argparse
-from base64 import b85encode
-from time import sleep
-from pathlib import Path
 from hashlib import blake2b
+from time import sleep
+from base64 import b85encode
+from pathlib import Path
 
 #establish and parse command line arguments
 parser = argparse.ArgumentParser(description='LMODEM - Send File',
@@ -85,17 +84,19 @@ print(f'Secure Hash: {outgoing_file_secure_hash.hexdigest()}')
 print(f'     Blocks: {len(outgoing_packets)}')
 print()
 
-#handshake
+#set LMODEM mode to 1
+lostik.lmodem_set_mode(1)
+
+#handshake (listen for receive station ready)
 print('Connecting...')
-lostik.set_wdt('2000')
+lostik.set_wdt('2500')
 while True:
-    lostik.tx('DTR', encode=True)
     if lostik.rx(decode=True) == 'DTR':
+        lostik.tx('DTR', encode=True)
         break
 print('Connected!   ')
-print()
 lostik.set_wdt(lostik_settings.WDT)
-sleep(.5)
+sleep(.25)
 
 # provide receiving station with the file transfer details
 # file name | number of blocks to expect | secure hash
@@ -104,13 +105,12 @@ lostik.tx(packet, encode=True)
 print('File transfer details sent...')
 del packet
 
-#total air time needs to be global so we can calculare resent packets as well
+total_air_time = 0
 
 def send_file():
-    total_air_time = 0
     for packet in outgoing_packets:
         time_sent, air_time = lostik.tx(packet)
-        total_air_time += air_time
+        total_air_time = total_air_time + air_time
         sent_packet_number = outgoing_packets.index(packet) + 1
         print(f'Sent block {str(sent_packet_number).zfill(3)} of {str(len(outgoing_packets)).zfill(3)} (air time: {str(air_time).zfill(3)}  total air time: {str(total_air_time).zfill(4)})', end='\r')
         # sleep(.15)
@@ -119,13 +119,17 @@ def send_file():
         lostik.tx('END',encode=True)
         sleep(.15)
 
-def send_missing_packets(missing_packets):
-    for packet in missing_packets:
-        time_sent, air_time = lostik.tx(packet)
-        total_air_time += air_time
-        sent_packet_number = outgoing_packets.index(packet) + 1
-        print(f'Sent block {str(sent_packet_number).zfill(3)} of {str(len(outgoing_packets)).zfill(3)} (air time: {str(air_time).zfill(3)}  total air time: {str(total_air_time).zfill(4)})', end='\r')
-        sleep(.15)
+def send_missing_packets(missing_packet_numbers):
+    lostik.lmodem_set_mode(3)
+    for number in missing_packet_numbers:
+        print(outgoing_packets[number])
+
+
+        # time_sent, air_time = lostik.tx(packet)
+        # total_air_time += air_time
+        # sent_packet_number = outgoing_packets.index(packet) + 1
+        # print(f'Sent block {str(sent_packet_number).zfill(3)} of {str(len(outgoing_packets)).zfill(3)} (air time: {str(air_time).zfill(3)}  total air time: {str(total_air_time).zfill(4)})', end='\r')
+        # sleep(.15)
     #send end of file message 3x
     for i in range(3):
         lostik.tx('FIN',encode=True)
@@ -134,15 +138,11 @@ def send_missing_packets(missing_packets):
 #await ready to receive
 if lostik.rx(decode=True) == 'RTR':
     print('Receive station ready.  Sending File...')
-    print()
     send_file()
+    print('File sent.')
 
-print()
-print('File Sent')
 #await ACK or NAK
 reply = lostik.rx(decode=True)
-print(reply)
-
 
 if reply[:3] == 'ACK':
     print('File transfer successful!')
@@ -151,19 +151,11 @@ if reply[:3] == 'TOT':
     print('Time-out!')
     exit(1)
 if reply[:3] == 'NAK':
-    missing_packets_string = reply[3:]
-    console.print(missing_packets_string)
-    missing_packets_list = missing_packets_string.split('|')
-    console.print(missing_packets_list)
-
-    input('INPUT')
-    for packet in missing_packets_list:
-        print(packet)
-
-    input()
-
-
-    send_missing_packets(missing_packets_list)
+    missing_packet_numbers_string = reply[3:]
+    console.print(f'Missing Packet Numbers: {missing_packet_numbers_string}')
+    missing_packet_numbers_list = missing_packet_numbers_string.split('|')
+    send_missing_packets(missing_packet_numbers_list)
+    print('Missing packets sent.')
 
 #await final ACK or NAK
 reply = lostik.rx(decode=True)

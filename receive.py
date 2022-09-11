@@ -1,30 +1,32 @@
 ########################################################################
 #                                                                      #
-#          NAME:  LMODEM - Receive                                     #
+#          NAME:  LMODEM - Receive File                                #
 #  DEVELOPED BY:  Chris Clement (K7CTC)                                #
 #       VERSION:  v0.2                                                 #
 #                                                                      #
 ########################################################################
 
 #import from project library
-from console import console
 import lostik
 import lostik_settings
+from console import console
 
 #import from standard library
-from sys import exit
-from time import sleep
-from hashlib import blake2b
-from base64 import b85decode
-import os
 import lzma
+import os
+from hashlib import blake2b
+from time import sleep
+from base64 import b85decode
 
-#handshake
+#set LMODEM mode to 1
+lostik.lmodem_set_mode(1)
+
+#handshake (actively beacon to sending station that we are ready)
 print('Connecting...', end='\r')
-lostik.set_wdt('2000')
+lostik.set_wdt('2500')
 while True:
+    lostik.tx('DTR', encode=True)
     if lostik.rx(decode=True) == 'DTR':
-        lostik.tx('DTR', encode=True)
         break
 print('Connected!   ')
 lostik.set_wdt(lostik_settings.WDT)
@@ -119,9 +121,7 @@ if len(missing_blocks) == 0:
 if len(missing_blocks) != 0:
     missing_blocks = missing_blocks[:-1]
     packet = 'NAK' + missing_blocks
-    print(packet)
-    sleep(.25)
     lostik.tx(packet, encode=True)
-    sleep(.25)
-    lostik.tx(packet, encode=True)
+
+#get missing packets
 

@@ -3,7 +3,7 @@ FIRMWARE_VERSION = 'RN2903 1.0.5 Nov 06 2018 10:45:27'
 
 #Transmit Power (hardware default=2)
 #values: 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 20
-PWR = '2'
+PWR = '6'
 
 #LMODEM robustness options
 # if args.power == 'low':

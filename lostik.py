@@ -280,3 +280,46 @@ def rxstop():
         print('[ERROR] Serial interface is busy, unable to communicate with LoStik!')
         print('HELP: Disconnect and reconnect LoStik device, then try again.')
         exit(1)
+
+########################################################################
+# Below are LMODEM specific functions                                  #
+########################################################################
+
+#function: set LMODEM communication mode
+# accepts: mode number (1, 2 or 3)
+def lmodem_set_mode(mode_number):
+    if mode_number > 3 or mode_number < 1:
+        print('[ERROR] Invalid LMODEM mode!')
+        print('HELP: Valid mode numbers are 1, 2, and 3.')
+        exit(1)
+    if mode_number == 1:
+        set_pwr('6')
+        set_bw('500')
+        set_sf('sf8')
+        set_cr('4/6')
+    if mode_number == 2:
+        set_pwr('12')
+        set_bw('250')
+        set_sf('sf10')
+        set_cr('4/7')
+    if mode_number == 3:
+        set_pwr('17')
+        set_bw('125')
+        set_sf('sf12')
+        set_cr('4/8')
+
+def lmodem_get_mode():
+    pwr = get_pwr()
+    bw = get_bw()
+    sf = get_sf()
+    cr = get_cr()
+    if pwr == '6' and bw == '500' and sf == 'sf8' and cr == '4/6':
+        return 1
+    if pwr == '12' and bw == '250' and sf == 'sf10' and cr == '4/7':
+        return 2
+    if pwr == '17' and bw == '125' and sf == 'sf12' and cr == '4/8':
+        return 3
+    print('[ERROR] Invalid LoStik configuration!')
+    print('HELP: LoStik settings do not match any of the LMODEM modes.')
+    exit(1)
+    
