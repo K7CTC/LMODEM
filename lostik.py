@@ -7,11 +7,9 @@
 ########################################################################
 
 #import from required 3rd party libraries
+from concurrent.futures.process import _chain_from_iterable_of_lists
 import serial
 import serial.tools.list_ports
-
-#import from project library
-import lostik_settings
 
 #import from standard library
 from sys import exit
@@ -63,135 +61,22 @@ def write(command):
         command = command.encode('ASCII')
         lostik_port.write(b''.join([command, b'\r\n']))
 
-# function: get firmware version
-#  returns: firmware version
+#function: get firmware version
+# returns: firmware version
 def get_ver():
     write('sys get ver')
     return read()
 
 #confirm expected LoStik firmware version before proceeding
-if get_ver() != lostik_settings.FIRMWARE_VERSION:
+if get_ver() != 'RN2903 1.0.5 Nov 06 2018 10:45:27':
     print('[ERROR] LoStik failed to return expected firmware version!')
     exit(1)
 
-#function: disable LoRaWAN via "mac pause" command
-#    note: terminate on error
-def disable_lorawan():
-    write('mac pause')
-    if read() != '4294967245':
-        print('[ERROR] Failed to disable LoRaWAN!')
-        exit(1)
-
-#disable LoRaWAN before proceeding (required to issue commands directly to the radio)
-disable_lorawan()
-
-#functions: read radio settings from LoStik 
-#  returns: setting value (as string)
-def get_pwr():
-    write('radio get pwr')
+#function: get LoStik EUI-64 (globally unique 64-bit identifier)
+# returns: EUI-64
+def get_hweui():
+    write('sys get hweui')
     return read()
-def get_freq():
-    write('radio get freq')
-    return read()
-def get_sf():
-    write('radio get sf')
-    return read()
-def get_bw():
-    write('radio get bw')
-    return read()
-def get_cr():
-    write('radio get cr')
-    return read()
-def get_wdt():
-    write('radio get wdt')
-    return read()
-def get_mod():
-    write('radio get mod')
-    return read()
-def get_crc():
-    write('radio get crc')
-    return read()
-def get_iqi():
-    write('radio get iqi')
-    return read()
-def get_sync():
-    write('radio get sync')
-    return read()
-
-#functions: write radio settings to LoStik 
-#  accepts: setting value as ASCII string
-#     note: terminate on error
-def set_pwr(pwr):
-    write(f'radio set pwr {pwr}')
-    if read() != 'ok':
-        print('[ERROR] Failed to set LoStik transmit power!')
-        exit(1)
-def set_freq(freq):
-    write(f'radio set freq {freq}')
-    if read() != 'ok':
-        print('[ERROR] Failed to set LoStik frequency!')
-        exit(1)
-def set_sf(sf):
-    write(f'radio set sf {sf}')
-    if read() != 'ok':
-        print('[ERROR] Failed to set LoStik spreading factor!')
-        exit(1)
-def set_bw(bw):
-    write(f'radio set bw {bw}')
-    if read() != 'ok':
-        print('[ERROR] Failed to set LoStik radio bandwidth!')
-        exit(1)
-def set_cr(cr):
-    write(f'radio set cr {cr}')
-    if read() != 'ok':
-        print('[ERROR] Failed to set LoStik coding rate!')
-        exit(1)
-def set_wdt(wdt):
-    write(f'radio set wdt {wdt}')
-    if read() != 'ok':
-        print('[ERROR] Failed to set LoStik watchdog timer time-out!')
-        exit(1)
-def set_mod(mod):
-    write(f'radio set mod {mod}')
-    if read() != 'ok':
-        print('[ERROR] Failed to set LoStik modulation mode!')
-        exit(1)
-def set_crc(crc):
-    write(f'radio set crc {crc}')
-    if read() != 'ok':
-        print('[ERROR] Failed to set LoStik CRC header!')
-        exit(1)
-def set_iqi(iqi):
-    write(f'radio set iqi {iqi}')
-    if read() != 'ok':
-        print('[ERROR] Failed to set LoStik IQ inversion!')
-        exit(1)
-def set_sync(sync):
-    write(f'radio set sync {sync}')
-    if read() != 'ok':
-        print('[ERROR] Failed to set LoStik sync word!')
-        exit(1)
-
-#apply settings from lostik_settings.py
-set_pwr(lostik_settings.PWR)
-set_freq(lostik_settings.FREQ)
-set_sf(lostik_settings.SF)
-set_bw(lostik_settings.BW)
-set_cr(lostik_settings.CR)
-
-#function: obtain received signal strength indicator of last received packet
-# returns: rssi
-def get_rssi():
-    write('radio get rssi')
-    rssi = read()
-    return rssi
-
-#function: obtain signal-to-noise ratio of last received packet
-# returns: snr
-def get_snr():
-    write('radio get snr')
-    snr = read()
-    return snr
 
 #function: control blue led
 # accepts: boolean
@@ -210,6 +95,118 @@ def red_led(state):
     else:
         write('sys set pindig GPIO11 0') #GPIO11 0 = red tx led off
     read()
+
+#function: disable LoRaWAN via "mac pause" command
+#    note: terminate on error
+def disable_lorawan():
+    write('mac pause')
+    if read() != '4294967245':
+        print('[ERROR] Failed to disable LoRaWAN!')
+        exit(1)
+
+#disable LoRaWAN before proceeding (to issue commands directly to the radio)
+disable_lorawan()
+
+#functions: read radio settings from LoStik 
+#  returns: setting value (as string)
+def get_bw():
+    write('radio get bw')
+    return read()
+def get_cr():
+    write('radio get cr')
+    return read()
+def get_crc():
+    write('radio get crc')
+    return read()
+def get_freq():
+    write('radio get freq')
+    return read()
+def get_iqi():
+    write('radio get iqi')
+    return read()
+def get_mod():
+    write('radio get mod')
+    return read()
+def get_pwr():
+    write('radio get pwr')
+    return read()
+def get_sf():
+    write('radio get sf')
+    return read()
+def get_sync():
+    write('radio get sync')
+    return read()
+def get_wdt():
+    write('radio get wdt')
+    return read()
+
+#functions: write radio settings to LoStik 
+#  accepts: setting value as ASCII string
+#     note: terminate on error
+def set_bw(bw):
+    write(f'radio set bw {bw}')
+    if read() != 'ok':
+        print('[ERROR] Failed to set LoStik radio bandwidth!')
+        exit(1)
+def set_cr(cr):
+    write(f'radio set cr {cr}')
+    if read() != 'ok':
+        print('[ERROR] Failed to set LoStik coding rate!')
+        exit(1)
+def set_crc(crc):
+    write(f'radio set crc {crc}')
+    if read() != 'ok':
+        print('[ERROR] Failed to set LoStik CRC header!')
+        exit(1)
+def set_freq(freq):
+    write(f'radio set freq {freq}')
+    if read() != 'ok':
+        print('[ERROR] Failed to set LoStik frequency!')
+        exit(1)
+def set_iqi(iqi):
+    write(f'radio set iqi {iqi}')
+    if read() != 'ok':
+        print('[ERROR] Failed to set LoStik IQ inversion!')
+        exit(1)
+def set_mod(mod):
+    write(f'radio set mod {mod}')
+    if read() != 'ok':
+        print('[ERROR] Failed to set LoStik modulation mode!')
+        exit(1)
+def set_pwr(pwr):
+    write(f'radio set pwr {pwr}')
+    if read() != 'ok':
+        print('[ERROR] Failed to set LoStik transmit power!')
+        exit(1)
+def set_sf(sf):
+    write(f'radio set sf {sf}')
+    if read() != 'ok':
+        print('[ERROR] Failed to set LoStik spreading factor!')
+        exit(1)
+def set_sync(sync):
+    write(f'radio set sync {sync}')
+    if read() != 'ok':
+        print('[ERROR] Failed to set LoStik sync word!')
+        exit(1)
+def set_wdt(wdt):
+    write(f'radio set wdt {wdt}')
+    if read() != 'ok':
+        print('[ERROR] Failed to set LoStik watchdog timer time-out!')
+        exit(1)
+
+#function: obtain received signal strength indicator of last received packet
+# returns: rssi
+def get_rssi():
+    write('radio get rssi')
+    rssi = read()
+    return rssi
+
+#function: obtain signal-to-noise ratio of last received packet
+# returns: snr
+def get_snr():
+    write('radio get snr')
+    snr = read()
+    return snr
 
 #function: attempt to transmit outbound packet
 # accepts: packet as hexadecimal string by default, optionally accepts ASCII string
@@ -322,4 +319,24 @@ def lmodem_get_mode():
     print('[ERROR] Invalid LoStik configuration!')
     print('HELP: LoStik settings do not match any of the LMODEM modes.')
     exit(1)
+    
+def lmodem_set_channel(channel_number):
+    if channel_number >3 or channel_number < 1:
+        print('[ERROR] Invalid channel number!')
+        print('HELP: Valid channel numbes are 1, 2 and 3.')
+    if channel_number == 1:
+        set_freq('914000000')
+    if channel_number == 2:
+        set_freq('915000000')
+    if channel_number == 3:
+        set_freq('916000000')
+
+def lmodem_get_channel():
+    freq = get_freq()
+    if freq == '914000000':
+        return 1
+    if freq == '915000000':
+        return 2
+    if freq == '916000000':
+        return 3
     
