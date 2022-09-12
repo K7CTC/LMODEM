@@ -8,13 +8,13 @@
 
 #import from project library
 import lostik
-import lostik_settings
 from console import console
 
 #import from standard library
 import lzma
 import textwrap
 import argparse
+from sys import exit
 from hashlib import blake2b
 from time import sleep
 from base64 import b85encode
@@ -87,6 +87,9 @@ print()
 #set LMODEM mode to 1
 lostik.lmodem_set_mode(1)
 
+#set LMODEM channel to 2 (915 MHz)
+lostik.lmodem_set_channel(2)
+
 #handshake (listen for receive station ready)
 print('Connecting...')
 lostik.set_wdt('2500')
@@ -95,8 +98,8 @@ while True:
         lostik.tx('DTR', encode=True)
         break
 print('Connected!   ')
-lostik.set_wdt(lostik_settings.WDT)
-sleep(.25)
+lostik.set_wdt('5000')
+sleep(.15)
 
 # provide receiving station with the file transfer details
 # file name | number of blocks to expect | secure hash

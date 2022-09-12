@@ -8,18 +8,21 @@
 
 #import from project library
 import lostik
-import lostik_settings
 from console import console
 
 #import from standard library
 import lzma
 import os
+from sys import exit
 from hashlib import blake2b
 from time import sleep
 from base64 import b85decode
 
 #set LMODEM mode to 1
 lostik.lmodem_set_mode(1)
+
+#set LMODEM channel to 2 (915 MHz)
+lostik.lmodem_set_channel(2)
 
 #handshake (actively beacon to sending station that we are ready)
 print('Connecting...', end='\r')
@@ -29,7 +32,7 @@ while True:
     if lostik.rx(decode=True) == 'DTR':
         break
 print('Connected!   ')
-lostik.set_wdt(lostik_settings.WDT)
+lostik.set_wdt('5000')
 
 #listen for incoming file details
 incoming_file_details = lostik.rx(decode=True)
