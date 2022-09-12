@@ -147,6 +147,7 @@ if lostik.rx(decode=True) == 'RTR':
     print('File sent.')
 
 #await ACK or NAK
+print('Await...')
 reply = lostik.rx(decode=True)
 
 if reply[:3] == 'ACK':
