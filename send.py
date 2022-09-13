@@ -129,7 +129,10 @@ if reply == 'CAN':
     print('Receiving station has cancelled the file transfer.')
     print('DONE!')
     exit(0)
-    
+if reply == 'NAK':
+    print('Receiving station has partial file.  Resuming file transfer...')    
+if reply == 'RTR':
+    print('Receive station is ready, sending file')
 
 
 
