@@ -4,9 +4,13 @@
 * DTR = Data Terminal Ready
 * RTS = Ready to Send
 * RTR = Ready to Receive
-* END = File Transfer Finished
-* NAK = Not Acknowledged
+
 * ACK = Acknowledged
+* NAK = Not Acknowledged
+
+* EOF = End of File Blocks
+* FIN = Fidle Transfer Complete
+* CAN = Cancel file transfer operation 
 * TOT = Time-Out Timer
 
 ## LMODEM LoStik Modes
