@@ -76,13 +76,13 @@ if Path(incoming_file_name).is_file():
     if incoming_file_secure_hash == local_file_secure_hash.hexdigest():
         print('Identical file already exists in current directory.')
         print('DONE!')
-        lostik.tx('FIN')
+        lostik.tx('FIN', encode=True)
         exit(0)
     if incoming_file_secure_hash != local_file_secure_hash.hexdigest():
         print(f'[ERROR] {incoming_file_name} already exists in current directory')
         print('though it failed the integrity check against the incoming file.')
         print('HELP: Please delete or rename the existing file and try again.')
-        lostik.tx('CAN')
+        lostik.tx('CAN', encode=True)
         exit(1)
 
 #check if partial file exits
