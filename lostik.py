@@ -13,7 +13,7 @@ import serial.tools.list_ports
 
 #import from standard library
 from sys import exit
-from time import time
+from time import time, sleep
 
 #terminate if executed directly
 if __name__ == '__main__':
@@ -214,6 +214,7 @@ def get_snr():
 # returns: time_sent and air_time
 #    note: terminate on error
 def tx(packet, encode = False):
+    sleep(.15)
     tx_start_time = 0
     tx_end_time = 0
     time_sent = 0
