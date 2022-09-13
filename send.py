@@ -116,6 +116,44 @@ lostik.tx(packet, encode=True)
 print('File transfer details sent...')
 del packet
 
+
+
+
+
+
+
+total_air_time = 0
+
+def send_file():
+    global total_air_time
+    for packet in outgoing_packets:
+        time_sent, air_time = lostik.tx(packet)
+        total_air_time += air_time
+        sent_packet_number = outgoing_packets.index(packet) + 1
+        print(f'Sent block {str(sent_packet_number).zfill(3)} of {str(len(outgoing_packets)).zfill(3)} (air time: {str(air_time).zfill(3)}  total air time: {str(total_air_time).zfill(4)})', end='\r')
+        # sleep(.15)
+    #send end of file message 3x
+    print()
+    for i in range(3):
+        lostik.tx('END',encode=True)
+        sleep(.15)
+
+def send_missing_packets(missing_packet_numbers):
+    global total_air_time
+    lostik.lmodem_set_mode(3)
+    for number in missing_packet_numbers:
+        time_sent, air_time = lostik.tx(outgoing_packets[int(number)])
+        #print(outgoing_packets[int(number)])
+        total_air_time += air_time
+        print('Sending Missing Block...')
+        # sleep(.15)
+    #send end of file message 3x
+    for i in range(3):
+        lostik.tx('FIN',encode=True)
+        sleep(.15)
+
+
+
 #await further instruction
 reply = lostik.rx(decode=True)
 if reply == 'TOT':
@@ -133,6 +171,7 @@ if reply == 'NAK':
     print('Receiving station has partial file.  Resuming file transfer...')    
 if reply == 'RTR':
     print('Receive station is ready, sending file')
+    send_file()
 
 
 
@@ -148,36 +187,6 @@ if reply == 'RTR':
 
 
 
-
-# total_air_time = 0
-
-# def send_file():
-#     global total_air_time
-#     for packet in outgoing_packets:
-#         time_sent, air_time = lostik.tx(packet)
-#         total_air_time += air_time
-#         sent_packet_number = outgoing_packets.index(packet) + 1
-#         print(f'Sent block {str(sent_packet_number).zfill(3)} of {str(len(outgoing_packets)).zfill(3)} (air time: {str(air_time).zfill(3)}  total air time: {str(total_air_time).zfill(4)})', end='\r')
-#         # sleep(.15)
-#     #send end of file message 3x
-#     print()
-#     for i in range(3):
-#         lostik.tx('END',encode=True)
-#         sleep(.15)
-
-# def send_missing_packets(missing_packet_numbers):
-#     global total_air_time
-#     lostik.lmodem_set_mode(3)
-#     for number in missing_packet_numbers:
-#         time_sent, air_time = lostik.tx(outgoing_packets[int(number)])
-#         #print(outgoing_packets[int(number)])
-#         total_air_time += air_time
-#         print('Sending Missing Block...')
-#         # sleep(.15)
-#     #send end of file message 3x
-#     for i in range(3):
-#         lostik.tx('FIN',encode=True)
-#         sleep(.15)
 
 # #await ready to receive
 # if lostik.rx(decode=True) == 'RTR':
