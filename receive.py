@@ -115,7 +115,7 @@ if Path(partial_file).is_file():
 
 
 #create dictionary to store received blocks
-received_blocks = {block: '' for block in range(int(incoming_file_blocks))}
+received_blocks = {block: '' for block in range(int(incoming_file_block_count))}
 
 #send ready to receive packet
 lostik.tx('RTR', encode=True)
@@ -130,7 +130,7 @@ while True:
     incoming_block_number_int = int(incoming_block_number_ascii)
     incoming_block = incoming_packet[6:]
     received_blocks[incoming_block_number_int] = incoming_block
-    print(f'Received block {str(incoming_block_number_int).zfill(3)} of {str(incoming_file_blocks).zfill(3)}', end='\r')
+    print(f'Received block {str(incoming_block_number_int).zfill(3)} of {str(incoming_file_block_count).zfill(3)}', end='\r')
 
 # #mess with the data to test resend feature
 # received_blocks[3] = ''
