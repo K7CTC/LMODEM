@@ -214,7 +214,6 @@ def get_snr():
 # returns: time_sent and air_time
 #    note: terminate on error
 def tx(packet, encode = False):
-    sleep(.15)
     tx_start_time = 0
     tx_end_time = 0
     time_sent = 0
@@ -229,6 +228,7 @@ def tx(packet, encode = False):
         red_led(True)
     else:
         print('[ERROR] Transmit failure!')
+        print('HELP: Did you set the encode argument correctly?')
         exit(1)
     reply = ''
     while reply == '':

@@ -118,7 +118,18 @@ del packet
 
 #await further instruction
 reply = lostik.rx(decode=True)
-
+if reply == 'TOT':
+    print('Time-Out!')
+    exit(1)
+if reply == 'FIN':
+    print('Identical file already exists at receiving station.')
+    print('DONE!')
+    exit(0)
+if reply == 'CAN':
+    print('Receiving station has cancelled the file transfer.')
+    print('DONE!')
+    exit(0)
+    
 
 
 
