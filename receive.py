@@ -186,7 +186,7 @@ if len(missing_blocks) == 0:
 if len(missing_blocks) != 0:
     received_blocks['secure_hash'] = incoming_file_secure_hash
     with open(partial_file, 'w') as json_file:
-        json.dump(missing_blocks, json_file)
+        json.dump(received_blocks, json_file)
 
 
 # if len(missing_blocks) != 0:
