@@ -50,7 +50,7 @@ while True:
     if lostik.rx(decode=True) == 'DTR':
         break
 print('Connected!   ')
-#lostik.set_wdt('5000')
+lostik.set_wdt('15000')
 
 #listen for incoming file details
 incoming_file_details = lostik.rx(decode=True)
