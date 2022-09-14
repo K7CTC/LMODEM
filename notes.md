@@ -1,6 +1,6 @@
 # LMODEM Notes
 
-## Flow Control Codes
+## Control Codes
 * DTR = Data Terminal Ready
 * TOT = Time-Out Timer
 * DUP = Duplicate File

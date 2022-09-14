@@ -153,6 +153,14 @@ if reply[:3] == 'RTR':
         requested_packet_numbers_list.append(outgoing_packets.index(packet))
     send_requested_packets(requested_packet_numbers_list)
 
+
+
+
+
+
+
+
+
 #await reply after sending requested packets
 reply = lostik.rx(decode=True)
 if reply[:3] == 'TOT':
