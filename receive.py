@@ -119,7 +119,7 @@ if Path(partial_file).is_file():
         packet = 'REQ' + missing_blocks
         lostik.tx(packet, encode=True)
         receive_incoming_blocks()
-    if incoming_file_secure_hash != received_blocks['secure_hash']:
+    else:
         print('[ERROR] Partial file secure has does not match incoming file!')
         print('HELP: Please try again.')
         os.remove(partial_file)
