@@ -90,11 +90,9 @@ def send_requested_packets(packet_number_list):
     for number in packet_number_list:
         print(f'Sending Block: {str(number).zfill(3)}')
         time_sent, air_time = lostik.tx(packets[int(number)])
+        print(f'Air Time: {air_time}')
         total_air_time += air_time
-        # sleep(.15)
-    #send end of file message 3x
-    for i in range(3):
-        lostik.tx('SNT',encode=True)
+    lostik.tx('SNT',encode=True)
 
 #get size (on disk) of outgoing file
 outgoing_file_size = Path(args.outgoing_file).stat().st_size
