@@ -153,8 +153,8 @@ if reply[:3] == 'RTR':
     print('Receive station is ready, sending file...')
     requested_packet_numbers_list = []
     for packet in outgoing_packets:
-        requested_packet_numbers_list.append(outgoing_blocks.index())
-    console.print(requested_packet_numbers_list)
+        requested_packet_numbers_list.append(outgoing_packets.index(packet))
+    send_requested_packets(requested_packet_numbers_list)
 
 
 

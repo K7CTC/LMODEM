@@ -59,6 +59,22 @@ incoming_file_block_count = incoming_file_details_list[1]
 incoming_file_secure_hash = incoming_file_details_list[2]
 del incoming_file_details, incoming_file_details_list
 
+#create dictionary to store incoming blocks
+received_blocks = {block: '' for block in range(int(incoming_file_block_count))}
+
+#function to place received blocks into dictionary
+def receive_incoming_blocks():
+    while True:           
+        incoming_packet = lostik.rx()
+        if incoming_packet == '524253' or incoming_packet == 'TOT':
+            break
+        incoming_block_number_hex = incoming_packet[:6]
+        incoming_block_number_ascii = bytes.fromhex(incoming_block_number_hex).decode('ASCII')
+        incoming_block_number_int = int(incoming_block_number_ascii)
+        incoming_block = incoming_packet[6:]
+        received_blocks[incoming_block_number_int] = incoming_block
+        print(f'Received Block: {str(incoming_block_number_int).zfill(3)}')
+
 #show file transfer details
 console.clear()
 print('File Transfer Details - Incoming File')
@@ -77,7 +93,7 @@ if Path(incoming_file_name).is_file():
     if incoming_file_secure_hash == local_file_secure_hash.hexdigest():
         print('Identical file already exists in current directory.')
         print('DONE!')
-        lostik.tx('FIN', encode=True)
+        lostik.tx('DUP', encode=True)
         exit(0)
     if incoming_file_secure_hash != local_file_secure_hash.hexdigest():
         print(f'[ERROR] {incoming_file_name} already exists in current directory')
@@ -91,47 +107,21 @@ partial_file = incoming_file_name + '.json'
 if Path(partial_file).is_file():
     with open(partial_file) as json_file:
         received_blocks = json.load(json_file)
-    
-    print(received_blocks['secure_hash'])
-
     if incoming_file_secure_hash == received_blocks['secure_hash']:
-        print('MATCH!')
-    exit(1)
-
-
-
-
-
-
-
-
-
-
-
-
-
-#create dictionary to store received blocks
-received_blocks = {block: '' for block in range(int(incoming_file_block_count))}
-
-#send ready to receive packet
-lostik.tx('RTR', encode=True)
-
-#receive incoming file
-while True:
-    incoming_packet = lostik.rx()
-    if incoming_packet == '454E44' or incoming_packet == 'TOT':
-        break
-    incoming_block_number_hex = incoming_packet[:6]
-    incoming_block_number_ascii = bytes.fromhex(incoming_block_number_hex).decode('ASCII')
-    incoming_block_number_int = int(incoming_block_number_ascii)
-    incoming_block = incoming_packet[6:]
-    received_blocks[incoming_block_number_int] = incoming_block
-    print(f'Received block {str(incoming_block_number_int).zfill(3)} of {str(incoming_file_block_count).zfill(3)}', end='\r')
-
-# #mess with the data to test resend feature
-# received_blocks[3] = ''
-# received_blocks[6] = ''
-# received_blocks[9] = ''
+        print('Partial file found.  Requesting missing blocks.')
+        received_blocks.pop('secure_hash')
+        missing_blocks = ''
+        for block in received_blocks:
+            if received_blocks[block] == '':
+                missing_blocks = missing_blocks + str(block) + '|'
+        missing_blocks = missing_blocks[:-1]
+        packet = 'NAK' + missing_blocks
+        lostik.tx(packet, encode=True)
+        receive_incoming_blocks()
+else:
+    #send ready to receive packet
+    lostik.tx('RTR', encode=True)
+    receive_incoming_blocks()
 
 #check for missing blocks
 missing_blocks = ''
@@ -173,9 +163,9 @@ if len(missing_blocks) == 0:
         exit(1)
 
     print('File integrity check PASSED!  File transfer complete.')
-    lostik.tx('ACK', encode=True)
-    lostik.tx('ACK', encode=True)
-    lostik.tx('ACK', encode=True)
+    lostik.tx('FIN', encode=True)
+    lostik.tx('FIN', encode=True)
+    lostik.tx('FIN', encode=True)
 
     exit(0)
 
