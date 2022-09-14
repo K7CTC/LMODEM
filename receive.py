@@ -98,6 +98,7 @@ def receive_requested_blocks():
         incoming_block = incoming_packet[6:]
         received_blocks.update({incoming_block_number: incoming_block})
         print(f'Received Block: {incoming_block_number}')
+    sleep(.5)  #for testing only
 
 #resume partial transfer or begin new transfer
 partial_file = incoming_file_name + '.json'
