@@ -123,6 +123,11 @@ else:
     lostik.tx('RTR', encode=True)
     receive_incoming_blocks()
 
+
+print(received_blocks)
+input()
+
+
 #check for missing blocks
 missing_blocks = ''
 for block in received_blocks:

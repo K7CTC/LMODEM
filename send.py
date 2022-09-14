@@ -61,19 +61,15 @@ with open(args.outgoing_file, 'rb') as file:
 #compress outgoing file (in memory)
 with open(args.outgoing_file, 'rb') as file:
     outgoing_file_compressed = lzma.compress(file.read())
-
 #base85 encode compressed outgoing file
 outgoing_file_compressed_b85 = b85encode(outgoing_file_compressed)
-
 #LMODEM maximum OTA file size will henceforth be limited to 32kb
 if len(outgoing_file_compressed_b85) > 32768:
     print('[ERROR] Compressed file exceeds maximum size of 32,768 bytes!')
     print('HELP: Come on, this is LoRa we are working with here.')
     exit(1)
-
 #hex encode base85 encoded compressed outgoing file
 outgoing_file_compressed_b85_hex = outgoing_file_compressed_b85.hex()
-
 #split hex encoded base85 encoded compressed outgoing file into 128 byte blocks
 outgoing_blocks = textwrap.wrap(outgoing_file_compressed_b85_hex, 256)
 
