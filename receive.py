@@ -43,17 +43,28 @@ lostik.lmodem_set_mode(args.mode)
 lostik.lmodem_set_channel(args.channel)
 
 #basic handshake (tell sending station we are ready)
-print('Connecting...', end='\r')
-lostik.set_wdt('3000')
+print('Connecting...')
 while True:
     lostik.tx('DTR', encode=True)
     if lostik.rx(decode=True) == 'DTR':
         break
-print('Connected!   ')
-lostik.set_wdt('15000')
+print('Connected!')
+
+
+
+
+
+
+
+
+
+
+
 
 #listen for incoming file details
 incoming_file_details = lostik.rx(decode=True)
+if incoming_file_details[:3] == 'TOT':
+
 incoming_file_details_list = incoming_file_details.split('|')
 incoming_file_name = incoming_file_details_list[0]
 incoming_file_block_count = incoming_file_details_list[1]
@@ -68,6 +79,15 @@ print(f'       Name: {incoming_file_name}')
 print(f'Secure Hash: {incoming_file_secure_hash}')
 print(f'     Blocks: {incoming_file_block_count}')
 print()
+
+print(f'Selected communication mode: {lostik.lmodem_get_mode()}')
+print(f'Selected communication channel: {lostik.lmodem_get_channel()}')
+print()
+
+
+
+
+
 
 #check if incoming file already exists
 if Path(incoming_file_name).is_file():

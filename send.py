@@ -107,15 +107,29 @@ print(f'Secure Hash: {outgoing_file_secure_hash.hexdigest()}')
 print(f'     Blocks: {len(blocks)}')
 print()
 
+print(f'Selected communication mode: {lostik.lmodem_get_mode()}')
+print(f'Selected communication channel: {lostik.lmodem_get_channel()}')
+print()
+
 #basic handshake (listen for receive station ready)
 print('Connecting...')
-#lostik.set_wdt('2500')
 while True:
     if lostik.rx(decode=True) == 'DTR':
         lostik.tx('DTR', encode=True)
         break
-print('Connected!   ')
-#lostik.set_wdt('5000')
+print('Connected!')
+
+
+
+
+
+
+
+
+
+
+
+
 
 #provide receiving station with the file transfer details
 #file name | number of blocks to expect | secure hash
