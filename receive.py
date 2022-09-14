@@ -188,6 +188,6 @@ if len(missing_blocks) != 0:
     print('File transfer incomplete.  Writing partial file to disk.')
     received_blocks['secure_hash'] = incoming_file_secure_hash
     with open(partial_file, 'w') as json_file:
-        json.dump(received_blocks, json_file)
+        json.dump(received_blocks, json_file, indent=4)
     lostik.tx('CAN', encode=True)
     exit(1)
