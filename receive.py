@@ -107,6 +107,8 @@ if Path(partial_file).is_file():
     with open(partial_file) as json_file:
         received_blocks = json.load(json_file)
     os.remove(partial_file)
+    print(missing_blocks)
+    input()
     if incoming_file_secure_hash == received_blocks['secure_hash']:
         received_blocks.pop('secure_hash')
         print('Partial file found.  Resuming file transfer...')
@@ -124,8 +126,8 @@ else:
     receive_incoming_blocks()
 
 
-print(received_blocks)
-input()
+# print(received_blocks)
+# input()
 
 
 #check for missing blocks
