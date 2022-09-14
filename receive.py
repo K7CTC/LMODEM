@@ -44,13 +44,13 @@ lostik.lmodem_set_channel(args.channel)
 
 #basic handshake (tell sending station we are ready)
 print('Connecting...', end='\r')
-lostik.set_wdt('2500')
+lostik.set_wdt('3000')
 while True:
     lostik.tx('DTR', encode=True)
     if lostik.rx(decode=True) == 'DTR':
         break
 print('Connected!   ')
-lostik.set_wdt('5000')
+#lostik.set_wdt('5000')
 
 #listen for incoming file details
 incoming_file_details = lostik.rx(decode=True)

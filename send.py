@@ -109,13 +109,13 @@ print()
 
 #basic handshake (listen for receive station ready)
 print('Connecting...')
-lostik.set_wdt('2500')
+#lostik.set_wdt('2500')
 while True:
     if lostik.rx(decode=True) == 'DTR':
         lostik.tx('DTR', encode=True)
         break
 print('Connected!   ')
-lostik.set_wdt('5000')
+#lostik.set_wdt('5000')
 
 #provide receiving station with the file transfer details
 #file name | number of blocks to expect | secure hash
