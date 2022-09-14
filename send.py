@@ -96,7 +96,7 @@ def send_requested_packets(packet_number_list):
         # sleep(.15)
     #send end of file message 3x
     for i in range(3):
-        lostik.tx('RBS',encode=True)
+        lostik.tx('SNT',encode=True)
 
 #get size (on disk) of outgoing file
 outgoing_file_size = Path(args.outgoing_file).stat().st_size
@@ -128,7 +128,7 @@ lostik.tx(packet, encode=True)
 print('File transfer details sent...')
 del packet
 
-#await further instruction
+#await initial reply
 reply = lostik.rx(decode=True)
 if reply[:3] == 'TOT':
     print('[ERROR] LoStik watchdog timer time-out!')
@@ -141,14 +141,11 @@ if reply[:3] == 'CAN':
     print('Receiving station has cancelled the file transfer.')
     print('DONE!')
     exit(0)
-if reply[:3] == 'NAK':
+if reply[:3] == 'REQ':
     print('Receiving station has partial file.  Resuming file transfer...')
     requested_packet_numbers_string = reply[3:]
     requested_packet_numbers_list = requested_packet_numbers_string.split('|')
     send_requested_packets(requested_packet_numbers_list)
-
-
-
 if reply[:3] == 'RTR':
     print('Receive station is ready, sending file...')
     requested_packet_numbers_list = []
@@ -156,6 +153,27 @@ if reply[:3] == 'RTR':
         requested_packet_numbers_list.append(outgoing_packets.index(packet))
     send_requested_packets(requested_packet_numbers_list)
 
+#await reply after sending requested packets
+reply = lostik.rx(decode=True)
+if reply[:3] == 'TOT':
+    print('[ERROR] LoStik watchdog timer time-out!')
+    exit(1)
+if reply[:3] == 'CAN':
+    print('Receiving station has cancelled the file transfer.')
+    print('DONE!')
+    exit(0)
+if reply[:3] == 'FIN':
+    print('Receive station reports file transfer successful.')
+    print('DONE!')
+    exit(0)
+
+    
+
+# if reply[:3] == 'NAK':
+#     print('Receiving station has partial file.  Resuming file transfer...')
+#     requested_packet_numbers_string = reply[3:]
+#     requested_packet_numbers_list = requested_packet_numbers_string.split('|')
+#     send_requested_packets(requested_packet_numbers_list)
 
 
 

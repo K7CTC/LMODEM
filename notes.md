@@ -2,18 +2,13 @@
 
 ## Flow Control Codes
 * DTR = Data Terminal Ready
-* RTS = Ready to Send
-* RTR = Ready to Receive
-
 * TOT = Time-Out Timer
 * DUP = Duplicate File
-* CAN = Cancel file transfer operation 
-* NAK = Not Acknowledged
-
-* RBS = Requested Blocks Sent
-
-* FIN = File Transfer Complete
-* ACK = Acknowledged
+* CAN = Cancel File Transfer 
+* RTR = Ready to Receive
+* REQ = Request Blocks (list)
+* SNT = Requested Blocks Sent
+* FIN = File Transfer Finished
 
 ## LMODEM LoStik Modes
 
