@@ -87,19 +87,33 @@ if Path(incoming_file_name).is_file():
         lostik.tx('CAN', encode=True)
         exit(1)
 
+
+# #function to place received blocks into dictionary
+# def receive_requested_blocks():
+#     while True:           
+#         incoming_packet = lostik.rx()
+#         if incoming_packet == '534E54' or incoming_packet == 'TOT':
+#             break
+#         incoming_block_number_hex = incoming_packet[:6]
+#         incoming_block_number_ascii = bytes.fromhex(incoming_block_number_hex).decode('ASCII')
+#         incoming_block_number_int = int(incoming_block_number_ascii)
+#         incoming_block_number = str(incoming_block_number_int)
+#         incoming_block = incoming_packet[6:]
+#         received_blocks.update({incoming_block_number: incoming_block})
+#         print(f'Received Block: {str(incoming_block_number_int).zfill(3)}')
+
 #function to place received blocks into dictionary
-def receive_incoming_blocks():
+def receive_requested_blocks():
     while True:           
         incoming_packet = lostik.rx()
         if incoming_packet == '534E54' or incoming_packet == 'TOT':
             break
         incoming_block_number_hex = incoming_packet[:6]
-        incoming_block_number_ascii = bytes.fromhex(incoming_block_number_hex).decode('ASCII')
-        incoming_block_number_int = int(incoming_block_number_ascii)
+        incoming_block_number = bytes.fromhex(incoming_block_number_hex).decode('ASCII')
         incoming_block = incoming_packet[6:]
-        #received_blocks[incoming_block_number_int] = incoming_block
-        received_blocks.update({incoming_block_number_int: incoming_block})
-        print(f'Received Block: {str(incoming_block_number_int).zfill(3)}')
+        received_blocks.update({incoming_block_number: incoming_block})
+        print(f'Received Block: {incoming_block_number}')
+
 
 #resume partial transfer or begin new transfer
 partial_file = incoming_file_name + '.json'
@@ -119,11 +133,14 @@ if Path(partial_file).is_file():
         missing_blocks = missing_blocks[:-1]
         packet = 'REQ' + missing_blocks
         lostik.tx(packet, encode=True)
-        receive_incoming_blocks()
+        receive_requested_blocks()
 else:
-    received_blocks = {block: '' for block in range(int(incoming_file_block_count))}
+    keys = []
+    for i in range(int(incoming_file_block_count)):
+        keys.append(str(i).zfill(3))
+    received_blocks = dict.fromkeys(keys, '')
     lostik.tx('RTR', encode=True)
-    receive_incoming_blocks()
+    receive_requested_blocks()
 
 
 # print(received_blocks)

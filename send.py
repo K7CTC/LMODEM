@@ -61,33 +61,35 @@ with open(args.outgoing_file, 'rb') as file:
 #compress outgoing file (in memory)
 with open(args.outgoing_file, 'rb') as file:
     outgoing_file_compressed = lzma.compress(file.read())
+
 #base85 encode compressed outgoing file
 outgoing_file_compressed_b85 = b85encode(outgoing_file_compressed)
+
 #LMODEM maximum OTA file size will henceforth be limited to 32kb
 if len(outgoing_file_compressed_b85) > 32768:
     print('[ERROR] Compressed file exceeds maximum size of 32,768 bytes!')
     print('HELP: Come on, this is LoRa we are working with here.')
     exit(1)
+
 #hex encode base85 encoded compressed outgoing file
 outgoing_file_compressed_b85_hex = outgoing_file_compressed_b85.hex()
-#split hex encoded base85 encoded compressed outgoing file into 128 byte blocks
-outgoing_blocks = textwrap.wrap(outgoing_file_compressed_b85_hex, 256)
 
-#concatenate zero filled block number and block contents to create numbered packets
-outgoing_packets = []
-for block in outgoing_blocks:
-    block_index_zfill = str(outgoing_blocks.index(block)).zfill(3)
+#split hex encoded base85 encoded compressed outgoing file into 128 byte blocks
+blocks = textwrap.wrap(outgoing_file_compressed_b85_hex, 256)
+#concatenate zero filled block index and block contents to create numbered packets
+packets = []
+for block in blocks:
+    block_index_zfill = str(blocks.index(block)).zfill(3)
     block_index_zfill_hex = block_index_zfill.encode('ASCII').hex()
     packet = block_index_zfill_hex + block
-    outgoing_packets.append(packet)
-del outgoing_blocks
+    packets.append(packet)
 
 total_air_time = 0
 def send_requested_packets(packet_number_list):
     global total_air_time
     for number in packet_number_list:
         print(f'Sending Block: {str(number).zfill(3)}')
-        time_sent, air_time = lostik.tx(outgoing_packets[int(number)])
+        time_sent, air_time = lostik.tx(packets[int(number)])
         total_air_time += air_time
         # sleep(.15)
     #send end of file message 3x
@@ -104,7 +106,7 @@ print('-------------------------------------')
 print(f'       Name: {args.outgoing_file}')
 print(f'       Size: {outgoing_file_size} bytes (on disk) / {len(outgoing_file_compressed_b85)} bytes (over-the-air)')
 print(f'Secure Hash: {outgoing_file_secure_hash.hexdigest()}')
-print(f'     Blocks: {len(outgoing_packets)}')
+print(f'     Blocks: {len(blocks)}')
 print()
 
 #basic handshake (listen for receive station ready)
@@ -119,7 +121,7 @@ lostik.set_wdt('5000')
 
 #provide receiving station with the file transfer details
 #file name | number of blocks to expect | secure hash
-packet = args.outgoing_file + '|' + str(len(outgoing_packets)) + '|' + outgoing_file_secure_hash.hexdigest()
+packet = args.outgoing_file + '|' + str(len(blocks)) + '|' + outgoing_file_secure_hash.hexdigest()
 lostik.tx(packet, encode=True)
 print('File transfer details sent...')
 del packet
@@ -145,8 +147,8 @@ if reply[:3] == 'REQ':
 if reply[:3] == 'RTR':
     print('Receive station is ready, sending file...')
     requested_packet_numbers_list = []
-    for packet in outgoing_packets:
-        requested_packet_numbers_list.append(outgoing_packets.index(packet))
+    for packet in packets:
+        requested_packet_numbers_list.append(packets.index(packet))
     send_requested_packets(requested_packet_numbers_list)
 
 
