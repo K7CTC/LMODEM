@@ -97,7 +97,8 @@ def receive_incoming_blocks():
         incoming_block_number_ascii = bytes.fromhex(incoming_block_number_hex).decode('ASCII')
         incoming_block_number_int = int(incoming_block_number_ascii)
         incoming_block = incoming_packet[6:]
-        received_blocks[incoming_block_number_int] = incoming_block
+        #received_blocks[incoming_block_number_int] = incoming_block
+        received_blocks.update({incoming_block_number_int: incoming_block})
         print(f'Received Block: {str(incoming_block_number_int).zfill(3)}')
 
 #resume partial transfer or begin new transfer
