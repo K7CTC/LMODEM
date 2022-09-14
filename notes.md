@@ -8,7 +8,7 @@
 * ACK = Acknowledged
 * NAK = Not Acknowledged
 
-* EOF = End of File Blocks
+* NMB = No More Blocks
 * FIN = Fidle Transfer Complete
 * CAN = Cancel file transfer operation 
 * TOT = Time-Out Timer

@@ -37,7 +37,7 @@ parser.add_argument('-c', '--channel',
 args = parser.parse_args()
 del parser
 
-#set initial LoStik operating parameters
+#set initial LoStik communication parameters
 lostik.lmodem_set_mode(args.mode)
 lostik.lmodem_set_channel(args.channel)
 
@@ -86,20 +86,16 @@ if Path(incoming_file_name).is_file():
         lostik.tx('CAN', encode=True)
         exit(1)
 
-
-
-
-
-
-
-
-
-#check if partial file exits
+#check if partial file exits for incoming file
 partial_file = incoming_file_name + '.json'
 if Path(partial_file).is_file():
     with open(partial_file) as json_file:
         received_blocks = json.load(json_file)
-    console.print(received_blocks)
+    
+    print(received_blocks['secure_hash'])
+
+    if incoming_file_secure_hash == received_blocks['secure_hash']:
+        print('MATCH!')
     exit(1)
 
 
