@@ -5,13 +5,15 @@
 * RTS = Ready to Send
 * RTR = Ready to Receive
 
-* ACK = Acknowledged
+* TOT = Time-Out Timer
+* DUP = Duplicate File
+* CAN = Cancel file transfer operation 
 * NAK = Not Acknowledged
 
-* NMB = No More Blocks
-* FIN = Fidle Transfer Complete
-* CAN = Cancel file transfer operation 
-* TOT = Time-Out Timer
+* RBS = Requested Blocks Sent
+
+* FIN = File Transfer Complete
+* ACK = Acknowledged
 
 ## LMODEM LoStik Modes
 

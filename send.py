@@ -86,9 +86,21 @@ for block in outgoing_blocks:
     outgoing_packets.append(packet)
 del outgoing_blocks
 
+total_air_time = 0
+def send_requested_packets(packet_number_list):
+    global total_air_time
+    for number in packet_number_list:
+        print(f'Sending Block: {str(number).zfill(3)}')
+        time_sent, air_time = lostik.tx(outgoing_packets[int(number)])
+        total_air_time += air_time
+        # sleep(.15)
+    #send end of file message 3x
+    for i in range(3):
+        lostik.tx('RBS',encode=True)
+
 #get size (on disk) of outgoing file
 outgoing_file_size = Path(args.outgoing_file).stat().st_size
-
+    
 #show file transfer details
 console.clear()
 print('File Transfer Details - Outgoing File')
@@ -116,62 +128,34 @@ lostik.tx(packet, encode=True)
 print('File transfer details sent...')
 del packet
 
-
-
-
-
-
-
-total_air_time = 0
-
-def send_file():
-    global total_air_time
-    for packet in outgoing_packets:
-        time_sent, air_time = lostik.tx(packet)
-        total_air_time += air_time
-        sent_packet_number = outgoing_packets.index(packet) + 1
-        print(f'Sent block {str(sent_packet_number).zfill(3)} of {str(len(outgoing_packets)).zfill(3)} (air time: {str(air_time).zfill(3)}  total air time: {str(total_air_time).zfill(4)})', end='\r')
-        # sleep(.15)
-    #send end of file message 3x
-    print()
-    for i in range(3):
-        lostik.tx('END',encode=True)
-        sleep(.15)
-
-def send_missing_packets(missing_packet_numbers):
-    global total_air_time
-    lostik.lmodem_set_mode(3)
-    for number in missing_packet_numbers:
-        time_sent, air_time = lostik.tx(outgoing_packets[int(number)])
-        #print(outgoing_packets[int(number)])
-        total_air_time += air_time
-        print('Sending Missing Block...')
-        # sleep(.15)
-    #send end of file message 3x
-    for i in range(3):
-        lostik.tx('FIN',encode=True)
-        sleep(.15)
-
-
-
 #await further instruction
 reply = lostik.rx(decode=True)
-if reply == 'TOT':
-    print('Time-Out!')
+if reply[:3] == 'TOT':
+    print('[ERROR] LoStik watchdog timer time-out!')
     exit(1)
-if reply == 'FIN':
-    print('Identical file already exists at receiving station.')
+if reply[:3] == 'DUP':
+    print('File already exists at receiving station.')
     print('DONE!')
     exit(0)
-if reply == 'CAN':
+if reply[:3] == 'CAN':
     print('Receiving station has cancelled the file transfer.')
     print('DONE!')
     exit(0)
-if reply == 'NAK':
-    print('Receiving station has partial file.  Resuming file transfer...')    
-if reply == 'RTR':
-    print('Receive station is ready, sending file')
-    send_file()
+if reply[:3] == 'NAK':
+    print('Receiving station has partial file.  Resuming file transfer...')
+    requested_packet_numbers_string = reply[3:]
+    requested_packet_numbers_list = requested_packet_numbers_string.split('|')
+    send_requested_packets(requested_packet_numbers_list)
+
+
+
+if reply[:3] == 'RTR':
+    print('Receive station is ready, sending file...')
+    requested_packet_numbers_list = []
+    for packet in outgoing_packets:
+        requested_packet_numbers_list.append(outgoing_blocks.index())
+    console.print(requested_packet_numbers_list)
+
 
 
 
@@ -222,3 +206,55 @@ if reply == 'RTR':
 # if reply[:3] == 'NAK':
 #     print('File transfer failed!  Please try again.')
 #     exit(1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# total_air_time = 0
+
+# def send_file():
+#     global total_air_time
+#     for packet in outgoing_packets:
+#         time_sent, air_time = lostik.tx(packet)
+#         total_air_time += air_time
+#         sent_packet_number = outgoing_packets.index(packet) + 1
+#         print(f'Sent block {str(sent_packet_number).zfill(3)} of {str(len(outgoing_packets)).zfill(3)} (air time: {str(air_time).zfill(3)}  total air time: {str(total_air_time).zfill(4)})', end='\r')
+#         # sleep(.15)
+#     #send end of file message 3x
+#     print()
+#     for i in range(3):
+#         lostik.tx('END',encode=True)
+#         sleep(.15)
+
+# def send_missing_packets(missing_packet_numbers):
+#     global total_air_time
+#     lostik.lmodem_set_mode(3)
+#     for number in missing_packet_numbers:
+#         time_sent, air_time = lostik.tx(outgoing_packets[int(number)])
+#         #print(outgoing_packets[int(number)])
+#         total_air_time += air_time
+#         print('Sending Missing Block...')
+#         # sleep(.15)
+#     #send end of file message 3x
+#     for i in range(3):
+#         lostik.tx('FIN',encode=True)
+#         sleep(.15)
