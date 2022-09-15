@@ -2,7 +2,7 @@
 #                                                                      #
 #          NAME:  LMODEM - Send File                                   #
 #  DEVELOPED BY:  Chris Clement (K7CTC)                                #
-#       VERSION:  v0.2                                                 #
+#       VERSION:  v0.3                                                 #
 #                                                                      #
 ########################################################################
 
@@ -99,6 +99,8 @@ outgoing_file_size = Path(args.outgoing_file).stat().st_size
     
 #show file transfer details
 console.clear()
+print('LMODEM v0.3 by Chris Clement (K7CTC)')
+print()
 print('File Transfer Details - Outgoing File')
 print('-------------------------------------')
 print(f'       Name: {args.outgoing_file}')
@@ -107,8 +109,8 @@ print(f'Secure Hash: {outgoing_file_secure_hash.hexdigest()}')
 print(f'     Blocks: {len(blocks)}')
 print()
 
-print(f'Selected communication mode: {lostik.lmodem_get_mode()}')
-print(f'Selected communication channel: {lostik.lmodem_get_channel()}')
+print(f'Communication mode: {lostik.lmodem_get_mode()}')
+print(f'Communication channel: {lostik.lmodem_get_channel()}')
 print()
 
 #basic handshake (listen for receive station ready)
@@ -118,25 +120,18 @@ while True:
         lostik.tx('DTR', encode=True)
         break
 print('Connected!')
-
-
-
-
-
-
-
-
-
-
-
-
+print()
 
 #provide receiving station with the file transfer details
-#file name | number of blocks to expect | secure hash
-packet = args.outgoing_file + '|' + str(len(blocks)) + '|' + outgoing_file_secure_hash.hexdigest()
-lostik.tx(packet, encode=True)
-print('File transfer details sent...')
-del packet
+#file name | size on disk | size over the air | number of blocks to expect | secure hash
+file_transfer_details = (args.outgoing_file + '|' +
+                        str(outgoing_file_size) + '|' +
+                        str(len(outgoing_file_compressed_b85_hex)) + '|' +
+                        str(len(blocks)) + '|' + 
+                        outgoing_file_secure_hash.hexdigest())
+print('TX: File transfer details...')
+print()
+lostik.tx(file_transfer_details, encode=True)
 
 #await initial reply
 reply = lostik.rx(decode=True)
@@ -144,20 +139,20 @@ if reply[:3] == 'TOT':
     print('[ERROR] LoStik watchdog timer time-out!')
     exit(1)
 if reply[:3] == 'DUP':
-    print('File already exists at receiving station.')
+    print('RX: File already exists at receiving station.')
     print('DONE!')
     exit(0)
 if reply[:3] == 'CAN':
-    print('Receiving station has cancelled the file transfer.')
+    print('RX: Receiving station has cancelled the file transfer.')
     print('DONE!')
     exit(0)
 if reply[:3] == 'REQ':
-    print('Receiving station has partial file.  Resuming file transfer...')
+    print('RX: Receiving station has partial file.  Resuming file transfer...')
     requested_packet_numbers_string = reply[3:]
     requested_packet_numbers_list = requested_packet_numbers_string.split('|')
     send_requested_packets(requested_packet_numbers_list)
 if reply[:3] == 'RTR':
-    print('Receive station is ready, sending file...')
+    print('RX: Receive station is ready, sending file...')
     requested_packet_numbers_list = []
     for packet in packets:
         requested_packet_numbers_list.append(packets.index(packet))
@@ -177,13 +172,20 @@ if reply[:3] == 'TOT':
     print('[ERROR] LoStik watchdog timer time-out!')
     exit(1)
 if reply[:3] == 'CAN':
-    print('Receiving station has cancelled the file transfer.')
+    print('RX: Receiving station has cancelled the file transfer.')
     print('DONE!')
     exit(0)
 if reply[:3] == 'FIN':
-    print('Receive station reports file transfer successful.')
+    print('RX: Receive station reports file transfer successful.')
     print('DONE!')
     exit(0)
+if reply[:3] == 'REQ':
+    print('RX: Receiving station has partial file.  Resuming file transfer...')
+    requested_packet_numbers_string = reply[3:]
+    requested_packet_numbers_list = requested_packet_numbers_string.split('|')
+    send_requested_packets(requested_packet_numbers_list)
+
+
 
     
 

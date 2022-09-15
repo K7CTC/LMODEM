@@ -2,7 +2,7 @@
 #                                                                      #
 #          NAME:  LMODEM - Receive File                                #
 #  DEVELOPED BY:  Chris Clement (K7CTC)                                #
-#       VERSION:  v0.2                                                 #
+#       VERSION:  v0.3                                                 #
 #                                                                      #
 ########################################################################
 
@@ -43,51 +43,45 @@ lostik.lmodem_set_mode(args.mode)
 lostik.lmodem_set_channel(args.channel)
 
 #basic handshake (tell sending station we are ready)
+console.clear()
 print('Connecting...')
 while True:
     lostik.tx('DTR', encode=True)
     if lostik.rx(decode=True) == 'DTR':
         break
 print('Connected!')
-
-
-
-
-
-
-
-
-
-
-
+print()
 
 #listen for incoming file details
-incoming_file_details = lostik.rx(decode=True)
-if incoming_file_details[:3] == 'TOT':
-
-incoming_file_details_list = incoming_file_details.split('|')
-incoming_file_name = incoming_file_details_list[0]
-incoming_file_block_count = incoming_file_details_list[1]
-incoming_file_secure_hash = incoming_file_details_list[2]
-del incoming_file_details, incoming_file_details_list
+print('RX: File transfer details...')
+print()
+file_transfer_details = lostik.rx(decode=True)
+if file_transfer_details[:3] == 'TOT':
+    print('[ERROR] LoStik watchdog timer time-out!')
+    exit(1)
+else:    
+    file_transfer_details_list = file_transfer_details.split('|')
+    incoming_file_name = file_transfer_details_list[0]
+    incoming_file_size = file_transfer_details_list[1]
+    incoming_file_size_ota = file_transfer_details_list[2]
+    incoming_file_block_count = file_transfer_details_list[3]
+    incoming_file_secure_hash = file_transfer_details_list[4]
+    del file_transfer_details, file_transfer_details_list
 
 #show file transfer details
-console.clear()
+print('LMODEM v0.3 by Chris Clement (K7CTC)')
+print()
 print('File Transfer Details - Incoming File')
 print('-------------------------------------')
 print(f'       Name: {incoming_file_name}')
+print(f'       Size: {incoming_file_size} bytes (on disk) / {incoming_file_size_ota} bytes (over-the-air')
 print(f'Secure Hash: {incoming_file_secure_hash}')
 print(f'     Blocks: {incoming_file_block_count}')
 print()
 
-print(f'Selected communication mode: {lostik.lmodem_get_mode()}')
-print(f'Selected communication channel: {lostik.lmodem_get_channel()}')
+print(f'Communication mode: {lostik.lmodem_get_mode()}')
+print(f'Communication channel: {lostik.lmodem_get_channel()}')
 print()
-
-
-
-
-
 
 #check if incoming file already exists
 if Path(incoming_file_name).is_file():
@@ -96,7 +90,7 @@ if Path(incoming_file_name).is_file():
         local_file_secure_hash = blake2b(digest_size=32)
         local_file_secure_hash.update(file.read())
     if incoming_file_secure_hash == local_file_secure_hash.hexdigest():
-        print('Identical file already exists in current directory.')
+        print('TX: Identical file already exists in current directory.')
         print('DONE!')
         lostik.tx('DUP', encode=True)
         exit(0)
@@ -119,6 +113,14 @@ def receive_requested_blocks():
         received_blocks.update({incoming_block_number: incoming_block})
         print(f'Received Block: {incoming_block_number}')
     sleep(.5)  #for testing only
+
+#function to list of missing blocks, if any
+def missing_blocks(received_blocks):
+    missing_blocks = ''
+    for block in received_blocks:
+        if received_blocks[block] == '':
+            missing_blocks = missing_blocks + str(block) + '|'
+
 
 #resume partial transfer or begin new transfer
 partial_file = incoming_file_name + '.json'
@@ -146,11 +148,30 @@ else:
     lostik.tx('RTR', encode=True)
     receive_requested_blocks()
 
+
+
+
+
+
+
+
+
+
 #check for missing blocks
 missing_blocks = ''
-for block in received_blocks:
-    if received_blocks[block] == '':
-        missing_blocks = missing_blocks + str(block) + '|'
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #if all blocks received, process file
 if len(missing_blocks) == 0:

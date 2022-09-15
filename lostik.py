@@ -261,7 +261,7 @@ def rx(decode = False):
     if reply == 'busy':
         print('[ERROR] LoStik busy!')
         exit(1)
-    if reply == 'radio_err': #time-out
+    if reply == 'radio_err': #wdt time-out
         return 'TOT'
     reply = reply[10:] #remove 'radio_rx  ' from beginning of string
     if decode == False:
