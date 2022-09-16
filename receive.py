@@ -91,10 +91,9 @@ if Path(incoming_file_name).is_file():
     if incoming_file_secure_hash == local_file_secure_hash.hexdigest():
         print('TX: Duplicate file found and passed integrity check.')
         print('ABORT!')
-        
-        sleep(1)  #testing
-        
-        lostik.tx('DUP', encode=True)
+       
+        lostik.tx('DUPLICATE', encode=True)
+
         exit(0)
     if incoming_file_secure_hash != local_file_secure_hash.hexdigest():
         print(f'[ERROR] {incoming_file_name} already exists in current directory')
