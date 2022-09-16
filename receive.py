@@ -73,7 +73,7 @@ print()
 print('File Transfer Details - Incoming File')
 print('-------------------------------------')
 print(f'       Name: {incoming_file_name}')
-print(f'       Size: {incoming_file_size} bytes (on disk) / {incoming_file_size_ota} bytes (over-the-air')
+print(f'       Size: {incoming_file_size} bytes (on disk) / {incoming_file_size_ota} bytes (over-the-air)')
 print(f'Secure Hash: {incoming_file_secure_hash}')
 print(f'     Blocks: {incoming_file_block_count}')
 print()
@@ -114,6 +114,7 @@ def receive_requested_blocks():
         incoming_block = incoming_packet[6:]
         received_blocks.update({incoming_block_number: incoming_block})
         print(f'RX: Block {incoming_block_number}')
+    print()
 
 #function to list of missing blocks, if any
 # returns string of missing blocks or none
@@ -143,7 +144,8 @@ if Path(partial_file).is_file():
         lostik.tx(requested_block_numbers, encode=True)
         receive_requested_blocks()
 else:
-    print('Starting file transfer...')
+    print('TX: Request file transfer...')
+    print()
     keys = []
     for i in range(int(incoming_file_block_count)):
         keys.append(str(i).zfill(3))
@@ -179,7 +181,7 @@ if missing_blocks(received_blocks) == None:
         lostik.tx('CAN', encode=True)
         exit(1)
     if incoming_file_secure_hash == output_file_secure_hash.hexdigest():
-        print('File integrity check PASSED!  File transfer complete.')
+        print('TX: File integrity check PASSED!  File transfer complete.')
         lostik.tx('FIN', encode=True)
         exit(0)
 #if some blocks missing, write partial file and exit
