@@ -85,12 +85,11 @@ for block in blocks:
     packets.append(packet)
 
 total_air_time = 0
-def send_requested_packets(packet_number_list):
+def send_requested_blocks(requested_block_number_list):
     global total_air_time
-    for number in packet_number_list:
-        print(f'Sending Block: {str(number).zfill(3)}')
+    for number in requested_block_number_list:
+        print(f'TX: Block {str(number).zfill(3)}')
         time_sent, air_time = lostik.tx(packets[int(number)])
-        print(f'Air Time: {air_time}')
         total_air_time += air_time
     lostik.tx('SNT',encode=True)
 
@@ -148,15 +147,23 @@ if reply[:3] == 'CAN':
     exit(0)
 if reply[:3] == 'REQ':
     print('RX: Receiving station has partial file.  Resuming file transfer...')
-    requested_packet_numbers_string = reply[3:]
-    requested_packet_numbers_list = requested_packet_numbers_string.split('|')
-    send_requested_packets(requested_packet_numbers_list)
+    requested_block_numbers_string = reply[3:]
+    requested_block_numbers_list = requested_block_numbers_string.split('|')
+    send_requested_blocks(requested_block_numbers_list)
 if reply[:3] == 'RTR':
     print('RX: Receive station is ready, sending file...')
-    requested_packet_numbers_list = []
+    requested_block_numbers_list = []
     for packet in packets:
-        requested_packet_numbers_list.append(packets.index(packet))
-    send_requested_packets(requested_packet_numbers_list)
+        requested_block_numbers_list.append(packets.index(packet))
+    send_requested_blocks(requested_block_numbers_list)
+
+
+
+
+
+
+
+#TEST TO HERE
 
 
 

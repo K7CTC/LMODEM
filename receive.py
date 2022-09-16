@@ -7,7 +7,6 @@
 ########################################################################
 
 #import from project library
-from re import T
 import lostik
 from console import console
 
@@ -97,9 +96,12 @@ if Path(incoming_file_name).is_file():
     if incoming_file_secure_hash != local_file_secure_hash.hexdigest():
         print(f'[ERROR] {incoming_file_name} already exists in current directory')
         print('though it failed the integrity check against the incoming file.')
+        print('TX: Cancel file transfer.')
         print('HELP: Please delete or rename the existing file and try again.')
         lostik.tx('CAN', encode=True)
         exit(1)
+
+received_blocks = {}
 
 #function to place received blocks into dictionary
 def receive_requested_blocks():
@@ -111,33 +113,34 @@ def receive_requested_blocks():
         incoming_block_number = bytes.fromhex(incoming_block_number_hex).decode('ASCII')
         incoming_block = incoming_packet[6:]
         received_blocks.update({incoming_block_number: incoming_block})
-        print(f'Received Block: {incoming_block_number}')
-    sleep(.5)  #for testing only
+        print(f'RX: Block {incoming_block_number}')
 
 #function to list of missing blocks, if any
+# returns string of missing blocks or none
 def missing_blocks(received_blocks):
     missing_blocks = ''
     for block in received_blocks:
         if received_blocks[block] == '':
             missing_blocks = missing_blocks + str(block) + '|'
-
+    if missing_blocks == '':
+        return None
+    else:
+        missing_blocks = missing_blocks[:-1]
+        return missing_blocks
 
 #resume partial transfer or begin new transfer
 partial_file = incoming_file_name + '.json'
 if Path(partial_file).is_file():
     with open(partial_file) as json_file:
         received_blocks = json.load(json_file)
+    console.print(received_blocks) #for testing
     os.remove(partial_file)
     if incoming_file_secure_hash == received_blocks['secure_hash']:
         received_blocks.pop('secure_hash')
         print('Partial file found.  Resuming file transfer...')
-        missing_blocks = ''
-        for block in received_blocks:
-            if received_blocks[block] == '':
-                missing_blocks = missing_blocks + str(block) + '|'
-        missing_blocks = missing_blocks[:-1]
-        packet = 'REQ' + missing_blocks
-        lostik.tx(packet, encode=True)
+        missing_blocks = missing_blocks(received_blocks)
+        requested_block_numbers = 'REQ' + missing_blocks
+        lostik.tx(requested_block_numbers, encode=True)
         receive_requested_blocks()
 else:
     print('Starting file transfer...')
@@ -150,31 +153,8 @@ else:
 
 
 
-
-
-
-
-
-
-
-#check for missing blocks
-missing_blocks = ''
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #if all blocks received, process file
-if len(missing_blocks) == 0:
+if missing_blocks(received_blocks) == None:
     print('All file blocks received.  Processing file...')
     #write completed file to disk and check integrity
     output_file_compressed_b85_hex = ''
@@ -202,9 +182,8 @@ if len(missing_blocks) == 0:
         print('File integrity check PASSED!  File transfer complete.')
         lostik.tx('FIN', encode=True)
         exit(0)
-
 #if some blocks missing, write partial file and exit
-if len(missing_blocks) != 0:
+else:
     print('File transfer incomplete.  Writing partial file to disk.')
     received_blocks['secure_hash'] = incoming_file_secure_hash
     with open(partial_file, 'w') as json_file:
