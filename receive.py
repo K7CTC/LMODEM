@@ -45,8 +45,8 @@ lostik.lmodem_set_channel(args.channel)
 console.clear()
 print('Connecting...')
 while True:
-    lostik.tx('DTR', encode=True)
-    if lostik.rx(decode=True) == 'DTR':
+    lostik.tx('HANDSHAKE', encode=True)
+    if lostik.rx(decode=True) == 'HANDSHAKE':
         break
 print('Connected!')
 print()
@@ -55,7 +55,7 @@ print()
 print('RX: File transfer details.')
 print()
 file_transfer_details = lostik.rx(decode=True)
-if file_transfer_details[:3] == 'TOT':
+if file_transfer_details == 'TIME-OUT':
     print('[ERROR] LoStik watchdog timer time-out!')
     exit(1)
 else:    
@@ -91,9 +91,7 @@ if Path(incoming_file_name).is_file():
     if incoming_file_secure_hash == local_file_secure_hash.hexdigest():
         print('TX: Duplicate file found and passed integrity check.')
         print('ABORT!')
-       
         lostik.tx('DUPLICATE', encode=True)
-
         exit(0)
     if incoming_file_secure_hash != local_file_secure_hash.hexdigest():
         print(f'[ERROR] {incoming_file_name} already exists in current directory')
@@ -101,7 +99,7 @@ if Path(incoming_file_name).is_file():
         print('HELP: Please delete or rename the existing file and try again.')
         print('TX: Duplicate filename found.')
         print('ABORT!')
-        lostik.tx('ERR', encode=True)
+        lostik.tx('ERROR', encode=True)
         exit(1)
 
 received_blocks = {}
@@ -110,7 +108,7 @@ received_blocks = {}
 def receive_requested_blocks():
     while True:           
         incoming_packet = lostik.rx()
-        if incoming_packet == '534E54' or incoming_packet == 'TOT':
+        if incoming_packet == '414C4C53454E54' or incoming_packet == 'TIME-OUT':
             break
         incoming_block_number_hex = incoming_packet[:6]
         incoming_block_number = bytes.fromhex(incoming_block_number_hex).decode('ASCII')
@@ -153,7 +151,7 @@ else:
     for i in range(int(incoming_file_block_count)):
         keys.append(str(i).zfill(3))
     received_blocks = dict.fromkeys(keys, '')
-    lostik.tx('RTR', encode=True)
+    lostik.tx('READY', encode=True)
     receive_requested_blocks()
 
 missing_blocks = create_missing_blocks_string(received_blocks)
@@ -183,12 +181,12 @@ if missing_blocks == '':
         print('HELP: Please try again.')
         print('TX: File integrity check failed!')        
         os.remove(incoming_file_name)
-        lostik.tx('ERR', encode=True)
+        lostik.tx('ERROR', encode=True)
         exit(1)
     if incoming_file_secure_hash == output_file_secure_hash.hexdigest():
         print('TX: File received and passed integrity check.')
         print('DONE!')
-        lostik.tx('FIN', encode=True)
+        lostik.tx('COMPLETE', encode=True)
         exit(0)
 #if some blocks missing, write partial file to disk
 else:
@@ -198,5 +196,5 @@ else:
         json.dump(received_blocks, json_file, indent=4)
     print('TX: Partial file received.  Please try again.')
     print('HELP: Try selecting a mode robust LMODEM mode.')
-    lostik.tx('PAR', encode=True)
+    lostik.tx('INCOMPLETE', encode=True)
     exit(1)

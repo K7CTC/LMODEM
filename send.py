@@ -93,7 +93,7 @@ def send_requested_blocks(requested_block_number_list):
         total_air_time += air_time
     print()
     print('TX: All requested blocks sent.')
-    lostik.tx('SNT',encode=True)
+    lostik.tx('ALLSENT',encode=True)
 
 #get size (on disk) of outgoing file
 outgoing_file_size = Path(args.outgoing_file).stat().st_size
@@ -117,8 +117,8 @@ print()
 #basic handshake (listen for receive station ready)
 print('Connecting...')
 while True:
-    if lostik.rx(decode=True) == 'DTR':
-        lostik.tx('DTR', encode=True)
+    if lostik.rx(decode=True) == 'HANDSHAKE':
+        lostik.tx('HANDSHAKE', encode=True)
         break
 print('Connected!')
 print()
@@ -135,14 +135,14 @@ lostik.tx(file_transfer_details, encode=True)
 
 #await initial reply
 reply = lostik.rx(decode=True)
-if reply[:3] == 'TOT':
+if reply == 'TIME-OUT':
     print('[ERROR] LoStik watchdog timer time-out!')
     exit(1)
-if reply[:3] == 'DUP':
+if reply == 'DUPLICATE':
     print('RX: Duplicate file found and passed integrity check.')
     print('ABORT!')
     exit(0)
-if reply[:3] == 'ERR':
+if reply == 'ERROR':
     print('RX: Duplicate filename found.')
     print('ABORT!')
     exit(1)
@@ -152,7 +152,7 @@ if reply[:3] == 'REQ':
     requested_block_numbers_string = reply[3:]
     requested_block_numbers_list = requested_block_numbers_string.split('|')
     send_requested_blocks(requested_block_numbers_list)
-if reply[:3] == 'RTR':
+if reply == 'READY':
     print('RX: Ready to receive file.')
     print()
     requested_block_numbers_list = []
@@ -162,19 +162,19 @@ if reply[:3] == 'RTR':
 
 #await reply after sending requested packets
 reply = lostik.rx(decode=True)
-if reply[:3] == 'TOT':
+if reply == 'TIME-OUT':
     print('[ERROR] LoStik watchdog timer time-out!')
     exit(1)
-if reply[:3] == 'FIN':
+if reply == 'COMPLETE':
     print('RX: Receive station reports file transfer successful.')
     print('DONE!')
     exit(0)
-if reply[:3] == 'ERR':
+if reply == 'ERROR':
     print('RX: File integrity check failed!')
     print('[ERROR] Secure hash mismatch.  File integrity check failed!')
     print('HELP: Please try again.')
     exit(1)
-if reply[:3] == 'PAR':
+if reply == 'INCOMPLETE':
     print('RX: Partial file received.  Please try again.')
     print('HELP: Try selecting a more robust LMODEM mode.')
     exit(1)
