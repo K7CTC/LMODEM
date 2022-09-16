@@ -214,7 +214,14 @@ def get_snr():
 # returns: time_sent and air_time
 #    note: terminate on error
 def tx(packet, encode = False):
-    # sleep(.25) #to avoid packet loss
+    wdt = get_wdt()
+    #sleep to prevent packet loss
+    if wdt == '500':
+        sleep(.1)
+    if wdt == '1000':
+        sleep(.1)
+    if wdt == '8000':
+        sleep(.1)
     tx_start_time = 0
     tx_end_time = 0
     time_sent = 0
@@ -296,19 +303,19 @@ def lmodem_set_mode(mode_number):
         set_bw('500')
         set_sf('sf8')
         set_cr('4/6')
-        set_wdt('750')
+        set_wdt('500')
     if mode_number == 2:
         set_pwr('12')
         set_bw('250')
         set_sf('sf10')
         set_cr('4/7')
-        set_wdt('1200')
+        set_wdt('1000')
     if mode_number == 3:
         set_pwr('17')
         set_bw('125')
         set_sf('sf12')
         set_cr('4/8')
-        set_wdt('8500')
+        set_wdt('8000')
 
 def lmodem_get_mode():
     pwr = get_pwr()
@@ -316,11 +323,11 @@ def lmodem_get_mode():
     sf = get_sf()
     cr = get_cr()
     wdt = get_wdt()
-    if pwr == '6' and bw == '500' and sf == 'sf8' and cr == '4/6' and wdt == '750':
+    if pwr == '6' and bw == '500' and sf == 'sf8' and cr == '4/6' and wdt == '500':
         return 1
-    if pwr == '12' and bw == '250' and sf == 'sf10' and cr == '4/7' and wdt == '1200':
+    if pwr == '12' and bw == '250' and sf == 'sf10' and cr == '4/7' and wdt == '1000':
         return 2
-    if pwr == '17' and bw == '125' and sf == 'sf12' and cr == '4/8' and wdt == '8500':
+    if pwr == '17' and bw == '125' and sf == 'sf12' and cr == '4/8' and wdt == '8000':
         return 3
     print('[ERROR] Invalid LoStik configuration!')
     print('HELP: LoStik settings do not match any of the LMODEM modes.')
