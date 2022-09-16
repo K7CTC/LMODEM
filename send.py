@@ -76,6 +76,7 @@ outgoing_file_compressed_b85_hex = outgoing_file_compressed_b85.hex()
 
 #split hex encoded base85 encoded compressed outgoing file into 128 byte blocks
 blocks = textwrap.wrap(outgoing_file_compressed_b85_hex, 256)
+
 #concatenate zero filled block index and block contents to create numbered packets
 packets = []
 for block in blocks:
@@ -92,7 +93,7 @@ def send_requested_blocks(requested_block_number_list):
         time_sent, air_time = lostik.tx(packets[int(number)])
         total_air_time += air_time
     print()
-    print('TX: Sent requested blocks.')
+    print('TX: All requested blocks sent.')
     lostik.tx('SNT',encode=True)
 
 #get size (on disk) of outgoing file
@@ -130,7 +131,7 @@ file_transfer_details = (args.outgoing_file + '|' +
                         str(len(outgoing_file_compressed_b85_hex)) + '|' +
                         str(len(blocks)) + '|' + 
                         outgoing_file_secure_hash.hexdigest())
-print('TX: File transfer details...')
+print('TX: File transfer details.')
 lostik.tx(file_transfer_details, encode=True)
 
 #await initial reply
@@ -139,170 +140,42 @@ if reply[:3] == 'TOT':
     print('[ERROR] LoStik watchdog timer time-out!')
     exit(1)
 if reply[:3] == 'DUP':
-    print('RX: File already exists at receiving station.')
-    print('DONE!')
+    print('RX: Duplicate file found and passed integrity check.')
+    print('ABORT!')
     exit(0)
-if reply[:3] == 'CAN':
-    print('RX: Receiving station has cancelled the file transfer.')
-    print('DONE!')
-    exit(0)
+if reply[:3] == 'ERR':
+    print('RX: Duplicate filename found.')
+    print('ABORT!')
+    exit(1)
 if reply[:3] == 'REQ':
-    print('RX: Receiving station has partial file.  Resuming file transfer...')
+    print('RX: Ready to receive requested blocks.')
     print()
     requested_block_numbers_string = reply[3:]
     requested_block_numbers_list = requested_block_numbers_string.split('|')
     send_requested_blocks(requested_block_numbers_list)
 if reply[:3] == 'RTR':
-    print('RX: Receive station is ready, sending file...')
+    print('RX: Ready to receive file.')
     print()
     requested_block_numbers_list = []
     for packet in packets:
         requested_block_numbers_list.append(packets.index(packet))
     send_requested_blocks(requested_block_numbers_list)
 
-
-
-
-
-
-
-#TEST TO HERE
-
-
-
-
-
-
-
-
-
 #await reply after sending requested packets
 reply = lostik.rx(decode=True)
 if reply[:3] == 'TOT':
     print('[ERROR] LoStik watchdog timer time-out!')
     exit(1)
-if reply[:3] == 'CAN':
-    print('RX: Receiving station has cancelled the file transfer.')
-    print('DONE!')
-    exit(0)
 if reply[:3] == 'FIN':
     print('RX: Receive station reports file transfer successful.')
     print('DONE!')
     exit(0)
-if reply[:3] == 'REQ':
-    print('RX: Receiving station has partial file.  Resuming file transfer...')
-    requested_packet_numbers_string = reply[3:]
-    requested_packet_numbers_list = requested_packet_numbers_string.split('|')
-    send_requested_packets(requested_packet_numbers_list)
-
-
-
-    
-
-# if reply[:3] == 'NAK':
-#     print('Receiving station has partial file.  Resuming file transfer...')
-#     requested_packet_numbers_string = reply[3:]
-#     requested_packet_numbers_list = requested_packet_numbers_string.split('|')
-#     send_requested_packets(requested_packet_numbers_list)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# #await ready to receive
-# if lostik.rx(decode=True) == 'RTR':
-#     print('Receive station ready.  Sending File...')
-#     send_file()
-#     print('File sent.')
-
-# #await ACK or NAK
-# print('Await...')
-# reply = lostik.rx(decode=True)
-
-# if reply[:3] == 'ACK':
-#     print('File transfer successful!')
-#     exit(0)
-# if reply[:3] == 'TOT':
-#     print('Time-out!')
-#     exit(1)
-# if reply[:3] == 'NAK':
-#     missing_packet_numbers_string = reply[3:]
-#     console.print(f'Missing Packet Numbers: {missing_packet_numbers_string}')
-#     missing_packet_numbers_list = missing_packet_numbers_string.split('|')
-#     send_missing_packets(missing_packet_numbers_list)
-#     print('Missing packets sent.')
-
-# #await final ACK or NAK
-# reply = lostik.rx(decode=True)
-# if reply[:3] == 'ACK':
-#     print('File transfer successful!')
-#     exit(0)
-# if reply[:3] == 'TOT':
-#     print('Time-out!')
-#     exit(1)
-# if reply[:3] == 'NAK':
-#     print('File transfer failed!  Please try again.')
-#     exit(1)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# total_air_time = 0
-
-# def send_file():
-#     global total_air_time
-#     for packet in outgoing_packets:
-#         time_sent, air_time = lostik.tx(packet)
-#         total_air_time += air_time
-#         sent_packet_number = outgoing_packets.index(packet) + 1
-#         print(f'Sent block {str(sent_packet_number).zfill(3)} of {str(len(outgoing_packets)).zfill(3)} (air time: {str(air_time).zfill(3)}  total air time: {str(total_air_time).zfill(4)})', end='\r')
-#         # sleep(.15)
-#     #send end of file message 3x
-#     print()
-#     for i in range(3):
-#         lostik.tx('END',encode=True)
-#         sleep(.15)
-
-# def send_missing_packets(missing_packet_numbers):
-#     global total_air_time
-#     lostik.lmodem_set_mode(3)
-#     for number in missing_packet_numbers:
-#         time_sent, air_time = lostik.tx(outgoing_packets[int(number)])
-#         #print(outgoing_packets[int(number)])
-#         total_air_time += air_time
-#         print('Sending Missing Block...')
-#         # sleep(.15)
-#     #send end of file message 3x
-#     for i in range(3):
-#         lostik.tx('FIN',encode=True)
-#         sleep(.15)
+if reply[:3] == 'ERR':
+    print('RX: File integrity check failed!')
+    print('[ERROR] Secure hash mismatch.  File integrity check failed!')
+    print('HELP: Please try again.')
+    exit(1)
+if reply[:3] == 'PAR':
+    print('RX: Partial file received.  Please try again.')
+    print('HELP: Try selecting a more robust LMODEM mode.')
+    exit(1)

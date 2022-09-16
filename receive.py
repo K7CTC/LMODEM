@@ -52,7 +52,7 @@ print('Connected!')
 print()
 
 #listen for incoming file details
-print('RX: File transfer details...')
+print('RX: File transfer details.')
 print()
 file_transfer_details = lostik.rx(decode=True)
 if file_transfer_details[:3] == 'TOT':
@@ -89,16 +89,17 @@ if Path(incoming_file_name).is_file():
         local_file_secure_hash = blake2b(digest_size=32)
         local_file_secure_hash.update(file.read())
     if incoming_file_secure_hash == local_file_secure_hash.hexdigest():
-        print('TX: Identical file already exists in current directory.')
-        print('DONE!')
+        print('TX: Duplicate file found and passed integrity check.')
+        print('ABORT!')
         lostik.tx('DUP', encode=True)
         exit(0)
     if incoming_file_secure_hash != local_file_secure_hash.hexdigest():
         print(f'[ERROR] {incoming_file_name} already exists in current directory')
         print('though it failed the integrity check against the incoming file.')
-        print('TX: Cancel file transfer.')
         print('HELP: Please delete or rename the existing file and try again.')
-        lostik.tx('CAN', encode=True)
+        print('TX: Duplicate filename found.')
+        print('ABORT!')
+        lostik.tx('ERR', encode=True)
         exit(1)
 
 received_blocks = {}
@@ -116,16 +117,15 @@ def receive_requested_blocks():
         print(f'RX: Block {incoming_block_number}')
     print()
 
-#function to list of missing blocks, if any
-# returns string of missing blocks or none
-def get_missing_blocks_string(received_blocks):
-    missing_blocks = ''
+#function to return a string of pipe delimited missing block numbers, if any
+def create_missing_blocks_string(received_blocks):
+    missing_blocks_string = ''
     for block in received_blocks:
         if received_blocks[block] == '':
-            missing_blocks = missing_blocks + str(block) + '|'
-    if len(missing_blocks) != 0:
-        missing_blocks = missing_blocks[:-1]
-    return missing_blocks
+            missing_blocks_string = missing_blocks_string + str(block) + '|'
+    if len(missing_blocks_string) != 0:
+        missing_blocks_string = missing_blocks_string[:-1]
+    return missing_blocks_string
 
 #resume partial transfer or begin new transfer
 partial_file = incoming_file_name + '.json'
@@ -136,12 +136,16 @@ if Path(partial_file).is_file():
     if incoming_file_secure_hash == received_blocks['secure_hash']:
         received_blocks.pop('secure_hash')
         print('Partial file found.  Resuming file transfer...')
-        missing_blocks = get_missing_blocks_string(received_blocks)
+        missing_blocks = create_missing_blocks_string(received_blocks)
+        if len(missing_blocks) > 123: #to ensure our outgoing packet does not exceed 128 bytes
+            missing_blocks = missing_blocks[:123]
         requested_block_numbers = 'REQ' + missing_blocks
+        print('TX: Ready to receive requested blocks.')
+        print()
         lostik.tx(requested_block_numbers, encode=True)
         receive_requested_blocks()
 else:
-    print('TX: Request file transfer...')
+    print('TX: Ready to receive file.')
     print()
     keys = []
     for i in range(int(incoming_file_block_count)):
@@ -150,8 +154,7 @@ else:
     lostik.tx('RTR', encode=True)
     receive_requested_blocks()
 
-
-missing_blocks = get_missing_blocks_string(received_blocks)
+missing_blocks = create_missing_blocks_string(received_blocks)
 
 #if all blocks received, process file
 if missing_blocks == '':
@@ -174,19 +177,33 @@ if missing_blocks == '':
         output_file_secure_hash = blake2b(digest_size=32)
         output_file_secure_hash.update(file.read())
     if incoming_file_secure_hash != output_file_secure_hash.hexdigest():
-        print('[ERROR] Secure has mismatch.  File integrity check failed!')
+        print('[ERROR] Secure hash mismatch.  File integrity check failed!')
+        print('HELP: Please try again.')
+        print('TX: File integrity check failed!')        
         os.remove(incoming_file_name)
-        lostik.tx('CAN', encode=True)
+        
+        sleep(.25) #testing
+        
+        lostik.tx('ERR', encode=True)
         exit(1)
     if incoming_file_secure_hash == output_file_secure_hash.hexdigest():
-        print('TX: File integrity check PASSED!  File transfer complete.')
+        print('TX: File received and passed integrity check.')
+        print('DONE!')
+
+        sleep(.25) #testing
+
         lostik.tx('FIN', encode=True)
         exit(0)
-#if some blocks missing, write partial file and exit
+#if some blocks missing, write partial file to disk
 else:
     print('File transfer incomplete.  Writing partial file to disk.')
     received_blocks['secure_hash'] = incoming_file_secure_hash
     with open(partial_file, 'w') as json_file:
         json.dump(received_blocks, json_file, indent=4)
-    lostik.tx('CAN', encode=True)
+    print('TX: Partial file received.  Please try again.')
+    print('HELP: Try selecting a mode robust LMODEM mode.')
+    
+    sleep(.25) #testing
+    
+    lostik.tx('PAR', encode=True)
     exit(1)
