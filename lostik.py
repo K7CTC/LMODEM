@@ -219,9 +219,9 @@ def tx(packet, encode = False):
     if wdt == '750':
         sleep(.1)
     if wdt == '1500':
-        sleep(.2)
+        sleep(.15)
     if wdt == '8500':
-        sleep(.3)
+        sleep(.2)
     tx_start_time = 0
     tx_end_time = 0
     time_sent = 0
