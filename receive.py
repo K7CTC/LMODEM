@@ -118,28 +118,25 @@ def receive_requested_blocks():
 
 #function to list of missing blocks, if any
 # returns string of missing blocks or none
-def missing_blocks(received_blocks):
+def get_missing_blocks_string(received_blocks):
     missing_blocks = ''
     for block in received_blocks:
         if received_blocks[block] == '':
             missing_blocks = missing_blocks + str(block) + '|'
-    if missing_blocks == '':
-        return None
-    else:
+    if len(missing_blocks) != 0:
         missing_blocks = missing_blocks[:-1]
-        return missing_blocks
+    return missing_blocks
 
 #resume partial transfer or begin new transfer
 partial_file = incoming_file_name + '.json'
 if Path(partial_file).is_file():
     with open(partial_file) as json_file:
         received_blocks = json.load(json_file)
-    console.print(received_blocks) #for testing
     os.remove(partial_file)
     if incoming_file_secure_hash == received_blocks['secure_hash']:
         received_blocks.pop('secure_hash')
         print('Partial file found.  Resuming file transfer...')
-        missing_blocks = missing_blocks(received_blocks)
+        missing_blocks = get_missing_blocks_string(received_blocks)
         requested_block_numbers = 'REQ' + missing_blocks
         lostik.tx(requested_block_numbers, encode=True)
         receive_requested_blocks()
@@ -154,9 +151,10 @@ else:
     receive_requested_blocks()
 
 
+missing_blocks = get_missing_blocks_string(received_blocks)
 
 #if all blocks received, process file
-if missing_blocks(received_blocks) == None:
+if missing_blocks == '':
     print('All file blocks received.  Processing file...')
     #write completed file to disk and check integrity
     output_file_compressed_b85_hex = ''
