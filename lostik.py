@@ -296,19 +296,19 @@ def lmodem_set_mode(mode_number):
         set_bw('500')
         set_sf('sf8')
         set_cr('4/6')
-        set_wdt('750')
+        set_wdt('1000')
     if mode_number == 2:
         set_pwr('12')
         set_bw('250')
         set_sf('sf10')
         set_cr('4/7')
-        set_wdt('1500')
+        set_wdt('2000')
     if mode_number == 3:
         set_pwr('17')
         set_bw('125')
         set_sf('sf12')
         set_cr('4/8')
-        set_wdt('8125')
+        set_wdt('10000')
 
 def lmodem_get_mode():
     pwr = get_pwr()
@@ -316,11 +316,11 @@ def lmodem_get_mode():
     sf = get_sf()
     cr = get_cr()
     wdt = get_wdt()
-    if pwr == '6' and bw == '500' and sf == 'sf8' and cr == '4/6' and wdt == '750':
+    if pwr == '6' and bw == '500' and sf == 'sf8' and cr == '4/6' and wdt == '1000':
         return 1
-    if pwr == '12' and bw == '250' and sf == 'sf10' and cr == '4/7' and wdt == '1500':
+    if pwr == '12' and bw == '250' and sf == 'sf10' and cr == '4/7' and wdt == '2000':
         return 2
-    if pwr == '17' and bw == '125' and sf == 'sf12' and cr == '4/8' and wdt == '8125':
+    if pwr == '17' and bw == '125' and sf == 'sf12' and cr == '4/8' and wdt == '10000':
         return 3
     print('[ERROR] Invalid LoStik configuration!')
     print('HELP: LoStik settings do not match any of the LMODEM modes.')
