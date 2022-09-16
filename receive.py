@@ -108,8 +108,13 @@ received_blocks = {}
 def receive_requested_blocks():
     while True:           
         incoming_packet = lostik.rx()
-        if incoming_packet == '414C4C53454E54' or incoming_packet == 'TIME-OUT':
+        if incoming_packet == '414C4C53454E54':
+            print()
+            print('RX: All requested blocks sent.')
             break
+        if incoming_packet == 'TIME-OUT':
+            print('[ERROR] LoStik watchdog timer time-out!')
+            exit(1)
         incoming_block_number_hex = incoming_packet[:6]
         incoming_block_number = bytes.fromhex(incoming_block_number_hex).decode('ASCII')
         incoming_block = incoming_packet[6:]
