@@ -164,6 +164,7 @@ missing_blocks = create_missing_blocks_string(received_blocks)
 #if all blocks received, process file
 if missing_blocks == '':
     print('All file blocks received.  Processing file...')
+    print()
     #write completed file to disk and check integrity
     output_file_compressed_b85_hex = ''
     for block in received_blocks.values():
