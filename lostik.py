@@ -219,9 +219,9 @@ def tx(packet, encode = False):
     if wdt == '750':
         sleep(.1)
     if wdt == '1500':
-        sleep(.15)
-    if wdt == '9000':
         sleep(.2)
+    if wdt == '8500':
+        sleep(.3)
     tx_start_time = 0
     tx_end_time = 0
     time_sent = 0
@@ -315,7 +315,7 @@ def lmodem_set_mode(mode_number):
         set_bw('125')
         set_sf('sf12')
         set_cr('4/8')
-        set_wdt('9000')
+        set_wdt('8500')
 
 def lmodem_get_mode():
     pwr = get_pwr()
@@ -327,7 +327,7 @@ def lmodem_get_mode():
         return 1
     if pwr == '12' and bw == '250' and sf == 'sf10' and cr == '4/7' and wdt == '1500':
         return 2
-    if pwr == '17' and bw == '125' and sf == 'sf12' and cr == '4/8' and wdt == '9000':
+    if pwr == '17' and bw == '125' and sf == 'sf12' and cr == '4/8' and wdt == '8500':
         return 3
     print('[ERROR] Invalid LoStik configuration!')
     print('HELP: LoStik settings do not match any of the LMODEM modes.')

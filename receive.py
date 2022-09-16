@@ -90,7 +90,7 @@ if Path(incoming_file_name).is_file():
     if incoming_file_secure_hash == local_file_secure_hash.hexdigest():
         print('TX: Duplicate file found and passed integrity check.')
         print('ABORT!')
-        lostik.tx('DUPLICATE', encode=True)
+        lostik.tx('DUPLICATE_FILE', encode=True)
         exit(0)
     if incoming_file_secure_hash != local_file_secure_hash.hexdigest():
         print(f'[ERROR] {incoming_file_name} already exists in current directory')
@@ -98,7 +98,7 @@ if Path(incoming_file_name).is_file():
         print('HELP: Please delete or rename the existing file and try again.')
         print('TX: Duplicate filename found.')
         print('ABORT!')
-        lostik.tx('ERROR', encode=True)
+        lostik.tx('DUPLICATE_FILENAME', encode=True)
         exit(1)
 
 received_blocks = {}
@@ -107,7 +107,7 @@ received_blocks = {}
 def receive_requested_blocks():
     while True:           
         incoming_packet = lostik.rx()
-        if incoming_packet == '414C4C53454E54':
+        if incoming_packet == '5245515F424C4F434B535F53454E54':
             print()
             print('RX: All requested blocks sent.')
             break
@@ -155,7 +155,7 @@ else:
     for i in range(int(incoming_file_block_count)):
         keys.append(str(i).zfill(3))
     received_blocks = dict.fromkeys(keys, '')
-    lostik.tx('READY', encode=True)
+    lostik.tx('READY_TO_RECEIVE', encode=True)
     receive_requested_blocks()
 
 missing_blocks = create_missing_blocks_string(received_blocks)
@@ -186,12 +186,12 @@ if missing_blocks == '':
         print('HELP: Please try again.')
         print('TX: File integrity check failed!')        
         os.remove(incoming_file_name)
-        lostik.tx('ERROR', encode=True)
+        lostik.tx('INTEGRITY_FAIL', encode=True)
         exit(1)
     if incoming_file_secure_hash == output_file_secure_hash.hexdigest():
         print('TX: File received and passed integrity check.')
         print('DONE!')
-        lostik.tx('COMPLETE', encode=True)
+        lostik.tx('INTEGRITY_PASS', encode=True)
         exit(0)
 #if some blocks missing, write partial file to disk
 else:
@@ -201,5 +201,5 @@ else:
         json.dump(received_blocks, json_file, indent=4)
     print('TX: Partial file received.  Please try again.')
     print('HELP: Try selecting a mode robust LMODEM mode.')
-    lostik.tx('INCOMPLETE', encode=True)
+    lostik.tx('INCOMPLETE_TRANSFER', encode=True)
     exit(1)

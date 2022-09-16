@@ -93,7 +93,7 @@ def send_requested_blocks(requested_block_number_list):
         total_air_time += air_time
     print()
     print('TX: All requested blocks sent.')
-    lostik.tx('ALLSENT',encode=True)
+    lostik.tx('REQ_BLOCKS_SENT',encode=True)
 
 #get size (on disk) of outgoing file
 outgoing_file_size = Path(args.outgoing_file).stat().st_size
@@ -138,11 +138,11 @@ reply = lostik.rx(decode=True)
 if reply == 'TIME-OUT':
     print('[ERROR] LoStik watchdog timer time-out!')
     exit(1)
-if reply == 'DUPLICATE':
+if reply == 'DUPLICATE_FILE':
     print('RX: Duplicate file found and passed integrity check.')
     print('ABORT!')
     exit(0)
-if reply == 'ERROR':
+if reply == 'DUPLICATE_FILENAME':
     print('RX: Duplicate filename found.')
     print('ABORT!')
     exit(1)
@@ -152,7 +152,7 @@ if reply[:3] == 'REQ':
     requested_block_numbers_string = reply[3:]
     requested_block_numbers_list = requested_block_numbers_string.split('|')
     send_requested_blocks(requested_block_numbers_list)
-if reply == 'READY':
+if reply == 'READY_TO_RECEIVE':
     print('RX: Ready to receive file.')
     print()
     requested_block_numbers_list = []
@@ -165,16 +165,16 @@ reply = lostik.rx(decode=True)
 if reply == 'TIME-OUT':
     print('[ERROR] LoStik watchdog timer time-out!')
     exit(1)
-if reply == 'COMPLETE':
+if reply == 'INTEGRITY_PASS':
     print('RX: File received and passed integrity check.')
     print('DONE!')
     exit(0)
-if reply == 'ERROR':
+if reply == 'INTEGRITY_FAIL':
     print('RX: File integrity check failed!')
     print('[ERROR] Secure hash mismatch.  File integrity check failed!')
     print('HELP: Please try again.')
     exit(1)
-if reply == 'INCOMPLETE':
+if reply == 'INCOMPLETE_TRANSFER':
     print('RX: Partial file received.  Please try again.')
     print('HELP: Try selecting a more robust LMODEM mode.')
     exit(1)
