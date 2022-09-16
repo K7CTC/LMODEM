@@ -88,7 +88,7 @@ total_air_time = 0
 def send_requested_blocks(requested_block_number_list):
     global total_air_time
     for number in requested_block_number_list:
-        print(f'TX: Block {str(number).zfill(3)}')
+        print(f'TX: Block {str(number).zfill(3)}', end='\r')
         time_sent, air_time = lostik.tx(packets[int(number)])
         total_air_time += air_time
     print()

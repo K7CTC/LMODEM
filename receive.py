@@ -105,6 +105,7 @@ received_blocks = {}
 
 #function to place received blocks into dictionary
 def receive_requested_blocks():
+    time_out_counter = 0
     while True:           
         incoming_packet = lostik.rx()
         if incoming_packet == '5245515F424C4F434B535F53454E54':
@@ -112,13 +113,16 @@ def receive_requested_blocks():
             print('RX: All requested blocks sent.')
             break
         if incoming_packet == 'TIME-OUT':
+            print()
             print('[ERROR] LoStik watchdog timer time-out!')
-            exit(1)
+            time_out_counter += 1
+            if time_out_counter == 3:
+                break
         incoming_block_number_hex = incoming_packet[:6]
         incoming_block_number = bytes.fromhex(incoming_block_number_hex).decode('ASCII')
         incoming_block = incoming_packet[6:]
         received_blocks.update({incoming_block_number: incoming_block})
-        print(f'RX: Block {incoming_block_number}')
+        print(f'RX: Block {incoming_block_number}', end='\r')
     print()
 
 #function to return a string of pipe delimited missing block numbers, if any
