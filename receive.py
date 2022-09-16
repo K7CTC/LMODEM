@@ -17,7 +17,6 @@ import argparse
 import json
 from sys import exit
 from hashlib import blake2b
-from time import sleep
 from base64 import b85decode
 from pathlib import Path
 
