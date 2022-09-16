@@ -16,7 +16,6 @@ import textwrap
 import argparse
 from sys import exit
 from hashlib import blake2b
-from time import sleep
 from base64 import b85encode
 from pathlib import Path
 

@@ -181,17 +181,11 @@ if missing_blocks == '':
         print('HELP: Please try again.')
         print('TX: File integrity check failed!')        
         os.remove(incoming_file_name)
-        
-        sleep(.25) #testing
-        
         lostik.tx('ERR', encode=True)
         exit(1)
     if incoming_file_secure_hash == output_file_secure_hash.hexdigest():
         print('TX: File received and passed integrity check.')
         print('DONE!')
-
-        sleep(.25) #testing
-
         lostik.tx('FIN', encode=True)
         exit(0)
 #if some blocks missing, write partial file to disk
@@ -202,8 +196,5 @@ else:
         json.dump(received_blocks, json_file, indent=4)
     print('TX: Partial file received.  Please try again.')
     print('HELP: Try selecting a mode robust LMODEM mode.')
-    
-    sleep(.25) #testing
-    
     lostik.tx('PAR', encode=True)
     exit(1)
