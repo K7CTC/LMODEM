@@ -122,6 +122,7 @@ def receive_requested_blocks():
             time_out_counter += 1
             if time_out_counter == 3:
                 break
+            continue
         incoming_block_number_hex = incoming_packet[:6]
         incoming_block_number = bytes.fromhex(incoming_block_number_hex).decode('ASCII')
         incoming_block = incoming_packet[6:]
