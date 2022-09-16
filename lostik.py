@@ -219,9 +219,9 @@ def tx(packet, encode = False):
     if wdt == '750':
         sleep(.1)
     if wdt == '1500':
-        sleep(.2)
+        sleep(.15)
     if wdt == '8500':
-        sleep(.3)
+        sleep(.2)
     tx_start_time = 0
     tx_end_time = 0
     time_sent = 0
@@ -293,41 +293,47 @@ def rxstop():
 
 #function: set LMODEM communication mode
 # accepts: mode number (1, 2 or 3)
-def lmodem_set_mode(mode_number):
+def lmodem_set_mode(mode_number): #pwr set to 2 for testing
     if mode_number > 3 or mode_number < 1:
         print('[ERROR] Invalid LMODEM mode!')
         print('HELP: Valid mode numbers are 1, 2, and 3.')
         exit(1)
     if mode_number == 1:
-        set_pwr('6')
+        set_pwr('2')
+        # set_pwr('6')
         set_bw('500')
         set_sf('sf8')
         set_cr('4/6')
         set_wdt('750')
     if mode_number == 2:
-        set_pwr('12')
+        set_pwr('2')
+        # set_pwr('12')
         set_bw('250')
         set_sf('sf10')
         set_cr('4/7')
         set_wdt('1500')
     if mode_number == 3:
-        set_pwr('17')
+        set_pwr('2')
+        # set_pwr('17')
         set_bw('125')
         set_sf('sf12')
         set_cr('4/8')
         set_wdt('8500')
 
-def lmodem_get_mode():
+def lmodem_get_mode(): #pwr set to 2 for testing
     pwr = get_pwr()
     bw = get_bw()
     sf = get_sf()
     cr = get_cr()
     wdt = get_wdt()
-    if pwr == '6' and bw == '500' and sf == 'sf8' and cr == '4/6' and wdt == '750':
+    if pwr == '2' and bw == '500' and sf == 'sf8' and cr == '4/6' and wdt == '750':
+    # if pwr == '6' and bw == '500' and sf == 'sf8' and cr == '4/6' and wdt == '750':
         return 1
-    if pwr == '12' and bw == '250' and sf == 'sf10' and cr == '4/7' and wdt == '1500':
+    if pwr == '2' and bw == '250' and sf == 'sf10' and cr == '4/7' and wdt == '1500':
+    # if pwr == '12' and bw == '250' and sf == 'sf10' and cr == '4/7' and wdt == '1500':
         return 2
-    if pwr == '17' and bw == '125' and sf == 'sf12' and cr == '4/8' and wdt == '8500':
+    if pwr == '2' and bw == '125' and sf == 'sf12' and cr == '4/8' and wdt == '8500':
+    # if pwr == '17' and bw == '125' and sf == 'sf12' and cr == '4/8' and wdt == '8500':
         return 3
     print('[ERROR] Invalid LoStik configuration!')
     print('HELP: LoStik settings do not match any of the LMODEM modes.')
