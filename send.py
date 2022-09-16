@@ -166,7 +166,7 @@ if reply == 'TIME-OUT':
     print('[ERROR] LoStik watchdog timer time-out!')
     exit(1)
 if reply == 'COMPLETE':
-    print('RX: Receive station reports file transfer successful.')
+    print('RX: File received and passed integrity check.')
     print('DONE!')
     exit(0)
 if reply == 'ERROR':
