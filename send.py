@@ -128,7 +128,7 @@ print()
 #file name | size on disk | size over the air | number of blocks to expect | secure hash
 file_transfer_details = (args.outgoing_file + '|' +
                         str(outgoing_file_size) + '|' +
-                        str(len(outgoing_file_compressed_b85_hex)) + '|' +
+                        str(len(outgoing_file_compressed_b85)) + '|' +
                         str(len(blocks)) + '|' + 
                         outgoing_file_secure_hash.hexdigest())
 print('TX: File transfer details.')
