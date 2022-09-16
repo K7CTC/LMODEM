@@ -217,11 +217,11 @@ def tx(packet, encode = False):
     wdt = get_wdt()
     #sleep to prevent packet loss
     if wdt == '750':
-        sleep(.1)
-    if wdt == '1500':
         sleep(.15)
+    if wdt == '1500':
+        sleep(.20)
     if wdt == '8500':
-        sleep(.2)
+        sleep(.25)
     tx_start_time = 0
     tx_end_time = 0
     time_sent = 0
