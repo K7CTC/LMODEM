@@ -91,6 +91,8 @@ def send_requested_blocks(requested_block_number_list):
         print(f'TX: Block {str(number).zfill(3)}')
         time_sent, air_time = lostik.tx(packets[int(number)])
         total_air_time += air_time
+    print()
+    print('TX: Sent requested blocks.')
     lostik.tx('SNT',encode=True)
 
 #get size (on disk) of outgoing file
@@ -129,7 +131,6 @@ file_transfer_details = (args.outgoing_file + '|' +
                         str(len(blocks)) + '|' + 
                         outgoing_file_secure_hash.hexdigest())
 print('TX: File transfer details...')
-print()
 lostik.tx(file_transfer_details, encode=True)
 
 #await initial reply
@@ -147,11 +148,13 @@ if reply[:3] == 'CAN':
     exit(0)
 if reply[:3] == 'REQ':
     print('RX: Receiving station has partial file.  Resuming file transfer...')
+    print()
     requested_block_numbers_string = reply[3:]
     requested_block_numbers_list = requested_block_numbers_string.split('|')
     send_requested_blocks(requested_block_numbers_list)
 if reply[:3] == 'RTR':
     print('RX: Receive station is ready, sending file...')
+    print()
     requested_block_numbers_list = []
     for packet in packets:
         requested_block_numbers_list.append(packets.index(packet))
