@@ -92,6 +92,7 @@ def send_requested_blocks(requested_block_number_list):
         time_sent, air_time = lostik.tx(packets[int(number)])
         total_air_time += air_time
     print()
+    print()
     print('TX: All requested blocks sent.')
     lostik.tx('REQ_BLOCKS_SENT',encode=True)
 

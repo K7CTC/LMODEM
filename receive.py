@@ -110,11 +110,15 @@ def receive_requested_blocks():
         incoming_packet = lostik.rx()
         if incoming_packet == '5245515F424C4F434B535F53454E54':
             print()
+            print()
             print('RX: All requested blocks sent.')
+            print()
             break
         if incoming_packet == 'TIME-OUT':
             print()
+            print()
             print('[ERROR] LoStik watchdog timer time-out!')
+            print()
             time_out_counter += 1
             if time_out_counter == 3:
                 break
@@ -123,7 +127,7 @@ def receive_requested_blocks():
         incoming_block = incoming_packet[6:]
         received_blocks.update({incoming_block_number: incoming_block})
         print(f'RX: Block {incoming_block_number}', end='\r')
-    print()
+    
 
 #function to return a string of pipe delimited missing block numbers, if any
 def create_missing_blocks_string(received_blocks):
