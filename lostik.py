@@ -216,9 +216,9 @@ def get_snr():
 def tx(packet, encode = False):
     wdt = get_wdt()
     #sleep to prevent packet loss
-    if wdt == '500':
+    if wdt == '750':
         sleep(.1)
-    if wdt == '1000':
+    if wdt == '1500':
         sleep(.2)
     if wdt == '8000':
         sleep(.3)
@@ -303,13 +303,13 @@ def lmodem_set_mode(mode_number):
         set_bw('500')
         set_sf('sf8')
         set_cr('4/6')
-        set_wdt('500')
+        set_wdt('750')
     if mode_number == 2:
         set_pwr('12')
         set_bw('250')
         set_sf('sf10')
         set_cr('4/7')
-        set_wdt('1000')
+        set_wdt('1500')
     if mode_number == 3:
         set_pwr('17')
         set_bw('125')
@@ -323,9 +323,9 @@ def lmodem_get_mode():
     sf = get_sf()
     cr = get_cr()
     wdt = get_wdt()
-    if pwr == '6' and bw == '500' and sf == 'sf8' and cr == '4/6' and wdt == '500':
+    if pwr == '6' and bw == '500' and sf == 'sf8' and cr == '4/6' and wdt == '750':
         return 1
-    if pwr == '12' and bw == '250' and sf == 'sf10' and cr == '4/7' and wdt == '1000':
+    if pwr == '12' and bw == '250' and sf == 'sf10' and cr == '4/7' and wdt == '1500':
         return 2
     if pwr == '17' and bw == '125' and sf == 'sf12' and cr == '4/8' and wdt == '8000':
         return 3
