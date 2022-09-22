@@ -2,7 +2,7 @@
 #                                                                      #
 #          NAME:  LMODEM - Receive File                                #
 #  DEVELOPED BY:  Chris Clement (K7CTC)                                #
-#       VERSION:  v0.3                                                 #
+#       VERSION:  v0.4                                                 #
 #                                                                      #
 ########################################################################
 
@@ -19,6 +19,9 @@ from sys import exit
 from hashlib import blake2b
 from base64 import b85decode
 from pathlib import Path
+
+#import from 3rd party library
+from rich.progress import progress
 
 #establish and parse command line arguments
 parser = argparse.ArgumentParser(description='LMODEM - Receive File',
@@ -139,6 +142,14 @@ def create_missing_blocks_string(received_blocks):
     if len(missing_blocks_string) != 0:
         missing_blocks_string = missing_blocks_string[:-1]
     return missing_blocks_string
+
+def received_block_count(received_blocks):
+    number_of_received_blocks = 0
+    for block in received_blocks:
+        if received_blocks[block] != '':
+            received_block_count += 1
+    return receive
+
 
 #resume partial transfer or begin new transfer
 partial_file = incoming_file_name + '.json'

@@ -2,7 +2,7 @@
 #                                                                      #
 #          NAME:  LMODEM - Send File                                   #
 #  DEVELOPED BY:  Chris Clement (K7CTC)                                #
-#       VERSION:  v0.3                                                 #
+#       VERSION:  v0.4                                                 #
 #                                                                      #
 ########################################################################
 
@@ -18,6 +18,9 @@ from sys import exit
 from hashlib import blake2b
 from base64 import b85encode
 from pathlib import Path
+
+#import from 3rd party library
+from rich.progress import track
 
 #establish and parse command line arguments
 parser = argparse.ArgumentParser(description='LMODEM - Send File',
@@ -87,14 +90,27 @@ for block in blocks:
 total_air_time = 0
 def send_requested_blocks(requested_block_number_list):
     global total_air_time
-    for number in requested_block_number_list:
-        print(f'TX: Block {str(number).zfill(3)}', end='\r')
+    for number in track(requested_block_number_list, description='Sending...', auto_refresh=False):
+    # for number in requested_block_number_list:
         time_sent, air_time = lostik.tx(packets[int(number)])
         total_air_time += air_time
     print()
     print()
     print('TX: All requested blocks sent.')
     lostik.tx('REQ_BLOCKS_SENT',encode=True)
+
+
+# def send_requested_blocks(requested_block_number_list):
+#     global total_air_time
+#     for number in requested_block_number_list:
+#         print(f'TX: Block {str(number).zfill(3)}', end='\r')
+#         time_sent, air_time = lostik.tx(packets[int(number)])
+#         total_air_time += air_time
+#     print()
+#     print()
+#     print('TX: All requested blocks sent.')
+#     lostik.tx('REQ_BLOCKS_SENT',encode=True)
+
 
 #get size (on disk) of outgoing file
 outgoing_file_size = Path(args.outgoing_file).stat().st_size
@@ -115,14 +131,14 @@ print(f'Communication mode: {lostik.lmodem_get_mode()}')
 print(f'Communication channel: {lostik.lmodem_get_channel()}')
 print()
 
-#basic handshake (listen for receive station ready)
-print('Connecting...')
-while True:
-    if lostik.rx(decode=True) == 'HANDSHAKE':
-        lostik.tx('HANDSHAKE', encode=True)
-        break
-print('Connected!')
-print()
+# #basic handshake (listen for receive station ready)
+# print('Connecting...')
+# while True:
+#     if lostik.rx(decode=True) == 'HANDSHAKE':
+#         lostik.tx('HANDSHAKE', encode=True)
+#         break
+# print('Connected!')
+# print()
 
 #provide receiving station with the file transfer details
 #file name | size on disk | size over the air | number of blocks to expect | secure hash
@@ -134,48 +150,60 @@ file_transfer_details = (args.outgoing_file + '|' +
 print('TX: File transfer details.')
 lostik.tx(file_transfer_details, encode=True)
 
-#await initial reply
-reply = lostik.rx(decode=True)
-if reply == 'TIME-OUT':
-    print('[ERROR] LoStik watchdog timer time-out!')
-    exit(1)
-if reply == 'DUPLICATE_FILE':
-    print('RX: Duplicate file found and passed integrity check.')
-    print('ABORT!')
-    exit(0)
-if reply == 'DUPLICATE_FILENAME':
-    print('RX: Duplicate filename found.')
-    print('ABORT!')
-    exit(1)
-if reply[:3] == 'REQ':
-    print('RX: Ready to receive requested blocks.')
-    print()
-    requested_block_numbers_string = reply[3:]
-    requested_block_numbers_list = requested_block_numbers_string.split('|')
-    send_requested_blocks(requested_block_numbers_list)
-if reply == 'READY_TO_RECEIVE':
-    print('RX: Ready to receive file.')
-    print()
-    requested_block_numbers_list = []
-    for packet in packets:
-        requested_block_numbers_list.append(packets.index(packet))
-    send_requested_blocks(requested_block_numbers_list)
 
-#await reply after sending requested packets
-reply = lostik.rx(decode=True)
-if reply == 'TIME-OUT':
-    print('[ERROR] LoStik watchdog timer time-out!')
-    exit(1)
-if reply == 'INTEGRITY_PASS':
-    print('RX: File received and passed integrity check.')
-    print('DONE!')
-    exit(0)
-if reply == 'INTEGRITY_FAIL':
-    print('RX: File integrity check failed!')
-    print('[ERROR] Secure hash mismatch.  File integrity check failed!')
-    print('HELP: Please try again.')
-    exit(1)
-if reply == 'INCOMPLETE_TRANSFER':
-    print('RX: Partial file received.  Please try again.')
-    print('HELP: Try selecting a more robust LMODEM mode.')
-    exit(1)
+requested_block_numbers_list = []
+for packet in packets:
+    requested_block_numbers_list.append(packets.index(packet))
+send_requested_blocks(requested_block_numbers_list)
+
+
+
+
+
+
+
+# #await initial reply
+# reply = lostik.rx(decode=True)
+# if reply == 'TIME-OUT':
+#     print('[ERROR] LoStik watchdog timer time-out!')
+#     exit(1)
+# if reply == 'DUPLICATE_FILE':
+#     print('RX: Duplicate file found and passed integrity check.')
+#     print('ABORT!')
+#     exit(0)
+# if reply == 'DUPLICATE_FILENAME':
+#     print('RX: Duplicate filename found.')
+#     print('ABORT!')
+#     exit(1)
+# if reply[:3] == 'REQ':
+#     print('RX: Ready to receive requested blocks.')
+#     print()
+#     requested_block_numbers_string = reply[3:]
+#     requested_block_numbers_list = requested_block_numbers_string.split('|')
+#     send_requested_blocks(requested_block_numbers_list)
+# if reply == 'READY_TO_RECEIVE':
+#     print('RX: Ready to receive file.')
+#     print()
+#     requested_block_numbers_list = []
+#     for packet in packets:
+#         requested_block_numbers_list.append(packets.index(packet))
+#     send_requested_blocks(requested_block_numbers_list)
+
+# #await reply after sending requested packets
+# reply = lostik.rx(decode=True)
+# if reply == 'TIME-OUT':
+#     print('[ERROR] LoStik watchdog timer time-out!')
+#     exit(1)
+# if reply == 'INTEGRITY_PASS':
+#     print('RX: File received and passed integrity check.')
+#     print('DONE!')
+#     exit(0)
+# if reply == 'INTEGRITY_FAIL':
+#     print('RX: File integrity check failed!')
+#     print('[ERROR] Secure hash mismatch.  File integrity check failed!')
+#     print('HELP: Please try again.')
+#     exit(1)
+# if reply == 'INCOMPLETE_TRANSFER':
+#     print('RX: Partial file received.  Please try again.')
+#     print('HELP: Try selecting a more robust LMODEM mode.')
+#     exit(1)
