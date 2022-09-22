@@ -20,7 +20,7 @@ from base64 import b85encode
 from pathlib import Path
 
 #import from 3rd party library
-from rich.progress import track
+from rich.progress import Progress
 
 #establish and parse command line arguments
 parser = argparse.ArgumentParser(description='LMODEM - Send File',
@@ -90,7 +90,11 @@ for block in blocks:
 total_air_time = 0
 def send_requested_blocks(requested_block_number_list):
     global total_air_time
-    for number in track(requested_block_number_list, description='Sending...', auto_refresh=False):
+    with Progress() as progress:
+        task = progress.
+    
+    
+    for number in track(requested_block_number_list, description='Transferring...', auto_refresh=False):
     # for number in requested_block_number_list:
         time_sent, air_time = lostik.tx(packets[int(number)])
         total_air_time += air_time
