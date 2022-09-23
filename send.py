@@ -20,7 +20,6 @@ import rich.progress
 
 #local application/library specific imports
 import lostik
-from console import console
 import ui
 
 #establish and parse command line arguments
@@ -114,71 +113,27 @@ total_air_time = 0
 
 def send_requested_blocks(requested_block_number_list):
     global total_air_time
-
     ui.update_status('Sending requested blocks.')
     ui.move_cursor(21,1)
-
     progress = rich.progress.Progress(rich.progress.BarColumn(bar_width=None),
                                       rich.progress.TaskProgressColumn(),
                                       rich.progress.TimeRemainingColumn(),
                                       rich.progress.TimeElapsedColumn(),
                                       expand=True)
-
     with progress:
         for number in progress.track(requested_block_number_list):
             time_sent, air_time = lostik.tx(packets[int(number)])
-
-        
-    # with Progress() as progress:
-    #     task = progress.add_task(description=None, total=len(requested_block_number_list))
-    #     while not progress.finished:
-    #         for number in requested_block_number_list:
-    #             time_sent, air_time = lostik.tx(packets[int(number)])
-    #             progress.update(task, completed=number)
-   
-   
-
-   
-   
+            total_air_time += air_time
     ui.update_status('All requested blocks sent.')
     lostik.tx('REQ_BLOCKS_SENT',encode=True)
 
-
-# def send_requested_blocks(requested_block_number_list):
-#     global total_air_time
-#     for number in requested_block_number_list:
-#         print(f'TX: Block {str(number).zfill(3)}', end='\r')
-#         time_sent, air_time = lostik.tx(packets[int(number)])
-#         total_air_time += air_time
-#     print()
-#     print()
-#     print('TX: All requested blocks sent.')
-#     lostik.tx('REQ_BLOCKS_SENT',encode=True)
-
-
-
-
-
-
-
-
-
 #new handshake
-
-
-
-
-
-
-
-# #basic handshake (listen for receive station ready)
-# print('Connecting...')
-# while True:
-#     if lostik.rx(decode=True) == 'HANDSHAKE':
-#         lostik.tx('HANDSHAKE', encode=True)
-#         break
-# print('Connected!')
-# print()
+ui.update_status('Connecting...')
+while True:
+    if lostik.rx(decode=True) == 'HANDSHAKE':
+        lostik.tx('HANDSHAKE', encode=True)
+        break
+ui.update_status('Connected!')
 
 #provide receiving station with the file transfer details
 #file name | size on disk | size over the air | number of blocks to expect | secure hash
@@ -189,8 +144,10 @@ file_transfer_details = (args.outgoing_file + '|' +
                         outgoing_file_secure_hash.hexdigest())
 ui.update_status('Sending file transfer details...')
 lostik.tx(file_transfer_details, encode=True)
+ui.update_status('File trandfer details sent.')
 
 
+#testing code
 requested_block_numbers_list = []
 for packet in packets:
     requested_block_numbers_list.append(packets.index(packet))
