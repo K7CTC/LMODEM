@@ -88,7 +88,7 @@ print()
 if Path(incoming_file_name).is_file():
     #and check integrity if it does
     with open(incoming_file_name, 'rb') as file:
-        local_file_secure_hash = blake2b(digest_size=32)
+        local_file_secure_hash = blake2b(digest_size=16)
         local_file_secure_hash.update(file.read())
     if incoming_file_secure_hash == local_file_secure_hash.hexdigest():
         print('TX: Duplicate file found and passed integrity check.')
@@ -199,7 +199,7 @@ if missing_blocks == '':
         file.write(output_file)
     #obtain secure hash for received file
     with open(incoming_file_name, 'rb') as file:
-        output_file_secure_hash = blake2b(digest_size=32)
+        output_file_secure_hash = blake2b(digest_size=16)
         output_file_secure_hash.update(file.read())
     if incoming_file_secure_hash != output_file_secure_hash.hexdigest():
         print('[ERROR] Secure hash mismatch.  File integrity check failed!')

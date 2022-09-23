@@ -6,16 +6,14 @@
 #                                                                      #
 ########################################################################
 
-#import from required 3rd party libraries
-from concurrent.futures.process import _chain_from_iterable_of_lists
-import serial
-import serial.tools.list_ports
-
-#import from standard library
+#standard library imports
 from sys import exit
 from time import time, sleep
 
-#terminate if executed directly
+#related third party imports
+import serial
+import serial.tools.list_ports
+
 if __name__ == '__main__':
     print('[ERROR] lostik.py is not intended for direct execution!')
     exit(1)

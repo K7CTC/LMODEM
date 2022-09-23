@@ -6,11 +6,7 @@
 #                                                                      #
 ########################################################################
 
-#import from project library
-import lostik
-from console import console
-
-#import from standard library
+#standard library imports
 import lzma
 import textwrap
 import argparse
@@ -19,12 +15,17 @@ from hashlib import blake2b
 from base64 import b85encode
 from pathlib import Path
 
-#import from 3rd party library
-from rich.progress import Progress
+#related third party imports
+import rich.progress
+
+#local application/library specific imports
+import lostik
+from console import console
+import ui
 
 #establish and parse command line arguments
 parser = argparse.ArgumentParser(description='LMODEM - Send File',
-                                 epilog='Created by K7CTC.')
+                                 epilog='Created by Chris Clement (K7CTC).')
 parser.add_argument('outgoing_file',
                     help='filename to be sent')
 parser.add_argument('-m', '--mode',
@@ -40,25 +41,42 @@ parser.add_argument('-c', '--channel',
 args = parser.parse_args()
 del parser
 
+#display the user interface
+ui.print_static_content()
+
 #set initial LoStik operating parameters
 lostik.lmodem_set_mode(args.mode)
 lostik.lmodem_set_channel(args.channel)
 
+#update the user interface
+ui.insert_module_version('v0.4')
+ui.insert_module_name('Send File')
+ui.insert_firmware_version(lostik.get_ver())
+ui.insert_hweui(lostik.get_hweui())
+ui.insert_frequency(lostik.get_freq())
+ui.insert_bandwidth(lostik.get_bw())
+ui.insert_power(lostik.get_pwr())
+ui.insert_spreading_factor(lostik.get_sf())
+ui.insert_coding_rate(lostik.get_cr())
+ui.insert_lmodem_mode(lostik.lmodem_get_mode())
+ui.insert_lmodem_channel(lostik.lmodem_get_channel())
+ui.insert_file_name(args.outgoing_file)
+
 #check if outgoing file actually exists
 if not Path(args.outgoing_file).is_file():
-    print(f'[ERROR] {args.outgoing_file} does not exist in current working directory!')
+    ui.update_status('[ERROR] File does not exist!')
     exit(1)
 
 #LMODEM maximum file name length will henceforth be limited to 32 characters
 if len(args.outgoing_file) > 32:
-    print('[ERROR] File name exceeds 32 character limit!')
-    print('HELP: Come on, this is LoRa we are working with here.')
+    ui.update_status('[ERROR] File name exceeds 32 character limit!')
     exit(1)
 
 #get secure hash for outgoing file
 with open(args.outgoing_file, 'rb') as file:
-    outgoing_file_secure_hash = blake2b(digest_size=32)
+    outgoing_file_secure_hash = blake2b(digest_size=16)
     outgoing_file_secure_hash.update(file.read())
+ui.insert_secure_hash(outgoing_file_secure_hash.hexdigest())
 
 #compress outgoing file (in memory)
 with open(args.outgoing_file, 'rb') as file:
@@ -66,11 +84,11 @@ with open(args.outgoing_file, 'rb') as file:
 
 #base85 encode compressed outgoing file
 outgoing_file_compressed_b85 = b85encode(outgoing_file_compressed)
+ui.insert_file_size_ota(len(outgoing_file_compressed_b85))
 
 #LMODEM maximum OTA file size will henceforth be limited to 32kb
 if len(outgoing_file_compressed_b85) > 32768:
-    print('[ERROR] Compressed file exceeds maximum size of 32,768 bytes!')
-    print('HELP: Come on, this is LoRa we are working with here.')
+    ui.update_status('[ERROR] Compressed file exceeds maximum size of 32,768 bytes!')
     exit(1)
 
 #hex encode base85 encoded compressed outgoing file
@@ -78,6 +96,11 @@ outgoing_file_compressed_b85_hex = outgoing_file_compressed_b85.hex()
 
 #split hex encoded base85 encoded compressed outgoing file into 128 byte blocks
 blocks = textwrap.wrap(outgoing_file_compressed_b85_hex, 256)
+ui.insert_blocks(len(blocks))
+
+#get size (on disk) of outgoing file
+outgoing_file_size = Path(args.outgoing_file).stat().st_size
+ui.insert_file_size(outgoing_file_size)
 
 #concatenate zero filled block index and block contents to create numbered packets
 packets = []
@@ -88,19 +111,36 @@ for block in blocks:
     packets.append(packet)
 
 total_air_time = 0
+
 def send_requested_blocks(requested_block_number_list):
     global total_air_time
-    with Progress() as progress:
-        task = progress.
-    
-    
-    for number in track(requested_block_number_list, description='Transferring...', auto_refresh=False):
-    # for number in requested_block_number_list:
-        time_sent, air_time = lostik.tx(packets[int(number)])
-        total_air_time += air_time
-    print()
-    print()
-    print('TX: All requested blocks sent.')
+
+    ui.update_status('Sending requested blocks.')
+    ui.move_cursor(21,1)
+
+    progress = rich.progress.Progress(rich.progress.BarColumn(bar_width=None),
+                                      rich.progress.TaskProgressColumn(),
+                                      rich.progress.TimeRemainingColumn(),
+                                      rich.progress.TimeElapsedColumn(),
+                                      expand=True)
+
+    with progress:
+        for number in progress.track(requested_block_number_list):
+            time_sent, air_time = lostik.tx(packets[int(number)])
+
+        
+    # with Progress() as progress:
+    #     task = progress.add_task(description=None, total=len(requested_block_number_list))
+    #     while not progress.finished:
+    #         for number in requested_block_number_list:
+    #             time_sent, air_time = lostik.tx(packets[int(number)])
+    #             progress.update(task, completed=number)
+   
+   
+
+   
+   
+    ui.update_status('All requested blocks sent.')
     lostik.tx('REQ_BLOCKS_SENT',encode=True)
 
 
@@ -116,24 +156,20 @@ def send_requested_blocks(requested_block_number_list):
 #     lostik.tx('REQ_BLOCKS_SENT',encode=True)
 
 
-#get size (on disk) of outgoing file
-outgoing_file_size = Path(args.outgoing_file).stat().st_size
-    
-#show file transfer details
-console.clear()
-print('LMODEM v0.3 by Chris Clement (K7CTC)')
-print()
-print('File Transfer Details - Outgoing File')
-print('-------------------------------------')
-print(f'       Name: {args.outgoing_file}')
-print(f'       Size: {outgoing_file_size} bytes (on disk) / {len(outgoing_file_compressed_b85)} bytes (over-the-air)')
-print(f'Secure Hash: {outgoing_file_secure_hash.hexdigest()}')
-print(f'     Blocks: {len(blocks)}')
-print()
 
-print(f'Communication mode: {lostik.lmodem_get_mode()}')
-print(f'Communication channel: {lostik.lmodem_get_channel()}')
-print()
+
+
+
+
+
+
+#new handshake
+
+
+
+
+
+
 
 # #basic handshake (listen for receive station ready)
 # print('Connecting...')
@@ -151,7 +187,7 @@ file_transfer_details = (args.outgoing_file + '|' +
                         str(len(outgoing_file_compressed_b85)) + '|' +
                         str(len(blocks)) + '|' + 
                         outgoing_file_secure_hash.hexdigest())
-print('TX: File transfer details.')
+ui.update_status('Sending file transfer details...')
 lostik.tx(file_transfer_details, encode=True)
 
 
