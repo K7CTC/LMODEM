@@ -109,10 +109,8 @@ for block in blocks:
     packet = block_index_zfill_hex + block
     packets.append(packet)
 
-total_air_time = 0
 
 def send_requested_blocks(requested_block_number_list):
-    global total_air_time
     ui.update_status('Sending requested blocks.')
     ui.move_cursor(21,1)
     progress = rich.progress.Progress(rich.progress.BarColumn(bar_width=59),
@@ -121,8 +119,7 @@ def send_requested_blocks(requested_block_number_list):
                                       rich.progress.TimeElapsedColumn())
     with progress:
         for number in progress.track(requested_block_number_list):
-            time_sent, air_time = lostik.tx(packets[int(number)])
-            total_air_time += air_time
+            lostik.tx(packets[int(number)])
     ui.update_status('All requested blocks sent.')
     lostik.tx('REQ_BLOCKS_SENT',encode=True)
 
