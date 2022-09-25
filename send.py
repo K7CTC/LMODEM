@@ -15,6 +15,8 @@ from hashlib import blake2b
 from base64 import b85encode
 from pathlib import Path
 
+from time import sleep
+
 #related third party imports
 import rich.progress
 
@@ -50,8 +52,6 @@ lostik.lmodem_set_channel(args.channel)
 #update the user interface
 ui.insert_module_version('v0.4')
 ui.insert_module_name('Send File')
-ui.insert_firmware_version(lostik.get_ver())
-ui.insert_hweui(lostik.get_hweui())
 ui.insert_frequency(lostik.get_freq())
 ui.insert_bandwidth(lostik.get_bw())
 ui.insert_power(lostik.get_pwr())
@@ -129,11 +129,16 @@ def send_requested_blocks(requested_block_number_list):
 
 #new handshake
 ui.update_status('Connecting...')
-while True:
-    if lostik.rx(decode=True) == 'HANDSHAKE':
-        lostik.tx('HANDSHAKE', encode=True)
-        break
+# while True:
+#     if lostik.rx(decode=True) == 'HANDSHAKE':
+#         lostik.tx('HANDSHAKE', encode=True)
+#         break
+
+sleep(4)
 ui.update_status('Connected!')
+
+
+
 
 #provide receiving station with the file transfer details
 #file name | size on disk | size over the air | number of blocks to expect | secure hash
