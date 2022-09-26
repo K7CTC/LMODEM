@@ -60,10 +60,10 @@ ui.insert_coding_rate(lostik.get_cr())
 
 #handshake (tell sending station we are ready)
 ui.update_status('Connecting...')
-# while True:
-#     lostik.tx('HANDSHAKE', encode=True)
-#     if lostik.rx(decode=True) == 'HANDSHAKE':
-#         break
+while True:
+    lostik.tx('HANDSHAKE', encode=True)
+    if lostik.rx(decode=True) == 'HANDSHAKE':
+        break
 ui.update_status('Connected!')
 
 #listen for incoming file details
