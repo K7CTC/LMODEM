@@ -50,6 +50,8 @@ lostik.lmodem_set_channel(args.channel)
 #update the user interface
 ui.insert_module_version('v0.4')
 ui.insert_module_name('Receive File')
+ui.move_cursor(19,21)   #REFACTOR THIS
+print('Transfer')       #REFACTOR THIS
 ui.insert_lmodem_channel(lostik.lmodem_get_channel())
 ui.insert_lmodem_mode(lostik.lmodem_get_mode())
 ui.insert_frequency(lostik.get_freq())
@@ -106,32 +108,40 @@ if Path(incoming_file_name).is_file():
 
 received_blocks = {}
 
-#function to place received blocks into dictionary
+#function to obtain the number of received blocks
+def count_received_blocks():
+    received_block_count = 0
+    for block in received_blocks:
+        if received_blocks[block] != '':
+            received_block_count += 1
+    return received_block_count
+
+#function to deposit received requested blocks into dictionary
 def receive_requested_blocks():
     ui.update_status('Receiving requested blocks.')
-
-    #progress bar goes here
-    #need to compute the number of missing blocks each time a new block is received
-    #then use that as a basis for updating the progress bar
-
-
-
-
-    timeout_counter = 0
-    while True:           
-        incoming_packet = lostik.rx()
-        if incoming_packet == '5245515F424C4F434B535F53454E54':
-            break
-        if incoming_packet == 'TIME-OUT':
-            ui.update_status('[orange1 on deep_sky_blue4][WARNING][/] LoStik watchdog timer time-out!')
-            timeout_counter += 1
-            if timeout_counter == 3:
+    ui.move_cursor(21,1)
+    progress = rich.progress.Progress(rich.progress.BarColumn(bar_width=59),
+                                      rich.progress.TaskProgressColumn(),
+                                      rich.progress.TimeRemainingColumn(),
+                                      rich.progress.TimeElapsedColumn())
+    task = progress.add_task('Receive Requested Blocks', total=int(incoming_file_block_count))
+    with progress:
+        while True:
+            progress.update(task, completed=count_received_blocks())
+            incoming_packet = lostik.rx()
+            if incoming_packet == '5245515F424C4F434B535F53454E54':
                 break
-            continue
-        incoming_block_number_hex = incoming_packet[:6]
-        incoming_block_number = bytes.fromhex(incoming_block_number_hex).decode('ASCII')
-        incoming_block = incoming_packet[6:]
-        received_blocks.update({incoming_block_number: incoming_block})
+            if incoming_packet == 'TIME-OUT':
+                ui.update_status('[orange1 on deep_sky_blue4][WARNING][/] LoStik watchdog timer time-out!')
+                timeout_counter += 1
+                if timeout_counter == 3:
+                    break
+                continue
+            incoming_block_number_hex = incoming_packet[:6]
+            incoming_block_number = bytes.fromhex(incoming_block_number_hex).decode('ASCII')
+            incoming_block = incoming_packet[6:]
+            received_blocks.update({incoming_block_number: incoming_block})
+            progress.update(task, completed=count_received_blocks())
 
 #function to return a string of pipe delimited missing block numbers, if any
 def create_missing_blocks_string(received_blocks):
@@ -143,13 +153,6 @@ def create_missing_blocks_string(received_blocks):
         missing_blocks_string = missing_blocks_string[:-1]
     return missing_blocks_string
 
-#function to obtain the number of received blocks
-def get_received_block_count(received_blocks):
-    number_of_received_blocks = 0
-    for block in received_blocks:
-        if received_blocks[block] != '':
-            received_block_count += 1
-    return received_block_count
 
 #resume partial transfer or begin new transfer
 partial_file = incoming_file_name + '.json'

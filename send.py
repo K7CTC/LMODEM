@@ -42,8 +42,6 @@ del parser
 
 #display the user interface
 ui.print_static_content()
-ui.move_cursor(19,21)   #REFACTOR THIS
-print('Transmit')       #REFACTOR THIS
 
 #set initial LoStik operating parameters
 lostik.lmodem_set_mode(args.mode)
@@ -52,6 +50,8 @@ lostik.lmodem_set_channel(args.channel)
 #update the user interface
 ui.insert_module_version('v0.4')
 ui.insert_module_name('Send File')
+ui.move_cursor(19,21)   #REFACTOR THIS
+print('Transmit')       #REFACTOR THIS
 ui.insert_lmodem_channel(lostik.lmodem_get_channel())
 ui.insert_lmodem_mode(lostik.lmodem_get_mode())
 ui.insert_frequency(lostik.get_freq())
@@ -118,7 +118,7 @@ def send_requested_blocks(requested_block_number_list):
                                       rich.progress.TimeElapsedColumn())
     with progress:
         for number in progress.track(requested_block_number_list):
-            lostik.tx(packets[int(number)])
+            lostik.tx(packets[int(number)], delay=.2)
     lostik.tx('REQ_BLOCKS_SENT',encode=True)
     ui.update_status('All requested blocks sent.')
 
