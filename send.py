@@ -42,11 +42,8 @@ del parser
 
 #display the user interface
 ui.print_static_content()
-ui.move_cursor(19,21)
-print('Transmit')
-
-
-
+ui.move_cursor(19,21)   #REFACTOR THIS
+print('Transmit')       #REFACTOR THIS
 
 #set initial LoStik operating parameters
 lostik.lmodem_set_mode(args.mode)
@@ -63,7 +60,6 @@ ui.insert_power(lostik.get_pwr())
 ui.insert_spreading_factor(lostik.get_sf())
 ui.insert_coding_rate(lostik.get_cr())
 ui.insert_file_name(args.outgoing_file)
-
 
 #check if outgoing file actually exists
 if not Path(args.outgoing_file).is_file():
@@ -112,7 +108,6 @@ for block in blocks:
     block_index_zfill_hex = block_index_zfill.encode('ASCII').hex()
     packet = block_index_zfill_hex + block
     packets.append(packet)
-
 
 def send_requested_blocks(requested_block_number_list):
     ui.update_status('Transmitting requested blocks.')
