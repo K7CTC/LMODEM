@@ -250,7 +250,7 @@ def tx(packet, encode = False):
 def rx(decode = False):
     write('radio rx 0')
     if read() != 'ok':
-        print('[ERROR] Serial interface is busy, unable to communicate with LoStik!')
+        print('[ERROR] Failed to enter receive mode!')
         print('HELP: Disconnect and reconnect LoStik device, then try again.')
         exit(1)
     blue_led(True)
@@ -276,7 +276,7 @@ def rxstop():
     if read() == 'ok':
         blue_led(False)
     else:
-        print('[ERROR] Serial interface is busy, unable to communicate with LoStik!')
+        print('[ERROR] Failed to exit receive mode!')
         print('HELP: Disconnect and reconnect LoStik device, then try again.')
         exit(1)
 
