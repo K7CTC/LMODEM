@@ -42,6 +42,11 @@ del parser
 
 #display the user interface
 ui.print_static_content()
+ui.move_cursor(19,21)
+print('Transmit')
+
+
+
 
 #set initial LoStik operating parameters
 lostik.lmodem_set_mode(args.mode)
@@ -58,6 +63,7 @@ ui.insert_power(lostik.get_pwr())
 ui.insert_spreading_factor(lostik.get_sf())
 ui.insert_coding_rate(lostik.get_cr())
 ui.insert_file_name(args.outgoing_file)
+
 
 #check if outgoing file actually exists
 if not Path(args.outgoing_file).is_file():
