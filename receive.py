@@ -6,11 +6,7 @@
 #                                                                      #
 ########################################################################
 
-#import from project library
-import lostik
-from console import console
-
-#import from standard library
+#standard library imports
 import lzma
 import os
 import argparse
@@ -20,8 +16,13 @@ from hashlib import blake2b
 from base64 import b85decode
 from pathlib import Path
 
-#import from 3rd party library
+#related third party imports
 from rich.progress import progress
+
+#local application/library specific imports
+import lostik
+import ui
+from console import console
 
 #establish and parse command line arguments
 parser = argparse.ArgumentParser(description='LMODEM - Receive File',
@@ -39,26 +40,37 @@ parser.add_argument('-c', '--channel',
 args = parser.parse_args()
 del parser
 
+#display the user interface
+ui.print_static_content()
+
 #set initial LoStik communication parameters
 lostik.lmodem_set_mode(args.mode)
 lostik.lmodem_set_channel(args.channel)
 
-#basic handshake (tell sending station we are ready)
-console.clear()
-print('Connecting...')
-while True:
-    lostik.tx('HANDSHAKE', encode=True)
-    if lostik.rx(decode=True) == 'HANDSHAKE':
-        break
-print('Connected!')
-print()
+#update the user interface
+ui.insert_module_version('v0.4')
+ui.insert_module_name('Receive File')
+ui.insert_lmodem_channel(lostik.lmodem_get_channel())
+ui.insert_lmodem_mode(lostik.lmodem_get_mode())
+ui.insert_frequency(lostik.get_freq())
+ui.insert_bandwidth(lostik.get_bw())
+ui.insert_power(lostik.get_pwr())
+ui.insert_spreading_factor(lostik.get_sf())
+ui.insert_coding_rate(lostik.get_cr())
+
+#handshake (tell sending station we are ready)
+ui.update_status('Connecting...')
+# while True:
+#     lostik.tx('HANDSHAKE', encode=True)
+#     if lostik.rx(decode=True) == 'HANDSHAKE':
+#         break
+ui.update_status('Connected!')
 
 #listen for incoming file details
-print('RX: File transfer details.')
-print()
+ui.update_status('Awaiting file transfer details.')
 file_transfer_details = lostik.rx(decode=True)
 if file_transfer_details == 'TIME-OUT':
-    print('[ERROR] LoStik watchdog timer time-out!')
+    ui.update_status('[red1 on deep_sky_blue4][ERROR][/] LoStik watchdog timer time-out!')
     exit(1)
 else:    
     file_transfer_details_list = file_transfer_details.split('|')
@@ -70,19 +82,12 @@ else:
     del file_transfer_details, file_transfer_details_list
 
 #show file transfer details
-print('LMODEM v0.3 by Chris Clement (K7CTC)')
-print()
-print('File Transfer Details - Incoming File')
-print('-------------------------------------')
-print(f'       Name: {incoming_file_name}')
-print(f'       Size: {incoming_file_size} bytes (on disk) / {incoming_file_size_ota} bytes (over-the-air)')
-print(f'Secure Hash: {incoming_file_secure_hash}')
-print(f'     Blocks: {incoming_file_block_count}')
-print()
-
-print(f'Communication mode: {lostik.lmodem_get_mode()}')
-print(f'Communication channel: {lostik.lmodem_get_channel()}')
-print()
+ui.update_status('Received file transfer details.')
+ui.insert_file_name(incoming_file_name)
+ui.insert_file_size(incoming_file_size)
+ui.insert_file_size_ota(incoming_file_size_ota)
+ui.insert_secure_hash(incoming_file_secure_hash)
+ui.insert_blocks(incoming_file_block_count)
 
 #check if incoming file already exists
 if Path(incoming_file_name).is_file():
@@ -91,17 +96,12 @@ if Path(incoming_file_name).is_file():
         local_file_secure_hash = blake2b(digest_size=16)
         local_file_secure_hash.update(file.read())
     if incoming_file_secure_hash == local_file_secure_hash.hexdigest():
-        print('TX: Duplicate file found and passed integrity check.')
-        print('ABORT!')
-        lostik.tx('DUPLICATE_FILE', encode=True)
+        ui.update_status('[green1 on deep_sky_blue4][DONE][/] Duplicate file found. Integrity check passed.')
+        lostik.tx('DUPLICATE_PASS', encode=True)
         exit(0)
     if incoming_file_secure_hash != local_file_secure_hash.hexdigest():
-        print(f'[ERROR] {incoming_file_name} already exists in current directory')
-        print('though it failed the integrity check against the incoming file.')
-        print('HELP: Please delete or rename the existing file and try again.')
-        print('TX: Duplicate filename found.')
-        print('ABORT!')
-        lostik.tx('DUPLICATE_FILENAME', encode=True)
+        ui.update_status('[red1 on deep_sky_blue4][ERROR][/] Duplicate filename found. Integrity check failed!')
+        lostik.tx('DUPLICATE_FAIL', encode=True)
         exit(1)
 
 received_blocks = {}

@@ -2,7 +2,7 @@
 #                                                                      #
 #          NAME:  LMODEM - Console Parameters                          #
 #  DEVELOPED BY:  Chris Clement (K7CTC)                                #
-#       VERSION:  v0.1                                                 #
+#       VERSION:  v0.8                                                 #
 #                                                                      #
 ########################################################################
 
@@ -21,10 +21,10 @@ console = Console(theme=Theme(inherit=False))
 
 if console.width < 80:
     print('[ERROR] Terminal width is less than 80 columns!')
-    print('HELP: LMODEM minimal terminal size is 80x24.  Resize and try again.')
+    print('HELP: LMODEM minimal terminal size is 80x24. Resize and try again.')
     exit(1)
 
 if console.height < 24:
     print('[ERROR] Terminal height is less than 24 rows!')
-    print('HELP: LMODEM minimal terminal size is 80x24.  Resize and try again.')
+    print('HELP: LMODEM minimal terminal size is 80x24. Resize and try again.')
     exit(1)

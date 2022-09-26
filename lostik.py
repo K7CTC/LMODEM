@@ -43,7 +43,7 @@ except:
 del assigned_port
 
 #function: read line from serial interface and remove CRLF from end
-# returns: ascii string
+# returns: ASCII string
 def read():
     line = lostik_port.readline().decode('ASCII').rstrip()
     return line
@@ -105,7 +105,7 @@ def disable_lorawan():
 #disable LoRaWAN before proceeding (to issue commands directly to the radio)
 disable_lorawan()
 
-#functions: read radio settings from LoStik 
+#functions: read radio settings from LoStik
 #  returns: setting value (as string)
 def get_bw():
     write('radio get bw')
@@ -138,7 +138,7 @@ def get_wdt():
     write('radio get wdt')
     return read()
 
-#functions: write radio settings to LoStik 
+#functions: write radio settings to LoStik
 #  accepts: setting value as ASCII string
 #     note: terminate on error
 def set_bw(bw):
@@ -212,7 +212,7 @@ def get_snr():
 # returns: time_sent and air_time
 #    note: terminate on error
 def tx(packet, encode = False):
-    sleep(.20) #to prevent packet loss
+    sleep(.20) #give receive station time to process previous packet
     tx_start_time = 0
     tx_end_time = 0
     time_sent = 0
@@ -227,7 +227,6 @@ def tx(packet, encode = False):
         red_led(True)
     else:
         print('[ERROR] Transmit failure!')
-        print('HELP: Did you set the encode argument correctly?')
         exit(1)
     reply = ''
     while reply == '':
@@ -286,7 +285,7 @@ def rxstop():
 # accepts: mode number (1, 2 or 3)
 def lmodem_set_mode(mode_number): #pwr set to 2 for testing
     if mode_number > 3 or mode_number < 1:
-        print('[ERROR] Invalid LMODEM mode!')
+        print('[ERROR] Invalid LMODEM mode number!')
         print('HELP: Valid mode numbers are 1, 2, and 3.')
         exit(1)
     if mode_number == 1:
@@ -329,7 +328,7 @@ def lmodem_get_mode(): #pwr set to 2 for testing
     print('[ERROR] Invalid LoStik configuration!')
     print('HELP: LoStik settings do not match any of the LMODEM modes.')
     exit(1)
-    
+
 def lmodem_set_channel(channel_number):
     if channel_number >3 or channel_number < 1:
         print('[ERROR] Invalid channel number!')
@@ -349,4 +348,3 @@ def lmodem_get_channel():
         return 2
     if freq == '916000000':
         return 3
-    

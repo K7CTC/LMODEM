@@ -23,72 +23,28 @@ def move_cursor(row, column):
 def print_static_content():
     console.clear()
     console.print('[white on deep_sky_blue4] ⣿ LMODEM      by Chris Clement (K7CTC)  ❭❭❭                                    [/]')     #  1
-    console.print('╭─ LoStik Parameters ──────────────────────────────────────────────────────────╮')                                 #  2
-    console.print('')                                                                                                                 #  3
-    console.print('')                                                                                                                 #  4
+    console.print('╭─ LMODEM Parameters ──────────────────────────────────────────────────────────╮')                                 #  2
+    console.print('          Channel:               Mode:')                                                                           #  3
+    console.print('╭─ LoStik Parameters ──────────────────────────────────────────────────────────╮')                                 #  4
     console.print('                  Frequency:')                                                                                     #  5
     console.print('                  Bandwidth:')                                                                                     #  6
     console.print('                   TX Power:')                                                                                     #  7
     console.print('           Spreading Factor:')                                                                                     #  8
     console.print('                Coding Rate:')                                                                                     #  9
-    console.print('╭─ LMODEM Parameters ──────────────────────────────────────────────────────────╮')                                 # 10
-    console.print('                       Mode:')                                                                                     # 11
-    console.print('                    Channel:')                                                                                     # 12
-    console.print('╭─ File Transfer Details ──────────────────────────────────────────────────────╮')                                 # 13
-    console.print('                       Name:')                                                                                     # 14
-    console.print('             Size (on disk):')                                                                                     # 15
-    console.print('        Size (over the air):')                                                                                     # 16
-    console.print('                Secure Hash:')                                                                                     # 17
-    console.print('                     Blocks:')                                                                                     # 18
-    console.print('╭─ File Transfer Progress ─────────────────────────────────────────────────────╮')                                 # 19
+    console.print()                                                                                                                   # 10
+    console.print('╭─ File Transfer Details ──────────────────────────────────────────────────────╮')                                 # 11
+    console.print('                       Name:')                                                                                     # 12
+    console.print('             Size (on disk):')                                                                                     # 13
+    console.print('        Size (over the air):')                                                                                     # 14
+    console.print('                Secure Hash:')                                                                                     # 15
+    console.print('                     Blocks:')                                                                                     # 16
+    console.print('           Requested Blocks:')                                                                                     # 17
+    console.print('')                                                                                                                 # 18
+    console.print('╭─ Requested Blocks Transfer Progress ─────────────────────────────────────────╮')                                 # 19
     console.print()                                                                                                                   # 20
     console.print('[grey23]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━   0% 0:00:00 0:00:00[/]')                      # 21
     console.print()                                                                                                                   # 22
     console.print('[grey15 on deep_sky_blue4]                                                           Press CTRL+C to quit.[/]')    # 23
-
-
-
-
-
-
-# def print_static_content():
-#     console.clear()
-#     console.print('[white on deep_sky_blue4] ⣿ LMODEM      by Chris Clement (K7CTC)  ❭❭❭                                    [/]')     #  1
-#     console.print('╭─ LoStik Parameters ──────────────────────────────────────────────────────────╮')                                 #  2
-#     console.print('           Firmware Version:')                                                                                     #  3
-#     console.print('                    EUI-64™:')                                                                                     #  4
-#     console.print('                  Frequency:')                                                                                     #  5
-#     console.print('                  Bandwidth:')                                                                                     #  6
-#     console.print('                   TX Power:')                                                                                     #  7
-#     console.print('           Spreading Factor:')                                                                                     #  8
-#     console.print('                Coding Rate:')                                                                                     #  9
-#     console.print('╭─ LMODEM Parameters ──────────────────────────────────────────────────────────╮')                                 # 10
-#     console.print('                       Mode:')                                                                                     # 11
-#     console.print('                    Channel:')                                                                                     # 12
-#     console.print('╭─ File Transfer Details ──────────────────────────────────────────────────────╮')                                 # 13
-#     console.print('                       Name:')                                                                                     # 14
-#     console.print('             Size (on disk):')                                                                                     # 15
-#     console.print('        Size (over the air):')                                                                                     # 16
-#     console.print('                Secure Hash:')                                                                                     # 17
-#     console.print('                     Blocks:')                                                                                     # 18
-#     console.print('╭─ File Transfer Progress ─────────────────────────────────────────────────────╮')                                 # 19
-#     console.print()                                                                                                                   # 20
-#     console.print('[grey23]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━   0% 0:00:00 0:00:00[/]')                      # 21
-#     console.print()                                                                                                                   # 22
-#     console.print('[grey15 on deep_sky_blue4]                                                           Press CTRL+C to quit.[/]')    # 23
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 def insert_module_version(module_version):
     move_cursor(1,11)
@@ -98,13 +54,13 @@ def insert_module_name(module_name):
     move_cursor(1,47)
     console.print(f'[white on deep_sky_blue4]{module_name}[/]')
 
-def insert_firmware_version(firmware_version):
-    move_cursor(3,30)
-    console.print(firmware_version)
+def insert_lmodem_channel(lmodem_channel):
+    move_cursor(3,20)
+    console.print(lmodem_channel)
 
-def insert_hweui(hweui):
-    move_cursor(4,30)
-    console.print(hweui)
+def insert_lmodem_mode(lmodem_mode):
+    move_cursor(3,40)
+    console.print(lmodem_mode)
 
 def insert_frequency(frequency):
     move_cursor(5,30)
@@ -210,53 +166,34 @@ def insert_coding_rate(coding_rate):
     move_cursor(9,30)
     console.print(coding_rate)
 
-def insert_lmodem_mode(lmodem_mode):
-    move_cursor(11,30)
-    console.print(lmodem_mode)
-
-def insert_lmodem_channel(lmodem_channel):
-    move_cursor(12,30)
-    console.print(lmodem_channel)
-
 def insert_file_name(file_name):
-    move_cursor(14,30)
+    move_cursor(12,30)
     console.print(file_name)
 
 def insert_file_size(file_size):
-    move_cursor(15,30)
+    move_cursor(13,30)
     console.print(f'{file_size} bytes')
 
 def insert_file_size_ota(file_size_ota):
-    move_cursor(16,30)
+    move_cursor(14,30)
     console.print(f'{file_size_ota} bytes')
 
 def insert_secure_hash(secure_hash):
-    move_cursor(17,30)
+    move_cursor(15,30)
     console.print(secure_hash)
 
 def insert_blocks(blocks):
-    move_cursor(18,30)
+    move_cursor(16,30)
     console.print(blocks)
 
 def insert_requested_blocks(requested_blocks):
-    move_cursor(1,1)
+    move_cursor(17,30)
     console.print(requested_blocks)
-
 
 def update_status(status):
     move_cursor(23,1)
     status = status.ljust(59)
     console.print(f'[white on deep_sky_blue4]{status}[/]')
-
-
-
-
-def lostik_service_update_total_air_time(last_tx_air_time):
-    move_cursor(12,30)
-    global total_air_time
-    total_air_time += last_tx_air_time
-    total_air_time_seconds = total_air_time / 1000
-    console.print(f'{total_air_time_seconds} seconds')
 
 def splash():
     move_cursor(15,27)
