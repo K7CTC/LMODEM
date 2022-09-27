@@ -170,8 +170,6 @@ if Path(partial_file).is_file():
         lostik.tx(requested_block_numbers, encode=True)
         receive_requested_blocks()
 else:
-    print('TX: Ready to receive file.')
-    print()
     keys = []
     for i in range(int(incoming_file_block_count)):
         keys.append(str(i).zfill(3))
