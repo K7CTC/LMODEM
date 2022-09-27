@@ -126,13 +126,13 @@ def receive_requested_blocks():
                                       rich.progress.TimeElapsedColumn())
     task = progress.add_task('Receive Requested Blocks', total=int(incoming_file_block_count))
     with progress:
+        progress.update(task, completed=count_received_blocks())
+        timeout_counter = 0
         while True:
-            progress.update(task, completed=count_received_blocks())
             incoming_packet = lostik.rx()
             if incoming_packet == '5245515F424C4F434B535F53454E54':
                 break
             if incoming_packet == 'TIME-OUT':
-                ui.update_status('[orange1 on deep_sky_blue4][WARNING][/] LoStik watchdog timer time-out!')
                 timeout_counter += 1
                 if timeout_counter == 3:
                     break
