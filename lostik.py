@@ -7,7 +7,6 @@
 ########################################################################
 
 #standard library imports
-import re
 from sys import exit
 from time import time, sleep
 
@@ -49,7 +48,7 @@ def read():
     line = lostik_port.readline().decode('ASCII').rstrip()
     return line
 
-#function: write line to serial interface
+#function: write command to serial interface and append CRLF to end
 # accepts: LoStik command as ASCII string
 def write(command):
     if type(command) != str:
@@ -71,8 +70,8 @@ if get_ver() != 'RN2903 1.0.5 Nov 06 2018 10:45:27':
     print('[ERROR] LoStik failed to return expected firmware version!')
     exit(1)
 
-#function: get LoStik EUI-64 (globally unique 64-bit identifier)
-# returns: EUI-64
+#function: get LoStik EUI-64™ (globally unique 64-bit identifier)
+# returns: EUI-64™
 def get_hweui():
     write('sys get hweui')
     return read()
@@ -95,19 +94,19 @@ def red_led(state):
         write('sys set pindig GPIO11 0') #GPIO11 0 = red tx led off
     read()
 
-#function: disable LoRaWAN via "mac pause" command
+#function: disable LoRaWAN® via "mac pause" command
 #    note: terminate on error
 def disable_lorawan():
     write('mac pause')
     if read() != '4294967245':
-        print('[ERROR] Failed to disable LoRaWAN!')
+        print('[ERROR] Failed to disable LoRaWAN®!')
         exit(1)
 
-#disable LoRaWAN before proceeding (to issue commands directly to the radio)
+#disable LoRaWAN® before proceeding (to issue commands directly to the radio)
 disable_lorawan()
 
 #functions: read radio settings from LoStik
-#  returns: setting value (as string)
+#  returns: setting value
 def get_bw():
     write('radio get bw')
     return read()
@@ -140,57 +139,57 @@ def get_wdt():
     return read()
 
 #functions: write radio settings to LoStik
-#  accepts: setting value as ASCII string
+#  accepts: setting value
 #     note: terminate on error
 def set_bw(bw):
     write(f'radio set bw {bw}')
     if read() != 'ok':
-        print('[ERROR] Failed to set LoStik radio bandwidth!')
+        print('[ERROR] Failed to set LoStik radio bandwidth! Invalid parameter!')
         exit(1)
 def set_cr(cr):
     write(f'radio set cr {cr}')
     if read() != 'ok':
-        print('[ERROR] Failed to set LoStik coding rate!')
+        print('[ERROR] Failed to set LoStik coding rate! Invalid parameter!')
         exit(1)
 def set_crc(crc):
     write(f'radio set crc {crc}')
     if read() != 'ok':
-        print('[ERROR] Failed to set LoStik CRC header!')
+        print('[ERROR] Failed to set LoStik CRC header! Invalid parameter!')
         exit(1)
 def set_freq(freq):
     write(f'radio set freq {freq}')
     if read() != 'ok':
-        print('[ERROR] Failed to set LoStik frequency!')
+        print('[ERROR] Failed to set LoStik frequency! Invalid parameter!')
         exit(1)
 def set_iqi(iqi):
     write(f'radio set iqi {iqi}')
     if read() != 'ok':
-        print('[ERROR] Failed to set LoStik IQ inversion!')
+        print('[ERROR] Failed to set LoStik IQ inversion! Invalid parameter!')
         exit(1)
 def set_mod(mod):
     write(f'radio set mod {mod}')
     if read() != 'ok':
-        print('[ERROR] Failed to set LoStik modulation mode!')
+        print('[ERROR] Failed to set LoStik modulation mode! Invalid parameter!')
         exit(1)
 def set_pwr(pwr):
     write(f'radio set pwr {pwr}')
     if read() != 'ok':
-        print('[ERROR] Failed to set LoStik transmit power!')
+        print('[ERROR] Failed to set LoStik transmit power! Invalid parameter!')
         exit(1)
 def set_sf(sf):
     write(f'radio set sf {sf}')
     if read() != 'ok':
-        print('[ERROR] Failed to set LoStik spreading factor!')
+        print('[ERROR] Failed to set LoStik spreading factor! Invalid parameter!')
         exit(1)
 def set_sync(sync):
     write(f'radio set sync {sync}')
     if read() != 'ok':
-        print('[ERROR] Failed to set LoStik sync word!')
+        print('[ERROR] Failed to set LoStik sync word! Invalid parameter!')
         exit(1)
 def set_wdt(wdt):
     write(f'radio set wdt {wdt}')
     if read() != 'ok':
-        print('[ERROR] Failed to set LoStik watchdog timer time-out!')
+        print('[ERROR] Failed to set LoStik watchdog timer time-out! Invalid parameter!')
         exit(1)
 
 #function: obtain received signal strength indicator of last received packet
@@ -210,9 +209,10 @@ def get_snr():
 #function: attempt to transmit outbound packet
 # accepts: packet as hexadecimal string by default, optionally accepts ASCII string
 #  option: encode (boolean) - allows function to accept and encode ASCII instead of hexadecimal
+#  option: delay (float) - delay TX operation to allow receive station time to process prior packet
 # returns: time_sent and air_time
 #    note: terminate on error
-def tx(packet, encode=False, delay=0):
+def tx(packet, encode=False, delay=0.0):
     sleep(delay)
     if encode == False:
         write(f'radio tx {packet}')
@@ -270,7 +270,7 @@ def rx(decode=False):
         if decode == True:
             return bytes.fromhex(response).decode('ASCII')
 
-#function: force radio to halt continuous receive mode
+#function: force LoStik to halt continuous receive mode
 #    note: terminate on error
 def rxstop():
     write('radio rxstop')

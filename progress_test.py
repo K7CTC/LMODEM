@@ -15,7 +15,7 @@ with progress:
     while True:
         
         progress.update(task, completed=received_blocks)
-        time.sleep(.5)
+        time.sleep(0.0)
 
         received_blocks += 1
         
