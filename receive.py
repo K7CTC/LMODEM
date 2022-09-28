@@ -69,26 +69,26 @@ ui.update_status('Connected!')
 
 #listen for incoming file details
 ui.update_status('Awaiting file transfer details.')
-file_transfer_details = lostik.rx(decode=True)
-if file_transfer_details == 'TIME-OUT':
+file_transfer_details_string = lostik.rx(decode=True)
+if file_transfer_details_string == 'TIME-OUT':
     ui.update_status('[red1 on deep_sky_blue4][ERROR][/] LoStik watchdog timer time-out!')
     exit(1)
 else:    
-    file_transfer_details_list = file_transfer_details.split('|')
-    incoming_file_name = file_transfer_details_list[0]
-    incoming_file_size = file_transfer_details_list[1]
-    incoming_file_size_ota = file_transfer_details_list[2]
-    incoming_file_block_count = file_transfer_details_list[3]
-    incoming_file_secure_hash = file_transfer_details_list[4]
-    del file_transfer_details, file_transfer_details_list
+    file_transfer_details = file_transfer_details_string.split('|')
+    incoming_file_name = file_transfer_details[0]
+    incoming_file_size_on_disk = file_transfer_details[1]
+    incoming_file_size_ota = file_transfer_details[2]
+    incoming_file_block_count = file_transfer_details[3]
+    incoming_file_secure_hash_hex_digest = file_transfer_details[4]
+    del file_transfer_details_string, file_transfer_details
 
 #show file transfer details
 ui.update_status('Received file transfer details.')
 ui.insert_file_name(incoming_file_name)
-ui.insert_file_size(incoming_file_size)
+ui.insert_file_size_on_disk(incoming_file_size_on_disk)
 ui.insert_file_size_ota(incoming_file_size_ota)
-ui.insert_secure_hash(incoming_file_secure_hash)
-ui.insert_blocks(incoming_file_block_count)
+ui.insert_secure_hash_hex_digest(incoming_file_secure_hash_hex_digest)
+ui.insert_block_count(incoming_file_block_count)
 
 #check if incoming file already exists
 if Path(incoming_file_name).is_file():
@@ -96,11 +96,11 @@ if Path(incoming_file_name).is_file():
     with open(incoming_file_name, 'rb') as file:
         local_file_secure_hash = blake2b(digest_size=16)
         local_file_secure_hash.update(file.read())
-    if incoming_file_secure_hash == local_file_secure_hash.hexdigest():
+    if incoming_file_secure_hash_hex_digest == local_file_secure_hash.hexdigest():
         ui.update_status('[green1 on deep_sky_blue4][DONE][/] Duplicate file found. Integrity check passed.')
         lostik.tx('DUPLICATE_PASS', encode=True)
         exit(0)
-    if incoming_file_secure_hash != local_file_secure_hash.hexdigest():
+    if incoming_file_secure_hash_hex_digest != local_file_secure_hash.hexdigest():
         ui.update_status('[red1 on deep_sky_blue4][ERROR][/] Duplicate filename found. Integrity check failed!')
         lostik.tx('DUPLICATE_FAIL', encode=True)
         exit(1)
@@ -114,6 +114,22 @@ def count_received_blocks():
         if received_blocks[block] != '':
             received_block_count += 1
     return received_block_count
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #function to deposit received requested blocks into dictionary
 def receive_requested_blocks():
