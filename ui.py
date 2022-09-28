@@ -170,7 +170,7 @@ def insert_file_name(file_name):
     move_cursor(12,30)
     console.print(file_name)
 
-def insert_file_size(file_size):
+def insert_file_size_on_disk(file_size):
     move_cursor(13,30)
     console.print(f'{file_size} bytes')
 

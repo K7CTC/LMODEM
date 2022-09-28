@@ -102,7 +102,7 @@ def disable_lorawan():
         print('[ERROR] Failed to disable LoRaWAN®!')
         exit(1)
 
-#disable LoRaWAN® before proceeding (to issue commands directly to the radio)
+#disable LoRaWAN® before proceeding
 disable_lorawan()
 
 #functions: read radio settings from LoStik
@@ -298,21 +298,21 @@ def lmodem_set_mode(mode_number): #pwr set to 2 for testing
         set_bw('500')
         set_sf('sf8')
         set_cr('4/6')
-        set_wdt('875')
+        set_wdt('1000')
     if mode_number == 2:
         set_pwr('2')
         # set_pwr('12')
         set_bw('250')
         set_sf('sf10')
         set_cr('4/7')
-        set_wdt('1600')
+        set_wdt('2000')
     if mode_number == 3:
         set_pwr('2')
         # set_pwr('17')
         set_bw('125')
         set_sf('sf12')
         set_cr('4/8')
-        set_wdt('8500')
+        set_wdt('9000')
 
 def lmodem_get_mode(): #pwr set to 2 for testing
     pwr = get_pwr()
@@ -320,21 +320,21 @@ def lmodem_get_mode(): #pwr set to 2 for testing
     sf = get_sf()
     cr = get_cr()
     wdt = get_wdt()
-    if pwr == '2' and bw == '500' and sf == 'sf8' and cr == '4/6' and wdt == '875':
-    # if pwr == '6' and bw == '500' and sf == 'sf8' and cr == '4/6' and wdt == '875':
+    if pwr == '2' and bw == '500' and sf == 'sf8' and cr == '4/6' and wdt == '1000':
+    # if pwr == '6' and bw == '500' and sf == 'sf8' and cr == '4/6' and wdt == '1000':
         return 1
-    if pwr == '2' and bw == '250' and sf == 'sf10' and cr == '4/7' and wdt == '1600':
-    # if pwr == '12' and bw == '250' and sf == 'sf10' and cr == '4/7' and wdt == '1600':
+    if pwr == '2' and bw == '250' and sf == 'sf10' and cr == '4/7' and wdt == '2000':
+    # if pwr == '12' and bw == '250' and sf == 'sf10' and cr == '4/7' and wdt == '2000':
         return 2
-    if pwr == '2' and bw == '125' and sf == 'sf12' and cr == '4/8' and wdt == '8500':
-    # if pwr == '17' and bw == '125' and sf == 'sf12' and cr == '4/8' and wdt == '8500':
+    if pwr == '2' and bw == '125' and sf == 'sf12' and cr == '4/8' and wdt == '9000':
+    # if pwr == '17' and bw == '125' and sf == 'sf12' and cr == '4/8' and wdt == '9000':
         return 3
     print('[ERROR] Invalid LoStik configuration!')
     print('HELP: LoStik settings do not match any of the LMODEM modes.')
     exit(1)
 
 def lmodem_set_channel(channel_number):
-    if channel_number >3 or channel_number < 1:
+    if channel_number > 3 or channel_number < 1:
         print('[ERROR] Invalid channel number!')
         print('HELP: Valid channel numbes are 1, 2 and 3.')
     if channel_number == 1:
@@ -352,3 +352,5 @@ def lmodem_get_channel():
         return 2
     if freq == '916000000':
         return 3
+    print('[ERROR] Invalid LoStik configuration!')
+    print('HELP: LoStik frequency setting does not match any of the LMODEM channels.')

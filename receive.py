@@ -22,7 +22,6 @@ import rich.progress
 #local application/library specific imports
 import lostik
 import ui
-from console import console
 
 #establish and parse command line arguments
 parser = argparse.ArgumentParser(description='LMODEM - Receive File',

@@ -38,6 +38,7 @@ parser.add_argument('-c', '--channel',
                     help='LMODEM operating channel (default: 2)',
                     default=2)
 args = parser.parse_args()
+
 del parser
 
 #display the user interface
@@ -66,27 +67,45 @@ if not Path(args.outgoing_file).is_file():
     ui.update_status('[red1 on deep_sky_blue4][ERROR][/] File does not exist!')
     exit(1)
 
-#LMODEM maximum file name length will henceforth be limited to 32 characters
+#check if outgoing filename exceeds LMODEM maximum length of 32 characters
 if len(args.outgoing_file) > 32:
     ui.update_status('[red1 on deep_sky_blue4][ERROR][/] File name exceeds 32 character limit!')
     exit(1)
 
-#get secure hash for outgoing file
+#generate secure hash hex digest for outgoing file
 with open(args.outgoing_file, 'rb') as file:
     outgoing_file_secure_hash = blake2b(digest_size=16)
     outgoing_file_secure_hash.update(file.read())
-ui.insert_secure_hash(outgoing_file_secure_hash.hexdigest())
+    outgoing_file_secure_hash_hex_digest = outgoing_file_secure_hash.hexdigest()
 
-#compress outgoing file (in memory)
+del outgoing_file_secure_hash
+
+ui.insert_secure_hash(outgoing_file_secure_hash_hex_digest)
+
+#compress outgoing file (in memory) using lzma algorithm
 with open(args.outgoing_file, 'rb') as file:
     outgoing_file_compressed = lzma.compress(file.read())
 
 #base85 encode compressed outgoing file
 outgoing_file_compressed_b85 = b85encode(outgoing_file_compressed)
+
+del outgoing_file_compressed
+
+#determine over-the-air file size in bytes
+outgoing_file_size_ota = len(outgoing_file_compressed_b85)
+
 ui.insert_file_size_ota(len(outgoing_file_compressed_b85))
 
-#LMODEM maximum OTA file size will henceforth be limited to 32kb
-if len(outgoing_file_compressed_b85) > 32768:
+#determine on disk file size in bytes
+outgoing_file_size_on_disk = Path(args.outgoing_file).stat().st_size
+
+ui.insert_file_size(outgoing_file_size)
+
+
+
+
+#check if outgoing file size over-the-air exceeds LMODEM maximum of 32768 bytes
+if outgoing_file_size_ota > 32768:
     ui.update_status('[red1 on deep_sky_blue4][ERROR][/] Size (over the air) exceeds maximum of 32768 bytes!')
     exit(1)
 
@@ -96,10 +115,6 @@ outgoing_file_compressed_b85_hex = outgoing_file_compressed_b85.hex()
 #split hex encoded base85 encoded compressed outgoing file into 128 byte blocks
 blocks = textwrap.wrap(outgoing_file_compressed_b85_hex, 256)
 ui.insert_blocks(len(blocks))
-
-#get size (on disk) of outgoing file
-outgoing_file_size = Path(args.outgoing_file).stat().st_size
-ui.insert_file_size(outgoing_file_size)
 
 #concatenate zero filled block index and block contents to create numbered packets
 packets = []
@@ -137,6 +152,7 @@ file_transfer_details = (args.outgoing_file + '|' +
                         str(len(outgoing_file_compressed_b85)) + '|' +
                         str(len(blocks)) + '|' + 
                         outgoing_file_secure_hash.hexdigest())
+del outgoing_file_compressed_b85
 ui.update_status('Transmitting file transfer details.')
 lostik.tx(file_transfer_details, encode=True)
 ui.update_status('File transfer details sent.')

@@ -1,18 +1,8 @@
 # LMODEM Notes
 
-## Control Codes
-* DTR = Data Terminal Ready
-* TOT = Time-Out Timer
-* DUP = Duplicate File
-* CAN = Cancel File Transfer 
-* RTR = Ready to Receive
-* REQ = Request Blocks (list)
-* SNT = Requested Blocks Sent
-* FIN = File Transfer Finished
-
 ## LMODEM LoStik Modes
 
-### MODE1 - Fastest & Least Robust
+### MODE1 - Short Range (Fast)
 * PWR = 6
 * BW = 500
 * SF = sf8
@@ -20,7 +10,7 @@
 * WDT = 875
 It takes about 125ms to send 128 bytes in MODE1
 
-### MODE2 - Middle Ground
+### MODE2 - Medium Range (Balanced)
 * PWR = 12
 * BW = 250
 * SF = sf10
@@ -28,7 +18,7 @@ It takes about 125ms to send 128 bytes in MODE1
 * WDT = 1600
 It takes about 850ms to send 128 bytes in MODE2
 
-### MODE3 - Slowest & Most Robust
+### MODE3 - Long Range (Slow)
 * PWR = 17
 * BW = 125
 * SF = sf12
