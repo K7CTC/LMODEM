@@ -91,30 +91,34 @@ outgoing_file_compressed_b85 = b85encode(outgoing_file_compressed)
 
 del outgoing_file_compressed
 
-#determine over-the-air file size in bytes
+#determine over-the-air outgoing file size in bytes
 outgoing_file_size_ota = len(outgoing_file_compressed_b85)
 
-ui.insert_file_size_ota(len(outgoing_file_compressed_b85))
-
-#determine on disk file size in bytes
-outgoing_file_size_on_disk = Path(args.outgoing_file).stat().st_size
-
-ui.insert_file_size(outgoing_file_size)
-
-
-
+ui.insert_file_size_ota(outgoing_file_size_ota)
 
 #check if outgoing file size over-the-air exceeds LMODEM maximum of 32768 bytes
 if outgoing_file_size_ota > 32768:
     ui.update_status('[red1 on deep_sky_blue4][ERROR][/] Size (over the air) exceeds maximum of 32768 bytes!')
     exit(1)
 
+#determine on disk outgoing file size in bytes
+outgoing_file_size_on_disk = Path(args.outgoing_file).stat().st_size
+
+ui.insert_file_size_on_disk(outgoing_file_size_on_disk)
+
 #hex encode base85 encoded compressed outgoing file
 outgoing_file_compressed_b85_hex = outgoing_file_compressed_b85.hex()
 
+del outgoing_file_compressed_b85
+
 #split hex encoded base85 encoded compressed outgoing file into 128 byte blocks
 blocks = textwrap.wrap(outgoing_file_compressed_b85_hex, 256)
-ui.insert_blocks(len(blocks))
+
+del outgoing_file_compressed_b85_hex
+
+block_count = len(blocks)
+
+ui.insert_block_count(block_count)
 
 #concatenate zero filled block index and block contents to create numbered packets
 packets = []
@@ -123,8 +127,9 @@ for block in blocks:
     block_index_zfill_hex = block_index_zfill.encode('ASCII').hex()
     packet = block_index_zfill_hex + block
     packets.append(packet)
+del blocks
 
-def send_requested_blocks(requested_block_number_list):
+def send_requested_blocks(requested_blocks):
     ui.update_status('Transmitting requested blocks.')
     ui.move_cursor(21,1)
     progress = rich.progress.Progress(rich.progress.BarColumn(bar_width=59),
@@ -132,9 +137,9 @@ def send_requested_blocks(requested_block_number_list):
                                       rich.progress.TimeRemainingColumn(),
                                       rich.progress.TimeElapsedColumn())
     with progress:
-        for number in progress.track(requested_block_number_list):
-            lostik.tx(packets[int(number)], delay=.2)
-    lostik.tx('REQ_BLOCKS_SENT',encode=True)
+        for number in progress.track(requested_blocks):
+            lostik.tx(packets[int(number)], delay=.15)
+    lostik.tx('REQ_BLOCKS_SENT', encode=True)
     ui.update_status('All requested blocks sent.')
 
 #handshake
@@ -146,13 +151,13 @@ while True:
 ui.update_status('Connected!')
 
 #provide receiving station with the file transfer details
-#file name | size on disk | size over the air | number of blocks to expect | secure hash
+#file name | size on disk | size over the air | number of blocks | secure hash
 file_transfer_details = (args.outgoing_file + '|' +
-                        str(outgoing_file_size) + '|' +
-                        str(len(outgoing_file_compressed_b85)) + '|' +
-                        str(len(blocks)) + '|' + 
-                        outgoing_file_secure_hash.hexdigest())
-del outgoing_file_compressed_b85
+                        str(outgoing_file_size_on_disk) + '|' +
+                        str(outgoing_file_size_ota) + '|' +
+                        str(block_count) + '|' + 
+                        outgoing_file_secure_hash_hex_digest)
+del outgoing_file_size_on_disk, outgoing_file_size_ota, block_count, outgoing_file_secure_hash_hex_digest
 ui.update_status('Transmitting file transfer details.')
 lostik.tx(file_transfer_details, encode=True)
 ui.update_status('File transfer details sent.')
@@ -169,21 +174,28 @@ if reply == 'DUPLICATE_PASS':
 if reply == 'DUPLICATE_FAIL':
     ui.update_status('[red1 on deep_sky_blue4][ERROR][/] Duplicate filename found. Integrity check failed!')
     exit(1)
-if reply[:3] == 'REQ':
-    ui.update_status('Resuming file transfer.')
-    requested_block_numbers_string = reply[3:]
-    requested_block_numbers_list = requested_block_numbers_string.split('|')
-    ui.insert_requested_blocks(len(requested_block_numbers_list))
-    send_requested_blocks(requested_block_numbers_list)
 if reply == 'READY_TO_RECEIVE':
     ui.update_status('Starting file transfer.')
-    requested_block_numbers_list = []
+    requested_blocks = []
     for packet in packets:
-        requested_block_numbers_list.append(packets.index(packet))
-    ui.insert_requested_blocks(len(requested_block_numbers_list))
-    send_requested_blocks(requested_block_numbers_list)
-
+        requested_blocks.append(packets.index(packet))
+    requested_block_count = len(requested_blocks)
+    ui.insert_requested_block_count(requested_block_count)
+    del requested_block_count
+    send_requested_blocks(requested_blocks)
+    del requested_blocks
+if reply[:3] == 'REQ':
+    ui.update_status('Resuming file transfer.')
+    requested_block_numbers = reply[3:]
+    requested_blocks = requested_block_numbers.split('|')
+    requested_block_count = len(requested_blocks)
+    ui.insert_requested_block_count(requested_block_count)
+    del requested_block_count
+    send_requested_blocks(requested_blocks)
+    del requested_blocks
+    
 #await reply after sending requested packets
+ui.update_status('Awaiting transfer result from receive station.')
 reply = lostik.rx(decode=True)
 if reply == 'TIME-OUT':
     ui.update_status('[red1 on deep_sky_blue4][ERROR][/] LoStik watchdog timer time-out!')

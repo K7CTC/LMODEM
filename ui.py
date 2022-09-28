@@ -178,17 +178,17 @@ def insert_file_size_ota(file_size_ota):
     move_cursor(14,30)
     console.print(f'{file_size_ota} bytes')
 
-def insert_secure_hash(secure_hash):
+def insert_secure_hash_hex_digest(secure_hash_hex_digest):
     move_cursor(15,30)
-    console.print(secure_hash)
+    console.print(secure_hash_hex_digest)
 
-def insert_blocks(blocks):
+def insert_block_count(block_count):
     move_cursor(16,30)
-    console.print(blocks)
+    console.print(block_count)
 
-def insert_requested_blocks(requested_blocks):
+def insert_requested_block_count(requested_block_count):
     move_cursor(17,30)
-    console.print(requested_blocks)
+    console.print(requested_block_count)
 
 def update_status(status):
     move_cursor(23,1)
