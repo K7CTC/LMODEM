@@ -160,7 +160,7 @@ file_transfer_details = (args.outgoing_file + '|' +
                         str(outgoing_file_size_ota) + '|' +
                         str(block_count) + '|' + 
                         outgoing_file_secure_hash_hex_digest)
-del outgoing_file_size_on_disk, outgoing_file_size_ota, block_count, outgoing_file_secure_hash_hex_digest
+del outgoing_file_size_on_disk, outgoing_file_size_ota, outgoing_file_secure_hash_hex_digest
 ui.update_status('Transmitting file transfer details.')
 lostik.tx(file_transfer_details, encode=True)
 ui.update_status('File transfer details sent.')
