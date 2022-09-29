@@ -1,6 +1,5 @@
-test.xm
-test.xm.json
-
+test.*
+.DS_Store
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

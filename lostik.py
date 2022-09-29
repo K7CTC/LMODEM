@@ -6,16 +6,14 @@
 #                                                                      #
 ########################################################################
 
-#import from required 3rd party libraries
-from concurrent.futures.process import _chain_from_iterable_of_lists
-import serial
-import serial.tools.list_ports
-
-#import from standard library
+#standard library imports
 from sys import exit
 from time import time, sleep
 
-#terminate if executed directly
+#related third party imports
+import serial
+import serial.tools.list_ports
+
 if __name__ == '__main__':
     print('[ERROR] lostik.py is not intended for direct execution!')
     exit(1)
@@ -39,23 +37,23 @@ del lostik_port_generator, lostik_count
 try:
     lostik_port = serial.Serial(assigned_port, baudrate=57600, timeout=1)
 except:
-    print('[ERROR] Unable to connect to LoStik!')
+    print('[ERROR] Failed to connect to LoStik!')
     print('HELP: Check port permissions. User must be member of "dialout" group on Linux.')
     exit(1)
 del assigned_port
 
 #function: read line from serial interface and remove CRLF from end
-# returns: ascii string
+# returns: ASCII string
 def read():
     line = lostik_port.readline().decode('ASCII').rstrip()
     return line
 
-#function: write line to serial interface
+#function: write command to serial interface and append CRLF to end
 # accepts: LoStik command as ASCII string
 def write(command):
     if type(command) != str:
-        print('[ERROR] Failed to process LoStik command!')
-        print('HELP: Invalid type, command must be a string.')
+        print('[ERROR] Invalid command type!')
+        print('HELP: Command must be a string.')
         exit(1)
     else:
         command = command.encode('ASCII')
@@ -72,8 +70,8 @@ if get_ver() != 'RN2903 1.0.5 Nov 06 2018 10:45:27':
     print('[ERROR] LoStik failed to return expected firmware version!')
     exit(1)
 
-#function: get LoStik EUI-64 (globally unique 64-bit identifier)
-# returns: EUI-64
+#function: get LoStik EUI-64™ (globally unique 64-bit identifier)
+# returns: EUI-64™
 def get_hweui():
     write('sys get hweui')
     return read()
@@ -96,19 +94,19 @@ def red_led(state):
         write('sys set pindig GPIO11 0') #GPIO11 0 = red tx led off
     read()
 
-#function: disable LoRaWAN via "mac pause" command
+#function: disable LoRaWAN® via "mac pause" command
 #    note: terminate on error
 def disable_lorawan():
     write('mac pause')
     if read() != '4294967245':
-        print('[ERROR] Failed to disable LoRaWAN!')
+        print('[ERROR] Failed to disable LoRaWAN®!')
         exit(1)
 
-#disable LoRaWAN before proceeding (to issue commands directly to the radio)
+#disable LoRaWAN® before proceeding
 disable_lorawan()
 
-#functions: read radio settings from LoStik 
-#  returns: setting value (as string)
+#functions: read radio settings from LoStik
+#  returns: setting value
 def get_bw():
     write('radio get bw')
     return read()
@@ -140,58 +138,58 @@ def get_wdt():
     write('radio get wdt')
     return read()
 
-#functions: write radio settings to LoStik 
-#  accepts: setting value as ASCII string
+#functions: write radio settings to LoStik
+#  accepts: setting value
 #     note: terminate on error
 def set_bw(bw):
     write(f'radio set bw {bw}')
     if read() != 'ok':
-        print('[ERROR] Failed to set LoStik radio bandwidth!')
+        print('[ERROR] Failed to set LoStik radio bandwidth! Invalid parameter!')
         exit(1)
 def set_cr(cr):
     write(f'radio set cr {cr}')
     if read() != 'ok':
-        print('[ERROR] Failed to set LoStik coding rate!')
+        print('[ERROR] Failed to set LoStik coding rate! Invalid parameter!')
         exit(1)
 def set_crc(crc):
     write(f'radio set crc {crc}')
     if read() != 'ok':
-        print('[ERROR] Failed to set LoStik CRC header!')
+        print('[ERROR] Failed to set LoStik CRC header! Invalid parameter!')
         exit(1)
 def set_freq(freq):
     write(f'radio set freq {freq}')
     if read() != 'ok':
-        print('[ERROR] Failed to set LoStik frequency!')
+        print('[ERROR] Failed to set LoStik frequency! Invalid parameter!')
         exit(1)
 def set_iqi(iqi):
     write(f'radio set iqi {iqi}')
     if read() != 'ok':
-        print('[ERROR] Failed to set LoStik IQ inversion!')
+        print('[ERROR] Failed to set LoStik IQ inversion! Invalid parameter!')
         exit(1)
 def set_mod(mod):
     write(f'radio set mod {mod}')
     if read() != 'ok':
-        print('[ERROR] Failed to set LoStik modulation mode!')
+        print('[ERROR] Failed to set LoStik modulation mode! Invalid parameter!')
         exit(1)
 def set_pwr(pwr):
     write(f'radio set pwr {pwr}')
     if read() != 'ok':
-        print('[ERROR] Failed to set LoStik transmit power!')
+        print('[ERROR] Failed to set LoStik transmit power! Invalid parameter!')
         exit(1)
 def set_sf(sf):
     write(f'radio set sf {sf}')
     if read() != 'ok':
-        print('[ERROR] Failed to set LoStik spreading factor!')
+        print('[ERROR] Failed to set LoStik spreading factor! Invalid parameter!')
         exit(1)
 def set_sync(sync):
     write(f'radio set sync {sync}')
     if read() != 'ok':
-        print('[ERROR] Failed to set LoStik sync word!')
+        print('[ERROR] Failed to set LoStik sync word! Invalid parameter!')
         exit(1)
 def set_wdt(wdt):
     write(f'radio set wdt {wdt}')
     if read() != 'ok':
-        print('[ERROR] Failed to set LoStik watchdog timer time-out!')
+        print('[ERROR] Failed to set LoStik watchdog timer time-out! Invalid parameter!')
         exit(1)
 
 #function: obtain received signal strength indicator of last received packet
@@ -291,7 +289,7 @@ def rxstop():
 # accepts: mode number (1, 2 or 3)
 def lmodem_set_mode(mode_number): #pwr set to 2 for testing
     if mode_number > 3 or mode_number < 1:
-        print('[ERROR] Invalid LMODEM mode!')
+        print('[ERROR] Invalid LMODEM mode number!')
         print('HELP: Valid mode numbers are 1, 2, and 3.')
         exit(1)
     if mode_number == 1:
@@ -300,21 +298,21 @@ def lmodem_set_mode(mode_number): #pwr set to 2 for testing
         set_bw('500')
         set_sf('sf8')
         set_cr('4/6')
-        set_wdt('875')
+        set_wdt('1000')
     if mode_number == 2:
         set_pwr('2')
         # set_pwr('12')
         set_bw('250')
         set_sf('sf10')
         set_cr('4/7')
-        set_wdt('1600')
+        set_wdt('2000')
     if mode_number == 3:
         set_pwr('2')
         # set_pwr('17')
         set_bw('125')
         set_sf('sf12')
         set_cr('4/8')
-        set_wdt('8500')
+        set_wdt('9000')
 
 def lmodem_get_mode(): #pwr set to 2 for testing
     pwr = get_pwr()
@@ -322,21 +320,21 @@ def lmodem_get_mode(): #pwr set to 2 for testing
     sf = get_sf()
     cr = get_cr()
     wdt = get_wdt()
-    if pwr == '2' and bw == '500' and sf == 'sf8' and cr == '4/6' and wdt == '875':
-    # if pwr == '6' and bw == '500' and sf == 'sf8' and cr == '4/6' and wdt == '875':
+    if pwr == '2' and bw == '500' and sf == 'sf8' and cr == '4/6' and wdt == '1000':
+    # if pwr == '6' and bw == '500' and sf == 'sf8' and cr == '4/6' and wdt == '1000':
         return 1
-    if pwr == '2' and bw == '250' and sf == 'sf10' and cr == '4/7' and wdt == '1600':
-    # if pwr == '12' and bw == '250' and sf == 'sf10' and cr == '4/7' and wdt == '1600':
+    if pwr == '2' and bw == '250' and sf == 'sf10' and cr == '4/7' and wdt == '2000':
+    # if pwr == '12' and bw == '250' and sf == 'sf10' and cr == '4/7' and wdt == '2000':
         return 2
-    if pwr == '2' and bw == '125' and sf == 'sf12' and cr == '4/8' and wdt == '8500':
-    # if pwr == '17' and bw == '125' and sf == 'sf12' and cr == '4/8' and wdt == '8500':
+    if pwr == '2' and bw == '125' and sf == 'sf12' and cr == '4/8' and wdt == '9000':
+    # if pwr == '17' and bw == '125' and sf == 'sf12' and cr == '4/8' and wdt == '9000':
         return 3
     print('[ERROR] Invalid LoStik configuration!')
     print('HELP: LoStik settings do not match any of the LMODEM modes.')
     exit(1)
-    
+
 def lmodem_set_channel(channel_number):
-    if channel_number >3 or channel_number < 1:
+    if channel_number > 3 or channel_number < 1:
         print('[ERROR] Invalid channel number!')
         print('HELP: Valid channel numbes are 1, 2 and 3.')
     if channel_number == 1:
@@ -354,4 +352,5 @@ def lmodem_get_channel():
         return 2
     if freq == '916000000':
         return 3
-    
+    print('[ERROR] Invalid LoStik configuration!')
+    print('HELP: LoStik frequency setting does not match any of the LMODEM channels.')
