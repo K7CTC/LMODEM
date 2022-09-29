@@ -185,7 +185,7 @@ receive_requested_blocks()
 
 
 
-del missing_blocks
+
 missing_blocks = create_missing_blocks_string(received_blocks)
 
 #if all blocks received, process file

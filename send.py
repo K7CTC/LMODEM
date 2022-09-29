@@ -78,7 +78,7 @@ with open(args.outgoing_file, 'rb') as file:
 
 del outgoing_file_secure_hash
 
-ui.insert_secure_hash(outgoing_file_secure_hash_hex_digest)
+ui.insert_secure_hash_hex_digest(outgoing_file_secure_hash_hex_digest)
 
 #compress outgoing file (in memory) using lzma algorithm
 with open(args.outgoing_file, 'rb') as file:
@@ -128,7 +128,6 @@ for block in blocks:
 del blocks
 
 def send_requested_blocks(received_block_count, requested_blocks):
-    global block_count
     ui.update_status('Transmitting requested blocks.')
     ui.move_cursor(21,1)
     progress = rich.progress.Progress(rich.progress.BarColumn(bar_width=59),
