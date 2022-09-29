@@ -211,65 +211,68 @@ def get_snr():
 #function: attempt to transmit outbound packet
 # accepts: packet as hexadecimal string by default, optionally accepts ASCII string
 #  option: encode (boolean) - allows function to accept and encode ASCII instead of hexadecimal
+#  option: delay (float) - delay TX operation to allow receive station time to process prior packet
 # returns: time_sent and air_time
 #    note: terminate on error
-def tx(packet, encode = False):
-    sleep(.20) #to prevent packet loss
-    tx_start_time = 0
-    tx_end_time = 0
-    time_sent = 0
-    air_time = 0
+def tx(packet, encode=False, delay=0.0):
+    sleep(delay)
     if encode == False:
         write(f'radio tx {packet}')
     if encode == True:
         hex = packet.encode('ASCII').hex()
-        write(f'radio tx {hex}')
-    if read() == 'ok':
-        tx_start_time = int(round(time()*1000))
+        write(f'radio tx {hex}')   
+    response = read()
+    if response == 'busy':
+        print('[ERROR] Failed to enter transmit mode! LoStik busy!')
+        exit(1)
+    if response == 'invalid_param':
+        print('[ERROR] Failed to enter transmit mode! Invalid parameter!')
+        exit(1)
+    if response == 'ok':
         red_led(True)
-    else:
-        print('[ERROR] Transmit failure!')
-        print('HELP: Did you set the encode argument correctly?')
-        exit(1)
-    reply = ''
-    while reply == '':
-        reply = read()
-    if reply == 'radio_tx_ok':
-        tx_end_time = int(round(time()*1000))
-        time_sent = tx_end_time
-        air_time = tx_end_time - tx_start_time
+        tx_start_time = int(round(time()*1000))
+        response = ''
+        while response == '':
+            response = read()
         red_led(False)
-        return time_sent, air_time
-    elif reply == 'radio_err':
-        print('[ERROR] Transmit failure!')
-        exit(1)
+        if response == 'radio_err':
+            print('[ERROR] LoStik watchdog timer time-out!')
+            exit(1)
+        if response == 'radio_tx_ok':
+            tx_end_time = int(round(time()*1000))
+            time_sent = tx_end_time
+            air_time = tx_end_time - tx_start_time
+            return time_sent, air_time
 
 #function: attempt to receive inbound packet
 #  option: decode (boolean) - allows returned packed to be decoded from hexadecmial to ASCII
-# returns: packet contents in chosen encoding or none if no packet received before time-out
-def rx(decode = False):
+# returns: packet contents in chosen encoding or 'TIME-OUT' if no packet received before time-out
+def rx(decode=False):
     write('radio rx 0')
-    if read() != 'ok':
-        print('[ERROR] Failed to enter receive mode!')
+    response = read()
+    if response == 'busy':
+        print('[ERROR] Failed to enter receive mode. LoStik busy!')
         print('HELP: Disconnect and reconnect LoStik device, then try again.')
         exit(1)
-    blue_led(True)
-    reply = ''
-    while reply == '':
-        reply = read()
-    blue_led(False)
-    if reply == 'busy':
-        print('[ERROR] LoStik busy!')
+    if response == 'invalid_param':
+        print('[ERROR] Failed to enter receive mode! Invalid parameter!')
+        print('HELP: Disconnect and reconnect LoStik device, then try again.')
         exit(1)
-    if reply == 'radio_err': #wdt time-out
-        return 'TIME-OUT'
-    reply = reply[10:] #remove 'radio_rx  ' from beginning of string
-    if decode == False:
-        return reply
-    if decode == True:
-        return bytes.fromhex(reply).decode('ASCII')
+    if response == 'ok':        
+        blue_led(True)
+        response = ''
+        while response == '':
+            response = read()
+        blue_led(False)
+        if response == 'radio_err': #wdt time-out
+            return 'TIME-OUT'
+        response = response[10:] #remove 'radio_rx  ' from beginning of string
+        if decode == False:
+            return response
+        if decode == True:
+            return bytes.fromhex(response).decode('ASCII')
 
-#function: force radio to halt continuous receive mode
+#function: force LoStik to halt continuous receive mode
 #    note: terminate on error
 def rxstop():
     write('radio rxstop')
