@@ -169,16 +169,16 @@ if Path(partial_file).is_file():
         ui.update_status('Resuming file transfer.')
         lostik.tx(requested_block_numbers, encode=True)
         receive_requested_blocks()
-
-#request the whole file
-received_blocks.clear()
-keys = []
-for i in range(int(incoming_file_block_count)):
-    keys.append(str(i).zfill(3))
-received_blocks = dict.fromkeys(keys, '')
-ui.update_status('Starting file transfer.')
-lostik.tx('000', encode=True)
-receive_requested_blocks()
+else:
+    #request the whole file
+    received_blocks.clear()
+    keys = []
+    for i in range(int(incoming_file_block_count)):
+        keys.append(str(i).zfill(3))
+    received_blocks = dict.fromkeys(keys, '')
+    ui.update_status('Starting file transfer.')
+    lostik.tx('000', encode=True)
+    receive_requested_blocks()
 
 
 
