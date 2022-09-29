@@ -192,7 +192,8 @@ def insert_requested_block_count(requested_block_count):
 
 def update_status(status):
     move_cursor(23,1)
-    status = status.ljust(59)
+    console.print('[white on deep_sky_blue4]                                                           [/]')
+    move_cursor(23,1)
     console.print(f'[white on deep_sky_blue4]{status}[/]')
 
 def splash():

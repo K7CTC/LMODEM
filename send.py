@@ -200,31 +200,12 @@ else:
         del requested_blocks
 
 
-
-# if reply == 'READY_TO_RECEIVE':
-#     ui.update_status('Starting file transfer.')
-#     requested_blocks = []
-#     for packet in packets:
-#         requested_blocks.append(packets.index(packet))
-#     requested_block_count = len(requested_blocks)
-#     ui.insert_requested_block_count(requested_block_count)
-#     del requested_block_count
-#     send_requested_blocks(requested_blocks)
-#     del requested_blocks
-# if reply[:3] == 'REQ':
-#     ui.update_status('Resuming file transfer.')
-#     requested_block_numbers = reply[3:]
-#     requested_blocks = requested_block_numbers.split('|')
-#     requested_block_count = len(requested_blocks)
-#     ui.insert_requested_block_count(requested_block_count)
-#     del requested_block_count
-#     send_requested_blocks(requested_blocks)
-#     del requested_blocks
     
 
 
 #await reply after sending requested packets
 ui.update_status('Awaiting transfer result from receive station.')
+# lostik.set_wdt(15000)
 reply = lostik.rx(decode=True)
 if reply == 'TIME-OUT':
     ui.update_status('[red1 on deep_sky_blue4][ERROR][/] LoStik watchdog timer time-out!')
