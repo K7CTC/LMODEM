@@ -142,7 +142,7 @@ def send_requested_blocks(received_block_count, requested_blocks):
             lostik.tx(packets[int(block_number)], delay=.15)
             sent_block_count += 1
             progress.update(task, completed=received_block_count+sent_block_count)
-    lostik.tx('REQ_BLOCKS_SENT', encode=True)
+    lostik.tx('REQ_BLOCKS_SENT', encode=True, delay=.15)
     ui.update_status('All requested blocks sent.')
 
 #handshake

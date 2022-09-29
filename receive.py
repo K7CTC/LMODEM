@@ -161,11 +161,19 @@ if Path(partial_file).is_file():
     if incoming_file_secure_hash_hex_digest == received_blocks['secure_hash']:
         received_blocks.pop('secure_hash')
         missing_blocks = create_missing_blocks_string(received_blocks)
+
+        missing_blocks_list = missing_blocks.split('|')
+        requested_block_count = len(missing_blocks_list)
+        del missing_blocks_list
+
+
         if len(missing_blocks) > 123: #to ensure outgoing packet does not exceed 128 bytes
             missing_blocks = missing_blocks[:123]
         received_block_count = str(count_received_blocks()).zfill(3)
 
         requested_block_numbers = received_block_count + missing_blocks
+        ui.insert_requested_block_count(requested_block_count)
+
         ui.update_status('Resuming file transfer.')
         lostik.tx(requested_block_numbers, encode=True)
         receive_requested_blocks()
@@ -176,6 +184,7 @@ else:
     for i in range(int(incoming_file_block_count)):
         keys.append(str(i).zfill(3))
     received_blocks = dict.fromkeys(keys, '')
+    ui.insert_requested_block_count(incoming_file_block_count)
     ui.update_status('Starting file transfer.')
     lostik.tx('000', encode=True)
     receive_requested_blocks()
