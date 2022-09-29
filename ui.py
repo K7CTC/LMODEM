@@ -40,7 +40,7 @@ def print_static_content():
     console.print('                     Blocks:')                                                                                     # 16
     console.print('           Requested Blocks:')                                                                                     # 17
     console.print('')                                                                                                                 # 18
-    console.print('╭─ Requested Blocks          Progress ─────────────────────────────────────────╮')                                 # 19
+    console.print('╭─ File Transfer Progress ─────────────────────────────────────────────────────╮')                                 # 19
     console.print()                                                                                                                   # 20
     console.print('[grey23]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━   0% 0:00:00 0:00:00[/]')                      # 21
     console.print()                                                                                                                   # 22

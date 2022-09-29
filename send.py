@@ -51,8 +51,6 @@ lostik.lmodem_set_channel(args.channel)
 #update the user interface
 ui.insert_module_version('v0.4')
 ui.insert_module_name('Send File')
-ui.move_cursor(19,21)   #REFACTOR THIS
-print('Transmit')       #REFACTOR THIS
 ui.insert_lmodem_channel(lostik.lmodem_get_channel())
 ui.insert_lmodem_mode(lostik.lmodem_get_mode())
 ui.insert_frequency(lostik.get_freq())
@@ -129,16 +127,22 @@ for block in blocks:
     packets.append(packet)
 del blocks
 
-def send_requested_blocks(requested_blocks):
+def send_requested_blocks(received_block_count, requested_blocks):
+    global block_count
     ui.update_status('Transmitting requested blocks.')
     ui.move_cursor(21,1)
     progress = rich.progress.Progress(rich.progress.BarColumn(bar_width=59),
                                       rich.progress.TaskProgressColumn(),
                                       rich.progress.TimeRemainingColumn(),
                                       rich.progress.TimeElapsedColumn())
+    task = progress.add_task('Send Requested Blocks', total=block_count)
     with progress:
-        for number in progress.track(requested_blocks):
-            lostik.tx(packets[int(number)], delay=.15)
+        sent_block_count = 0    
+        progress.update(task, completed=received_block_count+sent_block_count)
+        for block_number in requested_blocks:
+            lostik.tx(packets[int(block_number)], delay=.15)
+            sent_block_count += 1
+            progress.update(task, completed=received_block_count+sent_block_count)
     lostik.tx('REQ_BLOCKS_SENT', encode=True)
     ui.update_status('All requested blocks sent.')
 
@@ -168,32 +172,58 @@ reply = lostik.rx(decode=True)
 if reply == 'TIME-OUT':
     ui.update_status('[red1 on deep_sky_blue4][ERROR][/] LoStik watchdog timer time-out!')
     exit(1)
-if reply == 'DUPLICATE_PASS':
+elif reply == 'DUPLICATE_PASS':
     ui.update_status('[green1 on deep_sky_blue4][DONE][/] Duplicate file found. Integrity check passed.')
     exit(0)
-if reply == 'DUPLICATE_FAIL':
+elif reply == 'DUPLICATE_FAIL':
     ui.update_status('[red1 on deep_sky_blue4][ERROR][/] Duplicate filename found. Integrity check failed!')
     exit(1)
-if reply == 'READY_TO_RECEIVE':
-    ui.update_status('Starting file transfer.')
-    requested_blocks = []
-    for packet in packets:
-        requested_blocks.append(packets.index(packet))
-    requested_block_count = len(requested_blocks)
-    ui.insert_requested_block_count(requested_block_count)
-    del requested_block_count
-    send_requested_blocks(requested_blocks)
-    del requested_blocks
-if reply[:3] == 'REQ':
-    ui.update_status('Resuming file transfer.')
-    requested_block_numbers = reply[3:]
-    requested_blocks = requested_block_numbers.split('|')
-    requested_block_count = len(requested_blocks)
-    ui.insert_requested_block_count(requested_block_count)
-    del requested_block_count
-    send_requested_blocks(requested_blocks)
-    del requested_blocks
+else:
+    received_block_count = int(reply[:3])
+    if received_block_count == 0:
+        ui.update_status('Starting file transfer.')
+        requested_blocks = []
+        for packet in packets:
+            requested_blocks.append(packets.index(packet))
+        requested_block_count = len(requested_blocks)
+        ui.insert_requested_block_count(requested_block_count)
+        del requested_block_count
+        send_requested_blocks(received_block_count, requested_blocks)
+        del requested_blocks
+    else:
+        ui.update_status('Resuming file transfer.')
+        requested_block_numbers = reply[3:]
+        requested_blocks = requested_block_numbers.split('|')
+        requested_block_count = len(requested_blocks)
+        ui.insert_requested_block_count(requested_block_count)
+        del requested_block_count
+        send_requested_blocks(received_block_count, requested_blocks)
+        del requested_blocks
+
+
+
+# if reply == 'READY_TO_RECEIVE':
+#     ui.update_status('Starting file transfer.')
+#     requested_blocks = []
+#     for packet in packets:
+#         requested_blocks.append(packets.index(packet))
+#     requested_block_count = len(requested_blocks)
+#     ui.insert_requested_block_count(requested_block_count)
+#     del requested_block_count
+#     send_requested_blocks(requested_blocks)
+#     del requested_blocks
+# if reply[:3] == 'REQ':
+#     ui.update_status('Resuming file transfer.')
+#     requested_block_numbers = reply[3:]
+#     requested_blocks = requested_block_numbers.split('|')
+#     requested_block_count = len(requested_blocks)
+#     ui.insert_requested_block_count(requested_block_count)
+#     del requested_block_count
+#     send_requested_blocks(requested_blocks)
+#     del requested_blocks
     
+
+
 #await reply after sending requested packets
 ui.update_status('Awaiting transfer result from receive station.')
 reply = lostik.rx(decode=True)

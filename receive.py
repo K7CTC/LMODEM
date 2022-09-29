@@ -7,6 +7,7 @@
 ########################################################################
 
 #standard library imports
+from itertools import count
 import lzma
 import os
 import argparse
@@ -49,8 +50,6 @@ lostik.lmodem_set_channel(args.channel)
 #update the user interface
 ui.insert_module_version('v0.4')
 ui.insert_module_name('Receive File')
-ui.move_cursor(19,21)   #REFACTOR THIS
-print('Transfer')       #REFACTOR THIS
 ui.insert_lmodem_channel(lostik.lmodem_get_channel())
 ui.insert_lmodem_mode(lostik.lmodem_get_mode())
 ui.insert_frequency(lostik.get_freq())
@@ -162,36 +161,31 @@ if Path(partial_file).is_file():
     if incoming_file_secure_hash_hex_digest == received_blocks['secure_hash']:
         received_blocks.pop('secure_hash')
         missing_blocks = create_missing_blocks_string(received_blocks)
-        if len(missing_blocks) > 123: #to ensure our outgoing packet does not exceed 128 bytes
+        if len(missing_blocks) > 123: #to ensure outgoing packet does not exceed 128 bytes
             missing_blocks = missing_blocks[:123]
-        requested_block_numbers = 'REQ' + missing_blocks
+        received_block_count = str(count_received_blocks()).zfill(3)
+
+        requested_block_numbers = received_block_count + missing_blocks
         ui.update_status('Resuming file transfer.')
         lostik.tx(requested_block_numbers, encode=True)
         receive_requested_blocks()
-    else:
+
+#request the whole file
+received_blocks.clear()
+keys = []
+for i in range(int(incoming_file_block_count)):
+    keys.append(str(i).zfill(3))
+received_blocks = dict.fromkeys(keys, '')
+ui.update_status('Starting file transfer.')
+lostik.tx('000', encode=True)
+receive_requested_blocks()
 
 
 
 
 
 
-
-
-else:
-    keys = []
-    for i in range(int(incoming_file_block_count)):
-        keys.append(str(i).zfill(3))
-    received_blocks = dict.fromkeys(keys, '')
-    ui.update_status('Starting file transfer.')
-    lostik.tx('READY_TO_RECEIVE', encode=True)
-    receive_requested_blocks()
-
-
-
-
-
-
-
+del missing_blocks
 missing_blocks = create_missing_blocks_string(received_blocks)
 
 #if all blocks received, process file
