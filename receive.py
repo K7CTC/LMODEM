@@ -2,7 +2,7 @@
 #                                                                      #
 #          NAME:  LMODEM - Receive File                                #
 #  DEVELOPED BY:  Chris Clement (K7CTC)                                #
-#       VERSION:  v0.4                                                 #
+#       VERSION:  v0.5-dev                                             #
 #                                                                      #
 ########################################################################
 
@@ -40,6 +40,13 @@ parser.add_argument('-c', '--channel',
 args = parser.parse_args()
 del parser
 
+ui.console.show_cursor(False)
+
+ui.splash()
+
+
+
+
 #display the user interface
 ui.print_static_content()
 
@@ -48,8 +55,8 @@ lostik.lmodem_set_mode(args.mode)
 lostik.lmodem_set_channel(args.channel)
 
 #update the user interface
-ui.insert_module_version('v0.4')
-ui.insert_module_name('Receive File')
+ui.insert_module_version('v0.5')
+# ui.insert_module_name('Receive File')
 ui.insert_lmodem_channel(lostik.lmodem_get_channel())
 ui.insert_lmodem_mode(lostik.lmodem_get_mode())
 ui.insert_frequency(lostik.get_freq())
@@ -58,13 +65,20 @@ ui.insert_power(lostik.get_pwr())
 ui.insert_spreading_factor(lostik.get_sf())
 ui.insert_coding_rate(lostik.get_cr())
 
+
+
 #handshake (tell sending station we are ready)
-ui.update_status('Connecting...')
-while True:
-    lostik.tx('HANDSHAKE', encode=True)
-    if lostik.rx(decode=True) == 'HANDSHAKE':
-        break
-ui.update_status('Connected!')
+try:
+
+    ui.update_status('Connecting...')
+    while True:
+        lostik.tx('HANDSHAKE', encode=True)
+        if lostik.rx(decode=True) == 'HANDSHAKE':
+            break
+    ui.update_status('Connected!')
+except KeyboardInterrupt:
+    exit(1)
+
 
 #listen for incoming file details
 ui.update_status('Awaiting file transfer details.')
@@ -87,8 +101,8 @@ ui.update_status('Received file transfer details.')
 ui.insert_file_name(incoming_file_name)
 ui.insert_file_size_on_disk(incoming_file_size_on_disk)
 ui.insert_file_size_ota(incoming_file_size_ota)
-ui.insert_secure_hash_hex_digest(incoming_file_secure_hash_hex_digest)
-ui.insert_block_count(incoming_file_block_count)
+# ui.insert_secure_hash_hex_digest(incoming_file_secure_hash_hex_digest)
+# ui.insert_block_count(incoming_file_block_count)
 
 #check if incoming file already exists
 if Path(incoming_file_name).is_file():

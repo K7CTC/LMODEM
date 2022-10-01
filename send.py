@@ -2,7 +2,7 @@
 #                                                                      #
 #          NAME:  LMODEM - Send File                                   #
 #  DEVELOPED BY:  Chris Clement (K7CTC)                                #
-#       VERSION:  v0.4                                                 #
+#       VERSION:  v0.5-dev                                             #
 #                                                                      #
 ########################################################################
 
@@ -49,7 +49,7 @@ lostik.lmodem_set_mode(args.mode)
 lostik.lmodem_set_channel(args.channel)
 
 #update the user interface
-ui.insert_module_version('v0.4')
+ui.insert_module_version('v0.5')
 ui.insert_module_name('Send File')
 ui.insert_lmodem_channel(lostik.lmodem_get_channel())
 ui.insert_lmodem_mode(lostik.lmodem_get_mode())
