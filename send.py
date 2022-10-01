@@ -38,26 +38,30 @@ parser.add_argument('-c', '--channel',
                     help='LMODEM operating channel (default: 2)',
                     default=2)
 args = parser.parse_args()
-
 del parser
 
-#display the user interface
+#initialize user interface
+ui.console.show_cursor(False)
+ui.splash()
 ui.print_static_content()
+ui.insert_module_version('v0.5')
 
 #set initial LoStik operating parameters
 lostik.lmodem_set_mode(args.mode)
 lostik.lmodem_set_channel(args.channel)
 
-#update the user interface
-ui.insert_module_version('v0.5')
-ui.insert_module_name('Send File')
+#display LMODEM channel details
 ui.insert_lmodem_channel(lostik.lmodem_get_channel())
-ui.insert_lmodem_mode(lostik.lmodem_get_mode())
 ui.insert_frequency(lostik.get_freq())
+
+#display LMODEM mode details
+ui.insert_lmodem_mode(lostik.lmodem_get_mode())
 ui.insert_bandwidth(lostik.get_bw())
 ui.insert_power(lostik.get_pwr())
 ui.insert_spreading_factor(lostik.get_sf())
 ui.insert_coding_rate(lostik.get_cr())
+
+#display file name
 ui.insert_file_name(args.outgoing_file)
 
 #check if outgoing file actually exists
@@ -65,7 +69,7 @@ if not Path(args.outgoing_file).is_file():
     ui.update_status('[red1 on deep_sky_blue4][ERROR][/] File does not exist!')
     exit(1)
 
-#check if outgoing filename exceeds LMODEM maximum length of 32 characters
+#check if outgoing file name exceeds LMODEM maximum length of 32 characters
 if len(args.outgoing_file) > 32:
     ui.update_status('[red1 on deep_sky_blue4][ERROR][/] File name exceeds 32 character limit!')
     exit(1)
@@ -75,10 +79,7 @@ with open(args.outgoing_file, 'rb') as file:
     outgoing_file_secure_hash = blake2b(digest_size=16)
     outgoing_file_secure_hash.update(file.read())
     outgoing_file_secure_hash_hex_digest = outgoing_file_secure_hash.hexdigest()
-
 del outgoing_file_secure_hash
-
-ui.insert_secure_hash_hex_digest(outgoing_file_secure_hash_hex_digest)
 
 #compress outgoing file (in memory) using lzma algorithm
 with open(args.outgoing_file, 'rb') as file:
@@ -86,7 +87,6 @@ with open(args.outgoing_file, 'rb') as file:
 
 #base85 encode compressed outgoing file
 outgoing_file_compressed_b85 = b85encode(outgoing_file_compressed)
-
 del outgoing_file_compressed
 
 #determine over-the-air outgoing file size in bytes
@@ -116,7 +116,6 @@ del outgoing_file_compressed_b85_hex
 
 block_count = len(blocks)
 
-ui.insert_block_count(block_count)
 
 #concatenate zero filled block index and block contents to create numbered packets
 packets = []
@@ -185,7 +184,6 @@ else:
         for packet in packets:
             requested_blocks.append(packets.index(packet))
         requested_block_count = len(requested_blocks)
-        ui.insert_requested_block_count(requested_block_count)
         del requested_block_count
         send_requested_blocks(received_block_count, requested_blocks)
         del requested_blocks
@@ -194,7 +192,6 @@ else:
         requested_block_numbers = reply[3:]
         requested_blocks = requested_block_numbers.split('|')
         requested_block_count = len(requested_blocks)
-        ui.insert_requested_block_count(requested_block_count)
         del requested_block_count
         send_requested_blocks(received_block_count, requested_blocks)
         del requested_blocks

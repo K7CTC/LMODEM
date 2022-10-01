@@ -7,7 +7,6 @@
 ########################################################################
 
 #standard library imports
-from itertools import count
 import lzma
 import os
 import argparse
@@ -40,36 +39,29 @@ parser.add_argument('-c', '--channel',
 args = parser.parse_args()
 del parser
 
+#initialize user interface
 ui.console.show_cursor(False)
-
 ui.splash()
-
-
-
-
-#display the user interface
 ui.print_static_content()
+ui.insert_module_version('v0.5')
 
 #set initial LoStik communication parameters
 lostik.lmodem_set_mode(args.mode)
 lostik.lmodem_set_channel(args.channel)
 
-#update the user interface
-ui.insert_module_version('v0.5')
-# ui.insert_module_name('Receive File')
+#display LMODEM channel details
 ui.insert_lmodem_channel(lostik.lmodem_get_channel())
-ui.insert_lmodem_mode(lostik.lmodem_get_mode())
 ui.insert_frequency(lostik.get_freq())
+
+#display LMODEM mode details
+ui.insert_lmodem_mode(lostik.lmodem_get_mode())
 ui.insert_bandwidth(lostik.get_bw())
 ui.insert_power(lostik.get_pwr())
 ui.insert_spreading_factor(lostik.get_sf())
 ui.insert_coding_rate(lostik.get_cr())
 
-
-
 #handshake (tell sending station we are ready)
 try:
-
     ui.update_status('Connecting...')
     while True:
         lostik.tx('HANDSHAKE', encode=True)
@@ -77,8 +69,8 @@ try:
             break
     ui.update_status('Connected!')
 except KeyboardInterrupt:
+    ui.console.show_cursor(True)
     exit(1)
-
 
 #listen for incoming file details
 ui.update_status('Awaiting file transfer details.')
@@ -96,13 +88,11 @@ else:
     del file_transfer_details
 del file_transfer_details_string
 
-#show file transfer details
+#display file transfer details
 ui.update_status('Received file transfer details.')
 ui.insert_file_name(incoming_file_name)
 ui.insert_file_size_on_disk(incoming_file_size_on_disk)
 ui.insert_file_size_ota(incoming_file_size_ota)
-# ui.insert_secure_hash_hex_digest(incoming_file_secure_hash_hex_digest)
-# ui.insert_block_count(incoming_file_block_count)
 
 #check if incoming file already exists
 if Path(incoming_file_name).is_file():
@@ -186,7 +176,6 @@ if Path(partial_file).is_file():
         received_block_count = str(count_received_blocks()).zfill(3)
 
         requested_block_numbers = received_block_count + missing_blocks
-        ui.insert_requested_block_count(requested_block_count)
 
         ui.update_status('Resuming file transfer.')
         lostik.tx(requested_block_numbers, encode=True)
@@ -198,7 +187,6 @@ else:
     for i in range(int(incoming_file_block_count)):
         keys.append(str(i).zfill(3))
     received_blocks = dict.fromkeys(keys, '')
-    ui.insert_requested_block_count(incoming_file_block_count)
     ui.update_status('Starting file transfer.')
     lostik.tx('000', encode=True)
     receive_requested_blocks()
