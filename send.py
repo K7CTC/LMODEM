@@ -145,12 +145,16 @@ def send_requested_blocks(received_block_count, requested_blocks):
     ui.update_status('All requested blocks sent.')
 
 #handshake
-ui.update_status('Connecting...')
-while True:
-    if lostik.rx(decode=True) == 'HANDSHAKE':
-        lostik.tx('HANDSHAKE', encode=True)
-        break
-ui.update_status('Connected!')
+try:       
+    ui.update_status('Connecting...')
+    while True:
+        if lostik.rx(decode=True) == 'HANDSHAKE':
+            lostik.tx('HANDSHAKE', encode=True)
+            break
+    ui.update_status('Connected!')
+except KeyboardInterrupt:
+    ui.console.show_cursor(True)
+    exit(2)
 
 #provide receiving station with the file transfer details
 #file name | size on disk | size over the air | number of blocks | secure hash

@@ -70,7 +70,7 @@ try:
     ui.update_status('Connected!')
 except KeyboardInterrupt:
     ui.console.show_cursor(True)
-    exit(1)
+    exit(2)
 
 #listen for incoming file details
 ui.update_status('Awaiting file transfer details.')
