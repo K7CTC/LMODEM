@@ -94,10 +94,18 @@ outgoing_file_size_ota = len(outgoing_file_compressed_b85)
 
 ui.insert_file_size_ota(outgoing_file_size_ota)
 
-#check if outgoing file size over-the-air exceeds LMODEM maximum of 32768 bytes
-if outgoing_file_size_ota > 32768:
-    ui.update_status('[red1 on deep_sky_blue4][ERROR][/] Size (over the air) exceeds maximum of 32768 bytes!')
+#check if outgoing file size over-the-air exceeds LMODEM maximum for chosen mode
+maximum_ota_file_size = 0
+if args.mode == 1:
+    maximum_ota_file_size = 49152
+if args.mode == 2:
+    maximum_ota_file_size = 32768
+if args.mode == 3:
+    maximum_ota_file_size = 16384   
+if outgoing_file_size_ota > maximum_ota_file_size:
+    ui.update_status(f'[red1 on deep_sky_blue4][ERROR][/] Size (over the air) exceeds maximum of {maximum_ota_file_size} bytes for mode {args.mode}!')
     exit(1)
+del maximum_ota_file_size
 
 #determine on disk outgoing file size in bytes
 outgoing_file_size_on_disk = Path(args.outgoing_file).stat().st_size
@@ -109,13 +117,19 @@ outgoing_file_compressed_b85_hex = outgoing_file_compressed_b85.hex()
 
 del outgoing_file_compressed_b85
 
-#split hex encoded base85 encoded compressed outgoing file into 128 byte blocks
-blocks = textwrap.wrap(outgoing_file_compressed_b85_hex, 256)
+#split hex encoded base85 encoded compressed outgoing file into blocks for chosen mode
+block_size = 0
+if args.mode == 1:
+    block_size = 192 * 2
+if args.mode == 2:
+    block_size = 128 * 2
+if args.mode == 3:
+    block_size = 64 * 2 
 
-del outgoing_file_compressed_b85_hex
+blocks = textwrap.wrap(outgoing_file_compressed_b85_hex, block_size)
+del block_size, outgoing_file_compressed_b85_hex
 
 block_count = len(blocks)
-
 
 #concatenate zero filled block index and block contents to create numbered packets
 packets = []
