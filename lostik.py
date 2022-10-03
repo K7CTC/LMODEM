@@ -288,14 +288,10 @@ def rxstop():
 #function: set LMODEM communication mode
 # accepts: mode number (1, 2 or 3)
 def lmodem_set_mode(mode_number): #pwr set to 2 for testing
-    if mode_number > 3 or mode_number < 1:
-        print('[ERROR] Invalid LMODEM mode number!')
-        print('HELP: Valid mode numbers are 1, 2, and 3.')
-        exit(1)
     if mode_number == 1:
         set_pwr('2')
         # set_pwr('6')
-        set_bw('500')
+        set_bw('250')
         set_sf('sf8')
         set_cr('4/6')
         set_wdt('2500')
@@ -309,7 +305,7 @@ def lmodem_set_mode(mode_number): #pwr set to 2 for testing
     if mode_number == 3:
         set_pwr('2')
         # set_pwr('17')
-        set_bw('125')
+        set_bw('250')
         set_sf('sf12')
         set_cr('4/8')
         set_wdt('10000')
@@ -334,9 +330,6 @@ def lmodem_get_mode(): #pwr set to 2 for testing
     exit(1)
 
 def lmodem_set_channel(channel_number):
-    if channel_number > 3 or channel_number < 1:
-        print('[ERROR] Invalid channel number!')
-        print('HELP: Valid channel numbes are 1, 2 and 3.')
     if channel_number == 1:
         set_freq('914000000')
     if channel_number == 2:

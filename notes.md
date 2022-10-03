@@ -11,7 +11,7 @@
 * Block Size = 192 bytes
 * Max OTA Size = 49152 bytes
 
-It takes about ??? to send 192 bytes in MODE1
+It takes 166ms to send 192 bytes in MODE1
 
 ### MODE2 - Medium Range (Balanced)
 * PWR = 12
@@ -22,7 +22,7 @@ It takes about ??? to send 192 bytes in MODE1
 * Block Size = 128 bytes
 * Max OTA Size = 32768
 
-It takes about ??? to send 128 bytes in MODE2
+It takes 859ms to send 128 bytes in MODE2
 
 ### MODE3 - Long Range (Slow)
 * PWR = 17
@@ -33,7 +33,7 @@ It takes about ??? to send 128 bytes in MODE2
 * Block Size = 64 bytes
 * Max OTA Size = 16384
 
-It takes about ??? to send 64 bytes in MODE3
+It takes about 4336ms to send 64 bytes in MODE3
 
 ## LMODEM Channels
 1. 914 MHz
