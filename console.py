@@ -2,7 +2,7 @@
 #                                                                      #
 #          NAME:  LMODEM - Console Parameters                          #
 #  DEVELOPED BY:  Chris Clement (K7CTC)                                #
-#       VERSION:  v0.8                                                 #
+#       VERSION:  v0.6                                                 #
 #                                                                      #
 ########################################################################
 
