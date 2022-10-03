@@ -72,6 +72,9 @@ except KeyboardInterrupt:
     ui.console.show_cursor(True)
     exit(2)
 
+
+
+
 #listen for incoming file details
 ui.update_status('Awaiting file transfer details.')
 file_transfer_details_string = lostik.rx(decode=True)
