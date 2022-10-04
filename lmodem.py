@@ -168,9 +168,10 @@ if args.send:
     outgoing_file_compressed_b85 = b85encode(outgoing_file_compressed)
     del outgoing_file_compressed
 
-    #determine over-the-air outgoing file size in bytes
+    #determine outgoing file size over the air in bytes
     outgoing_file_size_ota = len(outgoing_file_compressed_b85)
 
+    #display outgoing file size over the air
     ui.insert_file_size_ota(outgoing_file_size_ota)
 
     #check if outgoing file size over-the-air exceeds LMODEM maximum for chosen mode
@@ -186,17 +187,17 @@ if args.send:
         exit(1)
     del maximum_ota_file_size
 
-    #determine on disk outgoing file size in bytes
+    #determine outgoing file size on disk in bytes
     outgoing_file_size_on_disk = Path(outgoing_file).stat().st_size
 
+    #display outgoing file size on disk
     ui.insert_file_size_on_disk(outgoing_file_size_on_disk)
 
     #hex encode base85 encoded compressed outgoing file
     outgoing_file_compressed_b85_hex = outgoing_file_compressed_b85.hex()
-
     del outgoing_file_compressed_b85
 
-    #split hex encoded base85 encoded compressed outgoing file into blocks for chosen mode
+    #split hex encoded base85 encoded compressed outgoing file into blocks sized for chosen mode
     block_size = 0
     if args.mode == 1:
         block_size = 192 * 2
@@ -204,10 +205,10 @@ if args.send:
         block_size = 128 * 2
     if args.mode == 3:
         block_size = 64 * 2
-
     blocks = textwrap.wrap(outgoing_file_compressed_b85_hex, block_size)
     del block_size, outgoing_file_compressed_b85_hex
 
+    #obtain block count
     block_count = len(blocks)
 
     #concatenate zero filled block index and block contents to create numbered packets
@@ -215,9 +216,20 @@ if args.send:
     for block in blocks:
         block_index_zfill = str(blocks.index(block)).zfill(3)
         block_index_zfill_hex = block_index_zfill.encode('ASCII').hex()
+        del block_index_zfill
         packet = block_index_zfill_hex + block
         packets.append(packet)
     del blocks
+
+    #sub function: send requested blocks....
+
+
+
+
+    #BOOKMARK
+
+
+
 
     def send_requested_blocks(received_block_count, requested_blocks):
         ui.update_status('Transmitting requested blocks.')
