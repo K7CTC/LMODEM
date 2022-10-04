@@ -426,8 +426,8 @@ try:
                 resume = True
         if resume == True:
             missing_block_numbers = create_missing_block_numbers_string(received_blocks)
-            #cap requested blocks at 32 (to limit packet size)              
-            if len(missing_block_numbers) > 127: 
+            #cap requested blocks at 32 (to limit packet size)
+            if len(missing_block_numbers) > 127:
                 missing_block_numbers = missing_block_numbers[:127]
             received_block_count = str(count_received_blocks()).zfill(3)
             block_request_details = received_block_count + missing_block_numbers
@@ -473,7 +473,7 @@ try:
             with open(incoming_file_name, 'wb') as file:
                 file.write(incoming_file)
             del incoming_file
-            #obtain secure hash                     
+            #obtain secure hash
             with open(incoming_file_name, 'rb') as file:
                 incoming_file_secure_hash = blake2b(digest_size=16)
                 incoming_file_secure_hash.update(file.read())
