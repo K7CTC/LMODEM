@@ -260,7 +260,7 @@ try:
                                 outgoing_file_secure_hash_hex_digest)
         del outgoing_file_size_on_disk, outgoing_file_size_ota, outgoing_file_secure_hash_hex_digest
         ui.update_status('Transmitting file transfer details.')
-        lostik.tx(file_transfer_details, encode=True)
+        lostik.tx(file_transfer_details, encode=True, delay=.15)
         del file_transfer_details
         ui.update_status('File transfer details sent.')
 
@@ -312,43 +312,15 @@ try:
             ui.update_status('[green1 on deep_sky_blue4][DONE][/] File transfer complete. Integrity check passed.')
             exit(0)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    #if receiving
+    #receiving file
     if args.receive:
-        #handshake (tell sending station we are ready)
-        try:
-            ui.update_status('Connecting...')
-            while True:
-                lostik.tx('READY', encode=True)
-                if lostik.rx(decode=True) == 'READY':
-                    break
-            ui.update_status('Connected!')
-        except KeyboardInterrupt:
-            ui.console.show_cursor(True)
-            exit(2)
-
-
+        #basic handshake
+        ui.update_status('Connecting...')
+        while True:
+            lostik.tx('READY', encode=True)
+            if lostik.rx(decode=True) == 'READY':
+                break
+        ui.update_status('Connected!')
 
         #listen for incoming file details
         ui.update_status('Awaiting file transfer details.')
@@ -371,10 +343,10 @@ try:
         ui.insert_file_name(incoming_file_name)
         ui.insert_file_size_on_disk(incoming_file_size_on_disk)
         ui.insert_file_size_ota(incoming_file_size_ota)
+        del incoming_file_size_on_disk, incoming_file_size_ota
 
-        #check if incoming file already exists
+        #if present, process existing file
         if Path(incoming_file_name).is_file():
-            #and check integrity if it does
             with open(incoming_file_name, 'rb') as file:
                 local_file_secure_hash = blake2b(digest_size=16)
                 local_file_secure_hash.update(file.read())
@@ -387,9 +359,11 @@ try:
                 lostik.tx('DUPLICATE_FAIL', encode=True)
                 exit(1)
 
+        #initialize dictionary to temporarily store received blocks
         received_blocks = {}
 
-        #function to obtain the number of received blocks
+        #function: obtain the number of received blocks
+        # returns: received block count (int)
         def count_received_blocks():
             received_block_count = 0
             for block in received_blocks:
@@ -397,7 +371,7 @@ try:
                     received_block_count += 1
             return received_block_count
 
-        #function to deposit received requested blocks into dictionary
+        #function: deposit received blocks into dictionary
         def receive_requested_blocks():
             ui.update_status('Receiving requested blocks.')
             ui.move_cursor(21,1)
@@ -424,58 +398,63 @@ try:
                     received_blocks.update({incoming_block_number: incoming_block})
                     progress.update(task, completed=count_received_blocks())
 
-        #function to return a string of pipe delimited missing block numbers, if any
-        def create_missing_blocks_string(received_blocks):
-            missing_blocks_string = ''
+        #function: build string of pipe delimited missing block numbers, if any
+        # returns: missing blocks string
+        def create_missing_block_numbers_string(received_blocks):
+            missing_block_numbers_string = ''
             for block in received_blocks:
                 if received_blocks[block] == '':
-                    missing_blocks_string = missing_blocks_string + str(block) + '|'
-            if len(missing_blocks_string) != 0:
-                missing_blocks_string = missing_blocks_string[:-1]
-            return missing_blocks_string
+                    missing_block_numbers_string = missing_block_numbers_string + str(block) + '|'
+            if len(missing_block_numbers_string) != 0:
+                missing_block_numbers_string = missing_block_numbers_string[:-1]
+            return missing_block_numbers_string
 
-        #check for partial file with matching secure hash, resume transfer if found
-        partial_file = incoming_file_name + '.json'
-        if Path(partial_file).is_file():
-            with open(partial_file) as json_file:
+        #check for partial file and transfer from disk to memory if found
+        partial_file_name = incoming_file_name + '.json'
+        if Path(partial_file_name).is_file():
+            with open(partial_file_name) as json_file:
+                received_blocks.clear()
                 received_blocks = json.load(json_file)
-            os.remove(partial_file)
-            if incoming_file_secure_hash_hex_digest == received_blocks['secure_hash']:
-                received_blocks.pop('secure_hash')
-                missing_blocks = create_missing_blocks_string(received_blocks)
+            os.remove(partial_file_name)
+        del partial_file_name
 
-                missing_blocks_list = missing_blocks.split('|')
-                requested_block_count = len(missing_blocks_list)
-                del missing_blocks_list
-
-
-                if len(missing_blocks) > 123: #to ensure outgoing packet does not exceed 128 bytes
-                    missing_blocks = missing_blocks[:123]
-                received_block_count = str(count_received_blocks()).zfill(3)
-
-                requested_block_numbers = received_block_count + missing_blocks
-
-                ui.update_status('Resuming file transfer.')
-                lostik.tx(requested_block_numbers, encode=True)
-                receive_requested_blocks()
-        else:
-            #request the whole file
+        #determine whether to resume a partial transfer or start fresh
+        resume = False
+        if 'secure_hash_hex_digest' in received_blocks:
+            if incoming_file_secure_hash_hex_digest == received_blocks['secure_hash_hex_digest']:
+                received_blocks.pop('secure_hash_hex_digest')
+                resume = True
+        if resume == True:
+            missing_block_numbers = create_missing_block_numbers_string(received_blocks)
+            #cap requested blocks at 32 (to limit packet size)              
+            if len(missing_block_numbers) > 127: 
+                missing_block_numbers = missing_block_numbers[:127]
+            received_block_count = str(count_received_blocks()).zfill(3)
+            block_request_details = received_block_count + missing_block_numbers
+            del received_block_count, missing_block_numbers
+            ui.update_status('Resuming file transfer.')
+            lostik.tx(block_request_details, encode=True)
+            del block_request_details
+            receive_requested_blocks()
+        elif resume == False:
+            #initialize key:value pairs based on incoming file block count
             received_blocks.clear()
             keys = []
             for i in range(int(incoming_file_block_count)):
                 keys.append(str(i).zfill(3))
             received_blocks = dict.fromkeys(keys, '')
+            received_block_count = '000'
+            block_request_details = received_block_count
+            del received_block_count
             ui.update_status('Starting file transfer.')
-            lostik.tx('000', encode=True)
+            lostik.tx(block_request_details, encode=True)
+            del block_request_details
             receive_requested_blocks()
 
 
 
 
-
-
-
-        missing_blocks = create_missing_blocks_string(received_blocks)
+        missing_blocks = create_missing_block_numbers_string(received_blocks)
 
         #if all blocks received, process file
         if missing_blocks == '':
@@ -509,8 +488,8 @@ try:
         #if some blocks missing, write partial file to disk
         else:
             ui.update_status('[orange1 on deep_sky_blue4][WARNING][/] File transfer incomplete. Try again to resume.')
-            received_blocks['secure_hash'] = incoming_file_secure_hash_hex_digest
-            with open(partial_file, 'w') as json_file:
+            received_blocks['secure_hash_hex_digest'] = incoming_file_secure_hash_hex_digest
+            with open(partial_file_name, 'w') as json_file:
                 json.dump(received_blocks, json_file, indent=4)
             lostik.tx('INCOMPLETE', encode=True)
             exit(1)
