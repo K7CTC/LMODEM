@@ -450,50 +450,50 @@ try:
             lostik.tx(block_request_details, encode=True)
             del block_request_details
             receive_requested_blocks()
+        del resume
 
-
-
-
-        missing_blocks = create_missing_block_numbers_string(received_blocks)
-
-        #if all blocks received, process file
-        if missing_blocks == '':
+        #process received blocks
+        if received_block_count() == incoming_file_block_count:
             ui.update_status('All blocks received. Processing file...')
-            #write completed file to disk and check integrity
-            output_file_compressed_b85_hex = ''
+            #concatenate blocks
+            incoming_file_compressed_b85_hex = ''
             for block in received_blocks.values():
-                output_file_compressed_b85_hex = output_file_compressed_b85_hex + block
+                incoming_file_compressed_b85_hex = incoming_file_compressed_b85_hex + block
+            del received_blocks
             #decode from hex
-            output_file_compressed_b85 = bytes.fromhex(output_file_compressed_b85_hex)
+            incoming_file_compressed_b85 = bytes.fromhex(incoming_file_compressed_b85_hex)
+            del incoming_file_compressed_b85_hex
             #decode from b85
-            output_file_compressed = b85decode(output_file_compressed_b85)
+            incoming_file_compressed = b85decode(incoming_file_compressed_b85)
+            del incoming_file_compressed_b85
             #decompress
-            output_file = lzma.decompress(output_file_compressed)
+            incoming_file = lzma.decompress(incoming_file_compressed)
+            del incoming_file_compressed
             #write to disk
             with open(incoming_file_name, 'wb') as file:
-                file.write(output_file)
-            #obtain secure hash for received file
+                file.write(incoming_file)
+            del incoming_file
+            #obtain secure hash                     
             with open(incoming_file_name, 'rb') as file:
-                output_file_secure_hash = blake2b(digest_size=16)
-                output_file_secure_hash.update(file.read())
-            if incoming_file_secure_hash_hex_digest != output_file_secure_hash.hexdigest():
+                incoming_file_secure_hash = blake2b(digest_size=16)
+                incoming_file_secure_hash.update(file.read())
+            if incoming_file_secure_hash_hex_digest != incoming_file_secure_hash.hexdigest():
                 ui.update_status('[red1 on deep_sky_blue4][ERROR][/] File transfer complete. Integrity check failed!')
                 os.remove(incoming_file_name)
-                lostik.tx('COMPLETE_FAIL', encode=True)
+                lostik.tx('COMPLETE_FAIL', encode=True, delay=.15)
                 exit(1)
-            if incoming_file_secure_hash_hex_digest == output_file_secure_hash.hexdigest():
+            if incoming_file_secure_hash_hex_digest == incoming_file_secure_hash.hexdigest():
                 ui.update_status('[green1 on deep_sky_blue4][DONE][/] File transfer complete. Integrity check passed.')
-                lostik.tx('COMPLETE_PASS', encode=True)
+                lostik.tx('COMPLETE_PASS', encode=True, delay=.15)
                 exit(0)
-        #if some blocks missing, write partial file to disk
         else:
             ui.update_status('[orange1 on deep_sky_blue4][WARNING][/] File transfer incomplete. Try again to resume.')
             received_blocks['secure_hash_hex_digest'] = incoming_file_secure_hash_hex_digest
+            partial_file_name = incoming_file_name + '.json'
             with open(partial_file_name, 'w') as json_file:
                 json.dump(received_blocks, json_file, indent=4)
-            lostik.tx('INCOMPLETE', encode=True)
+            lostik.tx('INCOMPLETE', encode=True, delay=.15)
             exit(1)
-
 
 except KeyboardInterrupt:
     ui.console.show_cursor(True)
