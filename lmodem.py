@@ -237,17 +237,17 @@ try:
                 sent_block_count = 0
                 progress.update(task, completed=received_block_count+sent_block_count)
                 for block_number in requested_blocks:
-                    lostik.tx(packets[int(block_number)], delay=.15)
+                    lostik.tx(packets[int(block_number)])
                     sent_block_count += 1
                     progress.update(task, completed=received_block_count+sent_block_count)
-            lostik.tx('END_OF_TRANSMISSION', encode=True, delay=.15)
+            lostik.tx('END_OF_TRANSMISSION', encode=True)
             ui.update_status('All requested blocks have been sent.')
 
         #basic handshake
         ui.update_status('Connecting...')
         while True:
             if lostik.rx(decode=True) == 'READY':
-                lostik.tx('READY', encode=True, delay=.15)
+                lostik.tx('READY', encode=True, delay=0)
                 break
         ui.update_status('Connected!')
 
@@ -260,7 +260,7 @@ try:
                                 outgoing_file_secure_hash_hex_digest)
         del outgoing_file_size_on_disk, outgoing_file_size_ota, outgoing_file_secure_hash_hex_digest
         ui.update_status('Transmitting file transfer details.')
-        lostik.tx(file_transfer_details, encode=True, delay=.15)
+        lostik.tx(file_transfer_details, encode=True)
         del file_transfer_details
         ui.update_status('File transfer details sent.')
 
@@ -317,7 +317,7 @@ try:
         #basic handshake
         ui.update_status('Connecting...')
         while True:
-            lostik.tx('READY', encode=True)
+            lostik.tx('READY', encode=True, delay=0)
             if lostik.rx(decode=True) == 'READY':
                 break
         ui.update_status('Connected!')
@@ -454,6 +454,7 @@ try:
 
         #process received blocks
         if received_block_count() == incoming_file_block_count:
+            del incoming_file_block_count
             ui.update_status('All blocks received. Processing file...')
             #concatenate blocks
             incoming_file_compressed_b85_hex = ''
@@ -480,19 +481,22 @@ try:
             if incoming_file_secure_hash_hex_digest != incoming_file_secure_hash.hexdigest():
                 ui.update_status('[red1 on deep_sky_blue4][ERROR][/] File transfer complete. Integrity check failed!')
                 os.remove(incoming_file_name)
-                lostik.tx('COMPLETE_FAIL', encode=True, delay=.15)
+                del incoming_file_name
+                lostik.tx('COMPLETE_FAIL', encode=True)
                 exit(1)
             if incoming_file_secure_hash_hex_digest == incoming_file_secure_hash.hexdigest():
                 ui.update_status('[green1 on deep_sky_blue4][DONE][/] File transfer complete. Integrity check passed.')
-                lostik.tx('COMPLETE_PASS', encode=True, delay=.15)
+                lostik.tx('COMPLETE_PASS', encode=True)
                 exit(0)
         else:
             ui.update_status('[orange1 on deep_sky_blue4][WARNING][/] File transfer incomplete. Try again to resume.')
             received_blocks['secure_hash_hex_digest'] = incoming_file_secure_hash_hex_digest
+            del incoming_file_secure_hash_hex_digest
             partial_file_name = incoming_file_name + '.json'
+            del incoming_file_name
             with open(partial_file_name, 'w') as json_file:
                 json.dump(received_blocks, json_file, indent=4)
-            lostik.tx('INCOMPLETE', encode=True, delay=.15)
+            lostik.tx('INCOMPLETE', encode=True)
             exit(1)
 
 except KeyboardInterrupt:
