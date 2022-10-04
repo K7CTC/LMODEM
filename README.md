@@ -20,7 +20,7 @@ The short answer, just to see if it was possible.  After completing work on my L
 * LMODEM "modes" simplify underlying LoRa settings and provide a user friendly experience.
 * LMODEM "channels" eliminate the need for users to manually specify an operating frequency.
 
-## Operating Principles 
+## Operating Principles
 
 The sending station takes a file (in the current working directory) as input.  The protocol performs some quick checks on the file first.  It checks that the file exists.  It gets the file size (on disk).  It checks that the filename does not exceed 32 characters.  It generates a secure has for the file with a message digest size of 32 bytes.  The file is then compressed (in memory) using LZMA.  The compressed file undergoes binary to text encoding using the Base85 encoding scheme.  Base85 is more efficient than Base64 and maintains compatibility with LoRa.  LMODEM then checks that the compressed and encoded file does not exceed 32kb.  32kb is the maximum over-the-air file size.  The file is then encoded in hexadecimal.  The file is then divided into 128 byte blocks (with any remainder in the final block).  The block numbers (zero padded) are then prefixed to the blocks themselves, thus creating the packets that will be sent over the air.  The sending station is now ready to present the file to the receiving station.
 
@@ -60,3 +60,46 @@ If there are no missing blocks.  The receiving station reconstitues the file:
 * The secure hashes are compared to guarantee file integrity.
 * If the integrity check fails, the file is removed from disk.
 
+
+
+# LMODEM Notes
+
+## LMODEM LoStik Modes
+
+### MODE1 - Short Range (Fast)
+* PWR = 6
+* BW = 500
+* SF = sf8
+* CR = 4/6
+* WDT = 875
+* Block Size = 192 bytes
+* Max OTA Size = 49152 bytes
+
+It takes 166ms to send 192 bytes in MODE1
+
+### MODE2 - Medium Range (Balanced)
+* PWR = 12
+* BW = 250
+* SF = sf10
+* CR = 4/7
+* WDT = 1600
+* Block Size = 128 bytes
+* Max OTA Size = 32768
+
+It takes 859ms to send 128 bytes in MODE2
+
+### MODE3 - Long Range (Slow)
+* PWR = 17
+* BW = 125
+* SF = sf12
+* CR = 4/8
+* WDT = 8500
+* Block Size = 64 bytes
+* Max OTA Size = 16384
+
+It takes about 4336ms to send 64 bytes in MODE3
+
+## LMODEM Channels
+1. 914 MHz
+2. 915 MHz
+3. 916 MHz

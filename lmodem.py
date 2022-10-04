@@ -2,7 +2,7 @@
 #                                                                      #
 #          NAME:  LMODEM                                               #
 #  DEVELOPED BY:  Chris Clement (K7CTC)                                #
-#       VERSION:  v0.6                                                 #
+#       VERSION:  v0.6-dev                                             #
 #                                                                      #
 ########################################################################
 
@@ -180,7 +180,7 @@ if args.send:
     if args.mode == 2:
         maximum_ota_file_size = 32768
     if args.mode == 3:
-        maximum_ota_file_size = 16384   
+        maximum_ota_file_size = 16384
     if outgoing_file_size_ota > maximum_ota_file_size:
         ui.update_status(f'[red1 on deep_sky_blue4][ERROR][/] Size (over the air) exceeds maximum of {maximum_ota_file_size} bytes for mode {args.mode}!')
         exit(1)
@@ -203,7 +203,7 @@ if args.send:
     if args.mode == 2:
         block_size = 128 * 2
     if args.mode == 3:
-        block_size = 64 * 2 
+        block_size = 64 * 2
 
     blocks = textwrap.wrap(outgoing_file_compressed_b85_hex, block_size)
     del block_size, outgoing_file_compressed_b85_hex
@@ -228,7 +228,7 @@ if args.send:
                                         rich.progress.TimeElapsedColumn())
         task = progress.add_task('Send Requested Blocks', total=block_count)
         with progress:
-            sent_block_count = 0    
+            sent_block_count = 0
             progress.update(task, completed=received_block_count+sent_block_count)
             for block_number in requested_blocks:
                 lostik.tx(packets[int(block_number)], delay=.15)
@@ -238,7 +238,7 @@ if args.send:
         ui.update_status('All requested blocks sent.')
 
     #handshake
-    try:       
+    try:
         ui.update_status('Connecting...')
         while True:
             if lostik.rx(decode=True) == 'HANDSHAKE':
@@ -254,7 +254,7 @@ if args.send:
     file_transfer_details = (outgoing_file + '|' +
                             str(outgoing_file_size_on_disk) + '|' +
                             str(outgoing_file_size_ota) + '|' +
-                            str(block_count) + '|' + 
+                            str(block_count) + '|' +
                             outgoing_file_secure_hash_hex_digest)
     del outgoing_file_size_on_disk, outgoing_file_size_ota, outgoing_file_secure_hash_hex_digest
     ui.update_status('Transmitting file transfer details.')
@@ -294,7 +294,7 @@ if args.send:
             del requested_blocks
 
 
-        
+
 
 
     #await reply after sending requested packets
@@ -358,7 +358,7 @@ if args.receive:
     if file_transfer_details_string == 'TIME-OUT':
         ui.update_status('[red1 on deep_sky_blue4][ERROR][/] LoStik watchdog timer time-out!')
         exit(1)
-    else:    
+    else:
         file_transfer_details = file_transfer_details_string.split('|')
         incoming_file_name = file_transfer_details[0]
         incoming_file_size_on_disk = file_transfer_details[1]
