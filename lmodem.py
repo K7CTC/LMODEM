@@ -2,7 +2,7 @@
 #                                                                      #
 #          NAME:  LMODEM                                               #
 #  DEVELOPED BY:  Chris Clement (K7CTC)                                #
-#       VERSION:  v0.6                                                 #
+#       VERSION:  v0.7                                                 #
 #                                                                      #
 ########################################################################
 
@@ -25,7 +25,7 @@ import lostik
 import ui
 
 #establish and parse command line arguments
-parser = argparse.ArgumentParser(description='LMODEM v0.6',
+parser = argparse.ArgumentParser(description='LMODEM v0.7',
                                  epilog='Created by Chris Clement (K7CTC).')
 group = parser.add_mutually_exclusive_group(required=True)
 group.add_argument('-s', '--send',
@@ -117,9 +117,9 @@ def lmodem_get_mode(): #pwr set to 2 for testing
 
 #initialize user interface
 ui.console.show_cursor(False)
-#ui.splash()
+ui.splash_k7ctc()
 ui.print_static_content()
-ui.insert_module_version('v0.6')
+ui.insert_module_version('v0.7')
 
 #initialize LoStik
 lmodem_set_channel(args.channel)
@@ -247,7 +247,7 @@ try:
         ui.update_status('Connecting...')
         while True:
             if lostik.rx(decode=True) == 'READY':
-                lostik.tx('READY', encode=True)
+                lostik.tx('READY', encode=True, delay=0)
                 break
         ui.update_status('Connected!')
 
@@ -305,7 +305,10 @@ try:
         if reply == 'INCOMPLETE':
             ui.update_status('[orange1 on deep_sky_blue4][WARNING][/] File transfer incomplete. Try again to resume.')
             exit(1)
-        if reply == 'COMPLETE_FAIL':
+        if reply == 'COMPLETE_BASE85_FAIL':
+            ui.update_status('[red1 on deep_sky_blue4][ERROR][/] File transfer complete. Base85 decode failed!')
+            exit(1)
+        if reply == 'COMPLETE_BLAKE2_FAIL':
             ui.update_status('[red1 on deep_sky_blue4][ERROR][/] File transfer complete. Integrity check failed!')
             exit(1)
         if reply == 'COMPLETE_PASS':
@@ -317,7 +320,7 @@ try:
         #basic handshake
         ui.update_status('Connecting...')
         while True:
-            lostik.tx('READY', encode=True)
+            lostik.tx('READY', encode=True, delay=0)
             if lostik.rx(decode=True) == 'READY':
                 break
         ui.update_status('Connected!')
@@ -423,7 +426,8 @@ try:
         if 'secure_hash_hex_digest' in received_blocks:
             if incoming_file_secure_hash_hex_digest == received_blocks['secure_hash_hex_digest']:
                 received_blocks.pop('secure_hash_hex_digest')
-                resume = True
+                if count_received_blocks != int(incoming_file_block_count):
+                    resume = True
         if resume == True:
             missing_block_numbers = create_missing_block_numbers_string(received_blocks)
             #cap requested blocks at 32 (to limit packet size)
@@ -465,7 +469,12 @@ try:
             incoming_file_compressed_b85 = bytes.fromhex(incoming_file_compressed_b85_hex)
             del incoming_file_compressed_b85_hex
             #decode from b85
-            incoming_file_compressed = b85decode(incoming_file_compressed_b85)
+            try:
+                incoming_file_compressed = b85decode(incoming_file_compressed_b85)
+            except:
+                ui.update_status('[red1 on deep_sky_blue4][ERROR][/] File transfer complete. Base85 decode failed!')
+                lostik.tx('COMPLETE_BASE85_FAIL')
+                exit(1)
             del incoming_file_compressed_b85
             #decompress
             incoming_file = lzma.decompress(incoming_file_compressed)
@@ -482,7 +491,7 @@ try:
                 ui.update_status('[red1 on deep_sky_blue4][ERROR][/] File transfer complete. Integrity check failed!')
                 os.remove(incoming_file_name)
                 del incoming_file_name
-                lostik.tx('COMPLETE_FAIL', encode=True)
+                lostik.tx('COMPLETE_BLAKE2_FAIL', encode=True)
                 exit(1)
             if incoming_file_secure_hash_hex_digest == incoming_file_secure_hash.hexdigest():
                 ui.update_status('[green1 on deep_sky_blue4][DONE][/] File transfer complete. Integrity check passed.')

@@ -2,7 +2,7 @@
 #                                                                      #
 #          NAME:  LMODEM - UI Functions                                #
 #  DEVELOPED BY:  Chris Clement (K7CTC)                                #
-#       VERSION:  v0.6                                                 #
+#       VERSION:  v0.7                                                 #
 #                                                                      #
 ########################################################################
 
@@ -192,13 +192,12 @@ def update_status(status):
     console.print('[bright_white on deep_sky_blue4]                                                           [/]')
     move_cursor(23,1)
     console.print(f'[bright_white on deep_sky_blue4]{status}[/]')
-    move_cursor(23,80)
+    move_cursor(24,1)
 
-def splash():
+def splash_k7ctc():
     console.clear()
     move_cursor(15,27)
     console.print('[grey70]C h r i s    C l e m e n t[/]')
-
     callsign_elements = [
         '▰▰   ▰▰',
         '▰▰  ▰▰ ',
@@ -212,9 +211,7 @@ def splash():
         '▰▰▰▰▰▰▰▰',
         '   ▰▰'
     ]
-
     frame_delay = .03
-
     #K
     move_cursor(9, 16)
     console.print(callsign_elements[0], style='color(26)')
@@ -231,7 +228,6 @@ def splash():
     move_cursor(13, 16)
     console.print(callsign_elements[0], style='color(26)')
     sleep(frame_delay)
-
     #7
     move_cursor(13, 26)
     console.print(callsign_elements[6], style='color(26)')
@@ -248,7 +244,6 @@ def splash():
     move_cursor(9, 26)
     console.print(callsign_elements[3], style='color(26)')
     sleep(frame_delay)
-
     #C
     move_cursor(9, 36)
     console.print(callsign_elements[7], style='color(26)')
@@ -265,7 +260,6 @@ def splash():
     move_cursor(13, 36)
     console.print(callsign_elements[7], style='color(26)')
     sleep(frame_delay)
-
     #T
     move_cursor(13, 46)
     console.print(callsign_elements[10], style='color(26)')
@@ -282,7 +276,6 @@ def splash():
     move_cursor(9, 46)
     console.print(callsign_elements[9], style='color(26)')
     sleep(frame_delay)
-
     #C
     move_cursor(9, 57)
     console.print(callsign_elements[7], style='color(26)')
@@ -299,16 +292,14 @@ def splash():
     move_cursor(13, 57)
     console.print(callsign_elements[7], style='color(26)')
     sleep(frame_delay)
-
     sleep(.5)
-
     move_cursor(19,30)
     console.print('[grey70]Proudly presents...[/]')
-
     sleep(1.5)
     console.clear()
-    sleep(1)
 
+def splash_piers():
+    console.clear()
     def logo_print_line(line, color):
         lines = [
             '╭─────────╮  ╭─╮  ╭─────────╮  ╭─────────╮  ╭─────────╮',
@@ -325,37 +316,29 @@ def splash():
         column = 14
         move_cursor(row, column)
         console.print(lines[line], style=style)
-
     frame_delay = .06
-
     move_cursor(23,20)
     console.print('[grey30]Copyright © 2017-2022 Chris Clement (K7CTC)[/]')
-
     logo_print_line(0, 235)
     sleep(frame_delay)
-
     logo_print_line(1, 235)
     logo_print_line(0, 231)
     sleep(frame_delay)
-
     logo_print_line(2, 235)
     logo_print_line(1, 231)
     logo_print_line(0, 249)
     sleep(frame_delay)
-
     logo_print_line(3, 235)
     logo_print_line(2, 231)
     logo_print_line(1, 249)
     logo_print_line(0, 244)
     sleep(frame_delay)
-
     logo_print_line(4, 235)
     logo_print_line(3, 231)
     logo_print_line(2, 249)
     logo_print_line(1, 244)
     logo_print_line(0, 239)
     sleep(frame_delay)
-
     logo_print_line(5, 235)
     logo_print_line(4, 231)
     logo_print_line(3, 249)
@@ -363,7 +346,6 @@ def splash():
     logo_print_line(1, 239)
     logo_print_line(0, 235)
     sleep(frame_delay)
-
     logo_print_line(5, 231)
     logo_print_line(4, 249)
     logo_print_line(3, 244)
@@ -371,35 +353,27 @@ def splash():
     logo_print_line(1, 235)
     logo_print_line(0, 0)
     sleep(frame_delay)
-
     logo_print_line(5, 249)
     logo_print_line(4, 244)
     logo_print_line(3, 239)
     logo_print_line(2, 235)
     logo_print_line(1, 0)
     sleep(frame_delay)
-
     logo_print_line(5, 244)
     logo_print_line(4, 239)
     logo_print_line(3, 235)
     logo_print_line(2, 0)
     sleep(frame_delay)
-
     logo_print_line(5, 239)
     logo_print_line(4, 235)
     logo_print_line(3, 0)
     sleep(frame_delay)
-
     logo_print_line(5, 235)
     logo_print_line(4, 0)
     sleep(frame_delay)
-
     logo_print_line(5, 0)
-
     sleep(.25)
-
     frame_delay = .12
-
     logo_print_line(0, 235)
     logo_print_line(1, 235)
     logo_print_line(2, 235)
@@ -407,7 +381,6 @@ def splash():
     logo_print_line(4, 235)
     logo_print_line(5, 235)
     sleep(frame_delay)
-
     logo_print_line(0, 231)
     logo_print_line(1, 231)
     logo_print_line(2, 231)
@@ -415,7 +388,6 @@ def splash():
     logo_print_line(4, 231)
     logo_print_line(5, 231)
     sleep(frame_delay)
-
     logo_print_line(0, 253)
     logo_print_line(1, 253)
     logo_print_line(2, 253)
@@ -423,32 +395,24 @@ def splash():
     logo_print_line(4, 253)
     logo_print_line(5, 253)
     sleep(frame_delay)
-
     logo_print_line(0, 249)
     logo_print_line(1, 249)
     logo_print_line(2, 249)
     logo_print_line(3, 249)
     logo_print_line(4, 249)
     logo_print_line(5, 249)
-
     sleep(.25)
-
     def title_print_line(color):
         style = f'color({color})'
         row = 15
         column = 22
         move_cursor(row, column)
         console.print('The Raspberry Pi Event Reporting System', style=style)
-
     title_print_line(235)
     sleep(frame_delay)
-
     title_print_line(231)
     sleep(frame_delay)
-
     title_print_line(253)
     sleep(frame_delay)
-
     title_print_line(249)
-
     sleep(3)
