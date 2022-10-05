@@ -202,7 +202,7 @@ try:
         #split hex encoded base85 encoded compressed outgoing file into blocks sized for chosen mode
         block_size = 0
         if args.mode == 1:
-            block_size = 192 * 2
+            block_size = 128 * 2
         if args.mode == 2:
             block_size = 128 * 2
         if args.mode == 3:
