@@ -119,7 +119,7 @@ def lmodem_get_mode(): #pwr set to 2 for testing
 ui.console.show_cursor(False)
 #ui.splash()
 ui.print_static_content()
-ui.insert_module_version('v0.6')
+ui.insert_module_version('v0.7')
 
 #initialize LoStik
 lmodem_set_channel(args.channel)
