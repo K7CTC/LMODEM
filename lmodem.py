@@ -117,7 +117,7 @@ def lmodem_get_mode(): #pwr set to 2 for testing
 
 #initialize user interface
 ui.console.show_cursor(False)
-#ui.splash()
+ui.splash_k7ctc()
 ui.print_static_content()
 ui.insert_module_version('v0.7')
 
