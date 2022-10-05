@@ -426,7 +426,8 @@ try:
         if 'secure_hash_hex_digest' in received_blocks:
             if incoming_file_secure_hash_hex_digest == received_blocks['secure_hash_hex_digest']:
                 received_blocks.pop('secure_hash_hex_digest')
-                resume = True
+                if count_received_blocks != int(incoming_file_block_count):
+                    resume = True
         if resume == True:
             missing_block_numbers = create_missing_block_numbers_string(received_blocks)
             #cap requested blocks at 32 (to limit packet size)
