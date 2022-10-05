@@ -305,7 +305,10 @@ try:
         if reply == 'INCOMPLETE':
             ui.update_status('[orange1 on deep_sky_blue4][WARNING][/] File transfer incomplete. Try again to resume.')
             exit(1)
-        if reply == 'COMPLETE_FAIL':
+        if reply == 'COMPLETE_BASE85_FAIL':
+            ui.update_status('[red1 on deep_sky_blue4][ERROR][/] File transfer complete. Base85 decode failed!')
+            exit(1)
+        if reply == 'COMPLETE_BLAKE2_FAIL':
             ui.update_status('[red1 on deep_sky_blue4][ERROR][/] File transfer complete. Integrity check failed!')
             exit(1)
         if reply == 'COMPLETE_PASS':
@@ -465,7 +468,12 @@ try:
             incoming_file_compressed_b85 = bytes.fromhex(incoming_file_compressed_b85_hex)
             del incoming_file_compressed_b85_hex
             #decode from b85
-            incoming_file_compressed = b85decode(incoming_file_compressed_b85)
+            try:
+                incoming_file_compressed = b85decode(incoming_file_compressed_b85)
+            except:
+                ui.update_status('[red1 on deep_sky_blue4][ERROR][/] File transfer complete. Base85 decode failed!')
+                lostik.tx('COMPLETE_BASE85_FAIL')
+                exit(1)
             del incoming_file_compressed_b85
             #decompress
             incoming_file = lzma.decompress(incoming_file_compressed)
@@ -482,7 +490,7 @@ try:
                 ui.update_status('[red1 on deep_sky_blue4][ERROR][/] File transfer complete. Integrity check failed!')
                 os.remove(incoming_file_name)
                 del incoming_file_name
-                lostik.tx('COMPLETE_FAIL', encode=True)
+                lostik.tx('COMPLETE_BLAKE2_FAIL', encode=True)
                 exit(1)
             if incoming_file_secure_hash_hex_digest == incoming_file_secure_hash.hexdigest():
                 ui.update_status('[green1 on deep_sky_blue4][DONE][/] File transfer complete. Integrity check passed.')
