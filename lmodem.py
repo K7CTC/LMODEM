@@ -453,7 +453,8 @@ try:
         del resume
 
         #process received blocks
-        if received_block_count() == incoming_file_block_count:
+        
+        if count_received_blocks() == int(incoming_file_block_count):
             del incoming_file_block_count
             ui.update_status('All blocks received. Processing file...')
             #concatenate blocks
