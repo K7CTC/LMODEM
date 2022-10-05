@@ -192,7 +192,7 @@ def update_status(status):
     console.print('[bright_white on deep_sky_blue4]                                                           [/]')
     move_cursor(23,1)
     console.print(f'[bright_white on deep_sky_blue4]{status}[/]')
-    move_cursor(23,80)
+    move_cursor(24,1)
 
 def splash_k7ctc():
     console.clear()
