@@ -2,7 +2,7 @@
 #                                                                      #
 #          NAME:  LMODEM                                               #
 #  DEVELOPED BY:  Chris Clement (K7CTC)                                #
-#       VERSION:  v0.6-dev                                             #
+#       VERSION:  v0.6                                                 #
 #                                                                      #
 ########################################################################
 
