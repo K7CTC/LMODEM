@@ -1,6 +1,6 @@
 # LMODEM
 
-LMODEM is a file transfer protocol purpose built for LoRa.  Its name is a throwback to the protocols used in the BBS days (X, Y, and ZMODEM).
+LMODEM is the world's first file transfer protocol purpose built for LoRa.  The name is a throwback to X, Y, and ZMODEM that I used heavily back when I was a BBS SysOp.
 
 ## Why?
 
@@ -9,8 +9,7 @@ The short answer, just to see if it was possible.  After completing work on my L
 ## Limitations
 
 * Maximum file name length of 32 characters.
-* Maximum "over the air" file size of 32,768 bytes (though the source file can be many times bigger).
-* Maximim tested range ~20 miles line of sight.
+* Maximim range ~20 miles line of sight.
 
 ## Features
 
@@ -62,7 +61,6 @@ If there are no missing blocks.  The receiving station reconstitues the file:
 
 
 
-# LMODEM Notes
 
 ## LMODEM LoStik Modes
 
@@ -71,33 +69,27 @@ If there are no missing blocks.  The receiving station reconstitues the file:
 * BW = 500
 * SF = sf8
 * CR = 4/6
-* WDT = 875
-* Block Size = 192 bytes
-* Max OTA Size = 49152 bytes
-
-It takes 166ms to send 192 bytes in MODE1
+* WDT = 1000
+* Block Size = 128 bytes
+* Max OTA Size = 32768 bytes
 
 ### MODE2 - Medium Range (Balanced)
 * PWR = 12
 * BW = 250
 * SF = sf10
 * CR = 4/7
-* WDT = 1600
+* WDT = 2000
 * Block Size = 128 bytes
 * Max OTA Size = 32768
-
-It takes 859ms to send 128 bytes in MODE2
 
 ### MODE3 - Long Range (Slow)
 * PWR = 17
 * BW = 125
 * SF = sf12
 * CR = 4/8
-* WDT = 8500
+* WDT = 5000
 * Block Size = 64 bytes
 * Max OTA Size = 16384
-
-It takes about 4336ms to send 64 bytes in MODE3
 
 ## LMODEM Channels
 1. 914 MHz
