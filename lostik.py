@@ -209,7 +209,7 @@ def get_snr():
 #  option: encode (boolean) - allows function to accept and encode ASCII instead of hexadecimal
 #  option: delay (float) - delay TX operation to allow receive station time to process prior packet
 # returns: time_sent and air_time
-def tx(packet, encode=False, delay=0.15):
+def tx(packet, encode=False, delay=0.20):
     sleep(delay)
     if encode == False:
         write(f'radio tx {packet}')
