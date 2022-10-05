@@ -2,7 +2,7 @@
 #                                                                      #
 #          NAME:  Ronoth LoStik Device Driver                          #
 #  DEVELOPED BY:  Chris Clement (K7CTC)                                #
-#       VERSION:  v0.8                                                 #
+#       VERSION:  v0.6                                                 #
 #                                                                      #
 ########################################################################
 
@@ -70,7 +70,7 @@ if get_ver() != 'RN2903 1.0.5 Nov 06 2018 10:45:27':
     print('[ERROR] LoStik failed to return expected firmware version!')
     exit(1)
 
-#function: get LoStik EUI-64™ (globally unique 64-bit identifier)
+#function: get LoStik EUI-64™ (globally unique 64-bit identifier aka DevEUI)
 # returns: EUI-64™
 def get_hweui():
     write('sys get hweui')
@@ -95,7 +95,6 @@ def red_led(state):
     read()
 
 #function: disable LoRaWAN® via "mac pause" command
-#    note: terminate on error
 def disable_lorawan():
     write('mac pause')
     if read() != '4294967245':
@@ -140,7 +139,6 @@ def get_wdt():
 
 #functions: write radio settings to LoStik
 #  accepts: setting value
-#     note: terminate on error
 def set_bw(bw):
     write(f'radio set bw {bw}')
     if read() != 'ok':
@@ -211,14 +209,13 @@ def get_snr():
 #  option: encode (boolean) - allows function to accept and encode ASCII instead of hexadecimal
 #  option: delay (float) - delay TX operation to allow receive station time to process prior packet
 # returns: time_sent and air_time
-#    note: terminate on error
-def tx(packet, encode=False, delay=0.0):
+def tx(packet, encode=False, delay=0.25):
     sleep(delay)
     if encode == False:
         write(f'radio tx {packet}')
     if encode == True:
         hex = packet.encode('ASCII').hex()
-        write(f'radio tx {hex}')   
+        write(f'radio tx {hex}')
     response = read()
     if response == 'busy':
         print('[ERROR] Failed to enter transmit mode! LoStik busy!')
@@ -256,7 +253,7 @@ def rx(decode=False):
         print('[ERROR] Failed to enter receive mode! Invalid parameter!')
         print('HELP: Disconnect and reconnect LoStik device, then try again.')
         exit(1)
-    if response == 'ok':        
+    if response == 'ok':
         blue_led(True)
         response = ''
         while response == '':
@@ -271,7 +268,6 @@ def rx(decode=False):
             return bytes.fromhex(response).decode('ASCII')
 
 #function: force LoStik to halt continuous receive mode
-#    note: terminate on error
 def rxstop():
     write('radio rxstop')
     if read() == 'ok':
@@ -280,77 +276,3 @@ def rxstop():
         print('[ERROR] Failed to exit receive mode!')
         print('HELP: Disconnect and reconnect LoStik device, then try again.')
         exit(1)
-
-########################################################################
-# Below are LMODEM specific functions                                  #
-########################################################################
-
-#function: set LMODEM communication mode
-# accepts: mode number (1, 2 or 3)
-def lmodem_set_mode(mode_number): #pwr set to 2 for testing
-    if mode_number > 3 or mode_number < 1:
-        print('[ERROR] Invalid LMODEM mode number!')
-        print('HELP: Valid mode numbers are 1, 2, and 3.')
-        exit(1)
-    if mode_number == 1:
-        set_pwr('2')
-        # set_pwr('6')
-        set_bw('500')
-        set_sf('sf8')
-        set_cr('4/6')
-        set_wdt('1000')
-    if mode_number == 2:
-        set_pwr('2')
-        # set_pwr('12')
-        set_bw('250')
-        set_sf('sf10')
-        set_cr('4/7')
-        set_wdt('2000')
-    if mode_number == 3:
-        set_pwr('2')
-        # set_pwr('17')
-        set_bw('125')
-        set_sf('sf12')
-        set_cr('4/8')
-        set_wdt('9000')
-
-def lmodem_get_mode(): #pwr set to 2 for testing
-    pwr = get_pwr()
-    bw = get_bw()
-    sf = get_sf()
-    cr = get_cr()
-    wdt = get_wdt()
-    if pwr == '2' and bw == '500' and sf == 'sf8' and cr == '4/6' and wdt == '1000':
-    # if pwr == '6' and bw == '500' and sf == 'sf8' and cr == '4/6' and wdt == '1000':
-        return 1
-    if pwr == '2' and bw == '250' and sf == 'sf10' and cr == '4/7' and wdt == '2000':
-    # if pwr == '12' and bw == '250' and sf == 'sf10' and cr == '4/7' and wdt == '2000':
-        return 2
-    if pwr == '2' and bw == '125' and sf == 'sf12' and cr == '4/8' and wdt == '9000':
-    # if pwr == '17' and bw == '125' and sf == 'sf12' and cr == '4/8' and wdt == '9000':
-        return 3
-    print('[ERROR] Invalid LoStik configuration!')
-    print('HELP: LoStik settings do not match any of the LMODEM modes.')
-    exit(1)
-
-def lmodem_set_channel(channel_number):
-    if channel_number > 3 or channel_number < 1:
-        print('[ERROR] Invalid channel number!')
-        print('HELP: Valid channel numbes are 1, 2 and 3.')
-    if channel_number == 1:
-        set_freq('914000000')
-    if channel_number == 2:
-        set_freq('915000000')
-    if channel_number == 3:
-        set_freq('916000000')
-
-def lmodem_get_channel():
-    freq = get_freq()
-    if freq == '914000000':
-        return 1
-    if freq == '915000000':
-        return 2
-    if freq == '916000000':
-        return 3
-    print('[ERROR] Invalid LoStik configuration!')
-    print('HELP: LoStik frequency setting does not match any of the LMODEM channels.')

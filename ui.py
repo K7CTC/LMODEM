@@ -2,7 +2,7 @@
 #                                                                      #
 #          NAME:  LMODEM - UI Functions                                #
 #  DEVELOPED BY:  Chris Clement (K7CTC)                                #
-#       VERSION:  v0.1                                                 #
+#       VERSION:  v0.6                                                 #
 #                                                                      #
 ########################################################################
 
@@ -10,11 +10,24 @@
 from sys import exit
 from time import sleep
 
-#local application/library specific imports
-from console import console
+#related third party imports
+from rich.console import Console
+from rich.theme import Theme
 
 if __name__ == '__main__':
     print('[ERROR] ui.py is not intended for direct execution!')
+    exit(1)
+
+console = Console(theme=Theme(inherit=False))
+
+if console.width < 80:
+    print('[ERROR] Terminal width is less than 80 columns!')
+    print('HELP: LMODEM minimal terminal size is 80x24. Resize and try again.')
+    exit(1)
+
+if console.height < 24:
+    print('[ERROR] Terminal height is less than 24 rows!')
+    print('HELP: LMODEM minimal terminal size is 80x24. Resize and try again.')
     exit(1)
 
 def move_cursor(row, column):
@@ -22,56 +35,52 @@ def move_cursor(row, column):
 
 def print_static_content():
     console.clear()
-    console.print('[white on deep_sky_blue4] ⣿ LMODEM      by Chris Clement (K7CTC)  ❭❭❭                                    [/]')     #  1
-    console.print('╭─ LMODEM Parameters ──────────────────────────────────────────────────────────╮')                                 #  2
-    console.print('          Channel:               Mode:')                                                                           #  3
-    console.print('╭─ LoStik Parameters ──────────────────────────────────────────────────────────╮')                                 #  4
-    console.print('                  Frequency:')                                                                                     #  5
-    console.print('                  Bandwidth:')                                                                                     #  6
-    console.print('                   TX Power:')                                                                                     #  7
-    console.print('           Spreading Factor:')                                                                                     #  8
-    console.print('                Coding Rate:')                                                                                     #  9
-    console.print()                                                                                                                   # 10
-    console.print('╭─ File Transfer Details ──────────────────────────────────────────────────────╮')                                 # 11
-    console.print('                       Name:')                                                                                     # 12
-    console.print('             Size (on disk):')                                                                                     # 13
-    console.print('        Size (over the air):')                                                                                     # 14
-    console.print('                Secure Hash:')                                                                                     # 15
-    console.print('                     Blocks:')                                                                                     # 16
-    console.print('           Requested Blocks:')                                                                                     # 17
-    console.print('')                                                                                                                 # 18
-    console.print('╭─ File Transfer Progress ─────────────────────────────────────────────────────╮')                                 # 19
-    console.print()                                                                                                                   # 20
-    console.print('[grey23]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━   0% 0:00:00 0:00:00[/]')                      # 21
-    console.print()                                                                                                                   # 22
-    console.print('[grey15 on deep_sky_blue4]                                                           Press CTRL+C to quit.[/]')    # 23
+    console.print('[bright_white on deep_sky_blue4]LMODEM by Chris Clement (K7CTC)                                                 [/]')    # 1
+    console.print('╭───────────────────────────────── Channel:   ─────────────────────────────────╮')                                       # 2
+    console.print('                                                                                ')                                       # 3
+    console.print('                             Frequency:                                         ')                                       # 4
+    console.print('                                                                                ')                                       # 5
+    console.print('╭─────────────────────────────────── Mode:   ──────────────────────────────────╮')                                       # 6
+    console.print('                                                                                ')                                       # 7
+    console.print('                             Bandwidth:                                         ')                                       # 8
+    console.print('                              TX Power:                                         ')                                       # 9
+    console.print('                      Spreading Factor:                                         ')                                       # 10
+    console.print('                           Coding Rate:                                         ')                                       # 11
+    console.print('                                                                                ')                                       # 12
+    console.print('╭──────────────────────────────── File Details ────────────────────────────────╮')                                       # 13
+    console.print('                                                                                ')                                       # 14
+    console.print('                                  Name:                                         ')                                       # 15
+    console.print('                        Size (on disk):                                         ')                                       # 16
+    console.print('                   Size (over the air):                                         ')                                       # 17
+    console.print('                                                                                ')                                       # 18
+    console.print('╭─────────────────────────── File Transfer Progress ───────────────────────────╮')                                       # 19
+    console.print('                                                                                ')                                       # 20
+    console.print('[grey23]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━   0% 0:00:00 0:00:00[/]')                            # 21
+    console.print('                                                                                ')                                       # 22
+    console.print('[grey15 on deep_sky_blue4]                                                           Press CTRL+C to quit.[/]')          # 23
 
 def insert_module_version(module_version):
-    move_cursor(1,11)
-    console.print(f'[white on deep_sky_blue4]{module_version}[/]')
-
-def insert_module_name(module_name):
-    move_cursor(1,47)
-    console.print(f'[white on deep_sky_blue4]{module_name}[/]')
+    move_cursor(1,77)
+    console.print(f'[bright_white on deep_sky_blue4]{module_version}[/]')
 
 def insert_lmodem_channel(lmodem_channel):
-    move_cursor(3,20)
+    move_cursor(2,45)
     console.print(lmodem_channel)
 
-def insert_lmodem_mode(lmodem_mode):
-    move_cursor(3,40)
-    console.print(lmodem_mode)
-
 def insert_frequency(frequency):
-    move_cursor(5,30)
+    move_cursor(4,42)
     console.print(f'{frequency[:3]}.{frequency[3:]} MHz')
 
+def insert_lmodem_mode(lmodem_mode):
+    move_cursor(6,44)
+    console.print(lmodem_mode)
+
 def insert_bandwidth(bandwidth):
-    move_cursor(6,30)
+    move_cursor(8,42)
     console.print(f'{bandwidth} KHz')
 
 def insert_power(power):
-    move_cursor(7,30)
+    move_cursor(9,42)
     label = 'NULL'
     dbm = '0.0dBm'
     mw = '0.0mW'
@@ -159,44 +168,34 @@ def insert_power(power):
     console.print(f'{label} ({dbm}/{mw}/{ma})')
 
 def insert_spreading_factor(spreading_factor):
-    move_cursor(8,30)
+    move_cursor(10,42)
     console.print(spreading_factor)
 
 def insert_coding_rate(coding_rate):
-    move_cursor(9,30)
+    move_cursor(11,42)
     console.print(coding_rate)
 
 def insert_file_name(file_name):
-    move_cursor(12,30)
+    move_cursor(15,42)
     console.print(file_name)
 
 def insert_file_size_on_disk(file_size):
-    move_cursor(13,30)
+    move_cursor(16,42)
     console.print(f'{file_size} bytes')
 
 def insert_file_size_ota(file_size_ota):
-    move_cursor(14,30)
+    move_cursor(17,42)
     console.print(f'{file_size_ota} bytes')
-
-def insert_secure_hash_hex_digest(secure_hash_hex_digest):
-    move_cursor(15,30)
-    console.print(secure_hash_hex_digest)
-
-def insert_block_count(block_count):
-    move_cursor(16,30)
-    console.print(block_count)
-
-def insert_requested_block_count(requested_block_count):
-    move_cursor(17,30)
-    console.print(requested_block_count)
 
 def update_status(status):
     move_cursor(23,1)
-    console.print('[white on deep_sky_blue4]                                                           [/]')
+    console.print('[bright_white on deep_sky_blue4]                                                           [/]')
     move_cursor(23,1)
-    console.print(f'[white on deep_sky_blue4]{status}[/]')
+    console.print(f'[bright_white on deep_sky_blue4]{status}[/]')
+    move_cursor(23,80)
 
 def splash():
+    console.clear()
     move_cursor(15,27)
     console.print('[grey70]C h r i s    C l e m e n t[/]')
 
@@ -329,7 +328,7 @@ def splash():
 
     frame_delay = .06
 
-    move_cursor(24,30)
+    move_cursor(23,20)
     console.print('[grey30]Copyright © 2017-2022 Chris Clement (K7CTC)[/]')
 
     logo_print_line(0, 235)
