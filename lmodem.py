@@ -179,7 +179,7 @@ try:
         #check if outgoing file size over-the-air exceeds LMODEM maximum for chosen mode
         maximum_ota_file_size = 0
         if args.mode == 1:
-            maximum_ota_file_size = 49152
+            maximum_ota_file_size = 32768
         if args.mode == 2:
             maximum_ota_file_size = 32768
         if args.mode == 3:
