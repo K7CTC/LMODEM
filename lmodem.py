@@ -247,7 +247,7 @@ try:
         ui.update_status('Connecting...')
         while True:
             if lostik.rx(decode=True) == 'READY':
-                lostik.tx('READY', encode=True)
+                lostik.tx('READY', encode=True, delay=0)
                 break
         ui.update_status('Connected!')
 
@@ -317,7 +317,7 @@ try:
         #basic handshake
         ui.update_status('Connecting...')
         while True:
-            lostik.tx('READY', encode=True)
+            lostik.tx('READY', encode=True, delay=0)
             if lostik.rx(decode=True) == 'READY':
                 break
         ui.update_status('Connected!')
