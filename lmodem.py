@@ -25,7 +25,7 @@ import lostik
 import ui
 
 #establish and parse command line arguments
-parser = argparse.ArgumentParser(description='LMODEM v0.6',
+parser = argparse.ArgumentParser(description='LMODEM v0.7',
                                  epilog='Created by Chris Clement (K7CTC).')
 group = parser.add_mutually_exclusive_group(required=True)
 group.add_argument('-s', '--send',
