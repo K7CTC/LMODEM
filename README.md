@@ -62,9 +62,19 @@ If there are no missing blocks.  The receiving station reconstitues the file:
 
 
 
-## LMODEM LoStik Modes
+## LMODEM Modes
 
-### MODE1 - Short Range (Fast)
+### MODE 1 - Minimum Range for Bench Testing (21875 bps)
+* PWR = 2
+* BW = 500
+* SF = sf7
+* CR = 4/5
+* WDT = 1000
+* Block Size = 128 bytes
+* Max OTA Size = 32768 bytes
+* 54ms per packet
+
+### MODE 2 - Short Range (10417 bps)
 * PWR = 6
 * BW = 500
 * SF = sf8
@@ -72,26 +82,41 @@ If there are no missing blocks.  The receiving station reconstitues the file:
 * WDT = 1000
 * Block Size = 128 bytes
 * Max OTA Size = 32768 bytes
+* 112ms per packet
 
-### MODE2 - Medium Range (Balanced)
+### MODE 3 - Medium Range (2790 bps)
 * PWR = 12
-* BW = 250
+* BW = 500
 * SF = sf10
 * CR = 4/7
-* WDT = 2000
+* WDT = 1500
 * Block Size = 128 bytes
 * Max OTA Size = 32768
+* 414ms per packet
 
-### MODE3 - Long Range (Slow)
+### MODE 4 - Long Range (366 bps)
 * PWR = 17
-* BW = 125
+* BW = 250
 * SF = sf12
 * CR = 4/8
 * WDT = 5000
 * Block Size = 64 bytes
 * Max OTA Size = 16384
+* 2036ms per packet
+
+### MODE 5 - Maximum Range for Emergency Use (183 bps)
+* PWR = 20
+* BW = 125
+* SF = sf12
+* CR = 4/8
+* WDT = 5000
+* Block Size = 32 bytes
+* Max OTA Size = 8192
+* 2499ms per packet
 
 ## LMODEM Channels
-1. 914 MHz
-2. 915 MHz
-3. 916 MHz
+1. 913 MHz
+2. 914 MHz
+3. 915 MHz
+4. 916 MHz
+5. 917 MHz 

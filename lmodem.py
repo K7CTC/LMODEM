@@ -35,10 +35,10 @@ group.add_argument('-r', '--receive',
                    help='receive an incoming file',
                    action='store_true')
 parser.add_argument('-c', '--channel',
-                    help='LMODEM channel (default: 2)',
+                    help='LMODEM channel (default: 3)',
                     type=int,
-                    choices=[1,2,3],
-                    default=2)
+                    choices=[1,2,3,4,5],
+                    default=3)
 parser.add_argument('-m', '--mode',
                     help='LMODEM mode (default: 1)',
                     type=int,
@@ -81,36 +81,36 @@ def lmodem_get_channel():
 #function: set LMODEM communication mode
 # accepts: mode number (1, 2, 3, 4 or 5) 
 def lmodem_set_mode(mode_number): 
-    if mode_number == 1:        #minimum range (bench testing)
+    if mode_number == 1:        #minimum range (bench testing only)     21875 bps   54ms per 128bytes
         lostik.set_pwr('2')
         lostik.set_bw('500')
         lostik.set_sf('sf7')
         lostik.set_cr('4/5')
         lostik.set_wdt('1000')
-    if mode_number == 2:        #long range 1
-        lostik.set_pwr('17')
+    if mode_number == 2:        #short range                            10417 bps   112ms per 128bytes
+        lostik.set_pwr('6')
         lostik.set_bw('500')
-        lostik.set_sf('sf12')
-        lostik.set_cr('4/8')
-        lostik.set_wdt('10000')
-    if mode_number == 3:        #long range 2
+        lostik.set_sf('sf8')
+        lostik.set_cr('4/6')
+        lostik.set_wdt('1000')
+    if mode_number == 3:        #medium range                           2790 bps    414ms per 128bytes
+        lostik.set_pwr('12')
+        lostik.set_bw('500')
+        lostik.set_sf('sf10')
+        lostik.set_cr('4/7')
+        lostik.set_wdt('1500')
+    if mode_number == 4:        #long range (~17.5mi)                   366 bps     2036ms per 64 bytes
         lostik.set_pwr('17')
         lostik.set_bw('250')
         lostik.set_sf('sf12')
         lostik.set_cr('4/8')
-        lostik.set_wdt('10000')
-    if mode_number == 4:        #long range 3
-        lostik.set_pwr('17')
-        lostik.set_bw('125')
-        lostik.set_sf('sf12')
-        lostik.set_cr('4/8')
-        lostik.set_wdt('10000')
-    if mode_number == 5:        #maximum range (emergency use only)
+        lostik.set_wdt('5000')
+    if mode_number == 5:        #maximum range (emergency use only)     183 bps     2499ms per 32 bytes  
         lostik.set_pwr('20')
         lostik.set_bw('125')
         lostik.set_sf('sf12')
         lostik.set_cr('4/8')
-        lostik.set_wdt('10000')
+        lostik.set_wdt('5000')
 
 #function: get LMODEM communication mode
 # returns: mode number (1, 2, 3, 4 or 5) 
@@ -122,13 +122,13 @@ def lmodem_get_mode():
     wdt = lostik.get_wdt()
     if pwr == '2' and bw == '500' and sf == 'sf7' and cr == '4/5' and wdt == '1000':
         return 1
-    if pwr == '17' and bw == '500' and sf == 'sf12' and cr == '4/8' and wdt == '10000':
+    if pwr == '6' and bw == '500' and sf == 'sf8' and cr == '4/6' and wdt == '1000':
         return 2
-    if pwr == '17' and bw == '250' and sf == 'sf12' and cr == '4/8' and wdt == '10000':
+    if pwr == '12' and bw == '500' and sf == 'sf10' and cr == '4/7' and wdt == '1500':
         return 3
-    if pwr == '17' and bw == '125' and sf == 'sf12' and cr == '4/8' and wdt == '10000':
+    if pwr == '17' and bw == '250' and sf == 'sf12' and cr == '4/8' and wdt == '5000':
         return 4
-    if pwr == '20' and bw == '125' and sf == 'sf12' and cr == '4/8' and wdt == '10000':
+    if pwr == '20' and bw == '125' and sf == 'sf12' and cr == '4/8' and wdt == '5000':
         return 5
     ui.update_status('[red1 on deep_sky_blue4][ERROR][/] Failed to get LMODEM mode!')
     exit(1)
@@ -199,11 +199,11 @@ try:
         if args.mode == 1:
             maximum_ota_file_size = 32768
         if args.mode == 2:
-            maximum_ota_file_size = 8192
+            maximum_ota_file_size = 32768
         if args.mode == 3:
-            maximum_ota_file_size = 8192
+            maximum_ota_file_size = 32768
         if args.mode == 4:
-            maximum_ota_file_size = 8192
+            maximum_ota_file_size = 16384
         if args.mode == 5:
             maximum_ota_file_size = 8192
         if outgoing_file_size_ota > maximum_ota_file_size:
@@ -226,13 +226,13 @@ try:
         if args.mode == 1:
             block_size = 128 * 2
         if args.mode == 2:
-            block_size = 64 * 2
+            block_size = 128 * 2
         if args.mode == 3:
-            block_size = 64 * 2
+            block_size = 128 * 2
         if args.mode == 4:
             block_size = 64 * 2
         if args.mode == 5:
-            block_size = 64 * 2
+            block_size = 32 * 2
 
         blocks = textwrap.wrap(outgoing_file_compressed_b85_hex, block_size)
         del block_size, outgoing_file_compressed_b85_hex
