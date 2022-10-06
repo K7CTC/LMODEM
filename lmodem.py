@@ -48,81 +48,87 @@ args = parser.parse_args()
 del group, parser
 
 #function: set LMODEM communication channel (frequency)
-# accepts: channel number (1, 2 or 3)
+# accepts: channel number (1, 2, 3, 4 or 5)
 def lmodem_set_channel(channel_number):
     if channel_number == 1:
-        lostik.set_freq('914000000')
+        lostik.set_freq('913000000')
     if channel_number == 2:
-        lostik.set_freq('915000000')
+        lostik.set_freq('914000000')
     if channel_number == 3:
+        lostik.set_freq('915000000')
+    if channel_number == 4:
         lostik.set_freq('916000000')
+    if channel_number == 5:
+        lostik.set_freq('917000000')
 
 #function: get LMODEM communication channel (frequency)
-# returns: channel number (1, 2 or 3)
+# returns: channel number (1, 2, 3, 4 or 5)
 def lmodem_get_channel():
     freq = lostik.get_freq()
-    if freq == '914000000':
+    if freq == '913000000':
         return 1
-    if freq == '915000000':
+    if freq == '914000000':
         return 2
-    if freq == '916000000':
+    if freq == '915000000':
         return 3
+    if freq == '916000000':
+        return 4
+    if freq == '917000000':
+        return 5
     ui.update_status('[red1 on deep_sky_blue4][ERROR][/] Failed to get LMODEM channel!')
     exit(1)
 
 #function: set LMODEM communication mode
-# accepts: mode number (1, 2 or 3) [4 and 5 are for testing only]
+# accepts: mode number (1, 2, 3, 4 or 5) 
 def lmodem_set_mode(mode_number): 
-    if mode_number == 1:        #short range
-        lostik.set_pwr('6')
-        lostik.set_bw('500')
-        lostik.set_sf('sf8')
-        lostik.set_cr('4/6')
-        lostik.set_wdt('1000')
-    if mode_number == 2:        #medium range
-        lostik.set_pwr('12')
-        lostik.set_bw('250')
-        lostik.set_sf('sf10')
-        lostik.set_cr('4/7')
-        lostik.set_wdt('2000')
-    if mode_number == 3:        #long range
-        lostik.set_pwr('17')
-        lostik.set_bw('125')
-        lostik.set_sf('sf12')
-        lostik.set_cr('4/8')
-        lostik.set_wdt('5000')
-    #4 and 5 are for testing only
-    if mode_number == 4:        #maximum range
-        lostik.set_pwr('20')
-        lostik.set_bw('125')
-        lostik.set_sf('sf12')
-        lostik.set_cr('4/8')
-        lostik.set_wdt('10000')
-    if mode_number == 5:        #minimum range
+    if mode_number == 1:        #minimum range (bench testing)
         lostik.set_pwr('2')
         lostik.set_bw('500')
         lostik.set_sf('sf7')
         lostik.set_cr('4/5')
         lostik.set_wdt('1000')
+    if mode_number == 2:        #long range 1
+        lostik.set_pwr('17')
+        lostik.set_bw('500')
+        lostik.set_sf('sf12')
+        lostik.set_cr('4/8')
+        lostik.set_wdt('5000')
+    if mode_number == 3:        #long range 2
+        lostik.set_pwr('17')
+        lostik.set_bw('250')
+        lostik.set_sf('sf12')
+        lostik.set_cr('4/8')
+        lostik.set_wdt('5000')
+    if mode_number == 4:        #long range 3
+        lostik.set_pwr('17')
+        lostik.set_bw('125')
+        lostik.set_sf('sf12')
+        lostik.set_cr('4/8')
+        lostik.set_wdt('5000')
+    if mode_number == 5:        #maximum range (emergency use only)
+        lostik.set_pwr('20')
+        lostik.set_bw('125')
+        lostik.set_sf('sf12')
+        lostik.set_cr('4/8')
+        lostik.set_wdt('5000')
 
 #function: get LMODEM communication mode
-# returns: mode number (1, 2 or 3) [4 and 5 are for testing only]
+# returns: mode number (1, 2, 3, 4 or 5) 
 def lmodem_get_mode(): 
     pwr = lostik.get_pwr()
     bw = lostik.get_bw()
     sf = lostik.get_sf()
     cr = lostik.get_cr()
     wdt = lostik.get_wdt()
-    if pwr == '6' and bw == '500' and sf == 'sf8' and cr == '4/6' and wdt == '1000':
-        return 1
-    if pwr == '12' and bw == '250' and sf == 'sf10' and cr == '4/7' and wdt == '2000':
-        return 2
-    if pwr == '17' and bw == '125' and sf == 'sf12' and cr == '4/8' and wdt == '5000':
-        return 3
-    #4 and 5 are for testing only
-    if pwr == '20' and bw == '125' and sf == 'sf12' and cr == '4/8' and wdt == '10000':
-        return 4
     if pwr == '2' and bw == '500' and sf == 'sf7' and cr == '4/5' and wdt == '1000':
+        return 1
+    if pwr == '17' and bw == '500' and sf == 'sf12' and cr == '4/8' and wdt == '5000':
+        return 2
+    if pwr == '17' and bw == '250' and sf == 'sf12' and cr == '4/8' and wdt == '5000':
+        return 3
+    if pwr == '17' and bw == '125' and sf == 'sf12' and cr == '4/8' and wdt == '5000':
+        return 4
+    if pwr == '20' and bw == '125' and sf == 'sf12' and cr == '4/8' and wdt == '5000':
         return 5
     ui.update_status('[red1 on deep_sky_blue4][ERROR][/] Failed to get LMODEM mode!')
     exit(1)
@@ -193,9 +199,13 @@ try:
         if args.mode == 1:
             maximum_ota_file_size = 32768
         if args.mode == 2:
-            maximum_ota_file_size = 32768
+            maximum_ota_file_size = 8192
         if args.mode == 3:
-            maximum_ota_file_size = 16384
+            maximum_ota_file_size = 8192
+        if args.mode == 4:
+            maximum_ota_file_size = 8192
+        if args.mode == 5:
+            maximum_ota_file_size = 8192
         if outgoing_file_size_ota > maximum_ota_file_size:
             ui.update_status(f'[red1 on deep_sky_blue4][ERROR][/] Size (over the air) exceeds maximum of {maximum_ota_file_size} bytes for mode {args.mode}!')
             exit(1)
@@ -216,9 +226,14 @@ try:
         if args.mode == 1:
             block_size = 128 * 2
         if args.mode == 2:
-            block_size = 128 * 2
+            block_size = 64 * 2
         if args.mode == 3:
             block_size = 64 * 2
+        if args.mode == 4:
+            block_size = 64 * 2
+        if args.mode == 5:
+            block_size = 64 * 2
+
         blocks = textwrap.wrap(outgoing_file_compressed_b85_hex, block_size)
         del block_size, outgoing_file_compressed_b85_hex
 
