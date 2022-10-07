@@ -64,14 +64,15 @@ If there are no missing blocks.  The receiving station reconstitues the file:
 
 ## LMODEM Modes
 
-### MODE 1 - Minimum Range for Bench Testing (21875 bps)
+### MODE 1 - Minimum Range for Bench Testing (21875 bps hardware maximum)
 * PWR = 2
 * BW = 500
 * SF = sf7
 * CR = 4/5
-* WDT = 1000
+* WDT = 1000                            ???
 * Block Size = 128 bytes
 * Max OTA Size = 32768 bytes
+* Max Requested Block Count = 
 * 54ms per packet
 
 ### MODE 2 - Short Range (10417 bps)
@@ -79,7 +80,7 @@ If there are no missing blocks.  The receiving station reconstitues the file:
 * BW = 500
 * SF = sf8
 * CR = 4/6
-* WDT = 1000
+* WDT = 1000                            ???
 * Block Size = 128 bytes
 * Max OTA Size = 32768 bytes
 * 112ms per packet
@@ -89,7 +90,7 @@ If there are no missing blocks.  The receiving station reconstitues the file:
 * BW = 500
 * SF = sf10
 * CR = 4/7
-* WDT = 1500
+* WDT = 1500                            ???
 * Block Size = 128 bytes
 * Max OTA Size = 32768
 * 414ms per packet
@@ -99,19 +100,21 @@ If there are no missing blocks.  The receiving station reconstitues the file:
 * BW = 250
 * SF = sf12
 * CR = 4/8
-* WDT = 5000
+* WDT = 5000                            ???
 * Block Size = 64 bytes
 * Max OTA Size = 16384
 * 2036ms per packet
 
-### MODE 5 - Maximum Range for Emergency Use (183 bps)
+### MODE 5 - Maximum Range for Emergency Use (183 bps hardware minimum)
 * PWR = 20
 * BW = 125
 * SF = sf12
 * CR = 4/8
-* WDT = 5000
+* WDT = 5000                            ???
 * Block Size = 32 bytes
+
 * Max OTA Size = 8192
+
 * 2499ms per packet
 
 ## LMODEM Channels

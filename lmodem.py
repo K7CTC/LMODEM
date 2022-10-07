@@ -475,7 +475,7 @@ try:
             for i in range(int(incoming_file_block_count)):
                 keys.append(str(i).zfill(3))
             received_blocks = dict.fromkeys(keys, '')
-            received_block_count = '000'
+            received_block_count = '000000'
             block_request_details = received_block_count
             del received_block_count
             ui.update_status('Starting file transfer.')
