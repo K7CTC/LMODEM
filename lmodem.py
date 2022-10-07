@@ -2,7 +2,7 @@
 #                                                                      #
 #          NAME:  LMODEM                                               #
 #  DEVELOPED BY:  Chris Clement (K7CTC)                                #
-#       VERSION:  v0.7                                                 #
+#       VERSION:  v0.8                                                 #
 #                                                                      #
 ########################################################################
 
@@ -25,7 +25,7 @@ import lostik
 import ui
 
 #establish and parse command line arguments
-parser = argparse.ArgumentParser(description='LMODEM v0.7',
+parser = argparse.ArgumentParser(description='LMODEM v0.8',
                                  epilog='Created by Chris Clement (K7CTC).')
 group = parser.add_mutually_exclusive_group(required=True)
 group.add_argument('-s', '--send',
@@ -138,7 +138,7 @@ ui.console.show_cursor(False)
 ui.splash_k7ctc()
 ui.splash_lmodem()
 ui.print_static_content()
-ui.insert_module_version('v0.7')
+ui.insert_module_version('v0.8')
 
 #initialize LoStik
 lmodem_set_channel(args.channel)
