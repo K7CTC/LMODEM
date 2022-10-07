@@ -69,53 +69,67 @@ If there are no missing blocks.  The receiving station reconstitues the file:
 * BW = 500
 * SF = sf7
 * CR = 4/5
-* WDT = 1000                            ???
+* WDT = 1000                            
 * Block Size = 128 bytes
 * Max OTA Size = 32768 bytes
-* Max Requested Block Count = 
+* Max Requested Block Count = 32
+* Data Rate = 21875 bps
 * 54ms per packet
+* NOTES: Mode is finalized.
+
 
 ### MODE 2 - Short Range (10417 bps)
 * PWR = 6
 * BW = 500
 * SF = sf8
 * CR = 4/6
-* WDT = 1000                            ???
+* WDT = 1000                            
 * Block Size = 128 bytes
 * Max OTA Size = 32768 bytes
+* Max Requested Block Count = 32
+* Data Rate = 10417 bps
 * 112ms per packet
+* NOTES: Mode is finalized.
 
 ### MODE 3 - Medium Range (2790 bps)
 * PWR = 12
 * BW = 500
 * SF = sf10
 * CR = 4/7
-* WDT = 1500                            ???
+* WDT = 2000                            
 * Block Size = 128 bytes
 * Max OTA Size = 32768
+* Max Requested Block Count = 32
+* Data Rate = 2790 bps
 * 414ms per packet
+* NOTES: May chose 250 over 500 for BW?  Needs testing.
 
 ### MODE 4 - Long Range (366 bps)
 * PWR = 17
 * BW = 250
 * SF = sf12
 * CR = 4/8
-* WDT = 5000                            ???
+* WDT = 5000                            
 * Block Size = 64 bytes
 * Max OTA Size = 16384
+* Max Requested Block Count = 16
+* Data Rate = 366 bps
 * 2036ms per packet
+* NOTES: Test WDT before finalizing.
 
 ### MODE 5 - Maximum Range for Emergency Use (183 bps hardware minimum)
 * PWR = 20
 * BW = 125
 * SF = sf12
 * CR = 4/8
-* WDT = 5000                            ???
+* WDT = 5000                            
 * Block Size = 32 bytes
-
+* Max Requested Block Count = 8
 * Max OTA Size = 8192
-
+* Data Rate = 183 bps
 * 2499ms per packet
+* NOTES: Test WDT before finalizing.
+
 
 ## LMODEM Channels
 1. 913 MHz

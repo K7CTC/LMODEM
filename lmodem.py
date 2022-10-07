@@ -98,7 +98,7 @@ def lmodem_set_mode(mode_number):
         lostik.set_bw('500')
         lostik.set_sf('sf10')
         lostik.set_cr('4/7')
-        lostik.set_wdt('1500')
+        lostik.set_wdt('2000')
     if mode_number == 4:        #long range (~17.5mi)                   366 bps     2036ms per 64 bytes
         lostik.set_pwr('17')
         lostik.set_bw('250')
@@ -124,7 +124,7 @@ def lmodem_get_mode():
         return 1
     if pwr == '6' and bw == '500' and sf == 'sf8' and cr == '4/6' and wdt == '1000':
         return 2
-    if pwr == '12' and bw == '500' and sf == 'sf10' and cr == '4/7' and wdt == '1500':
+    if pwr == '12' and bw == '500' and sf == 'sf10' and cr == '4/7' and wdt == '2000':
         return 3
     if pwr == '17' and bw == '250' and sf == 'sf12' and cr == '4/8' and wdt == '5000':
         return 4
@@ -458,9 +458,15 @@ try:
                     resume = True
         if resume == True:
             missing_block_numbers = create_missing_block_numbers_string(received_blocks)
-            #cap requested blocks at 32 (to limit packet size)
-            if len(missing_block_numbers) > 127:
-                missing_block_numbers = missing_block_numbers[:127]
+            if args.mode == 1 or args.mode == 2 or args.mode == 3:
+                if len(missing_block_numbers) > 127:
+                    missing_block_numbers = missing_block_numbers[:127]
+            if args.mode == 4:
+                if len(missing_block_numbers) > 63:
+                    missing_block_numbers = missing_block_numbers[:63]
+            if args.mode == 5:
+                if len(missing_block_numbers) > 31:
+                    missing_block_numbers = missing_block_numbers[:31]
             received_block_count = str(count_received_blocks()).zfill(3)
             block_request_details = received_block_count + missing_block_numbers
             del received_block_count, missing_block_numbers
