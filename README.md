@@ -64,72 +64,80 @@ If there are no missing blocks.  The receiving station reconstitues the file:
 
 ## LMODEM Modes
 
-### MODE 1 - Minimum Range for Bench Testing (21875 bps hardware maximum)
+### MODE 1 - Minimum Range (Bench Testing Only)
 * PWR = 2
 * BW = 500
-* SF = sf7
-* CR = 4/5
-* WDT = 1000                            
-* Block Size = 128 bytes
-* Max OTA Size = 32768 bytes
-* Max Requested Block Count = 32
-* Data Rate = 21875 bps
-* 54ms per packet
-* NOTES: Mode is finalized.
-
-
-### MODE 2 - Short Range (10417 bps)
-* PWR = 6
-* BW = 500
-* SF = sf8
+* SF = sf9
 * CR = 4/6
 * WDT = 1000                            
 * Block Size = 128 bytes
-* Max OTA Size = 32768 bytes
-* Max Requested Block Count = 32
-* Data Rate = 10417 bps
-* 112ms per packet
-* NOTES: Mode is finalized.
+* Max Request Length = 127 (32 blocks)
+* Max OTA File Size = 32768 bytes
+* Data Rate = 
+* Packet Air Time = 
+* Test File Transfer Time = 
 
-### MODE 3 - Medium Range (2790 bps)
-* PWR = 12
+
+
+
+
+
+### MODE 2 - Short Range
+* PWR = 6
 * BW = 500
 * SF = sf10
 * CR = 4/7
 * WDT = 2000                            
 * Block Size = 128 bytes
-* Max OTA Size = 32768
-* Max Requested Block Count = 32
-* Data Rate = 2790 bps
-* 414ms per packet
-* NOTES: May chose 250 over 500 for BW?  Needs testing.
+* Max Request Length = 127 (32 blocks)
+* Max OTA File Size = 32768 bytes
+* Data Rate = 
+* Packet Air Time = 
+* Test File Transfer Time = 
 
-### MODE 4 - Long Range (366 bps)
+### MODE 3 - Medium Range
+* PWR = 12
+* BW = 250
+* SF = sf11
+* CR = 4/8
+* WDT = 3000                            
+* Block Size = 128 bytes
+* Max Request Length = 127 (32 blocks)
+* Max OTA File Size = 32768 bytes
+* Data Rate = 
+* Packet Air Time = 
+* Test File Transfer Time = 
+
+
+
+
+
+
+### MODE 4 - Long Range
 * PWR = 17
 * BW = 250
 * SF = sf12
 * CR = 4/8
 * WDT = 5000                            
 * Block Size = 64 bytes
-* Max OTA Size = 16384
-* Max Requested Block Count = 16
-* Data Rate = 366 bps
-* 2036ms per packet
-* NOTES: Test WDT before finalizing.
+* Max Request Length = 63 (16 blocks)
+* Max OTA File Size = 16384
+* Data Rate = 
+* Packet Air Time = 
+* Test File Transfer Time = 
 
-### MODE 5 - Maximum Range for Emergency Use (183 bps hardware minimum)
+### MODE 5 - Maximum Range (Emergency Use Only)
 * PWR = 20
 * BW = 125
 * SF = sf12
 * CR = 4/8
-* WDT = 5000                            
+* WDT = 7500                            
 * Block Size = 32 bytes
-* Max Requested Block Count = 8
-* Max OTA Size = 8192
-* Data Rate = 183 bps
-* 2499ms per packet
-* NOTES: Test WDT before finalizing.
-
+* Max Request Length = 31 (8 blocks)
+* Max OTA File Size = 8192
+* Data Rate = 
+* Packet Air Time = 
+* Test File Transfer Time = 
 
 ## LMODEM Channels
 1. 913 MHz
