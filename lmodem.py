@@ -73,13 +73,17 @@ mode1_max_ota_file_size = 32768
 #short range
 mode2_pwr = '2'
 # mode2_pwr = '6'
-mode2_bw = '500'
+mode2_bw = '250'
 mode2_sf = 'sf10'
 mode2_cr = '4/7'
 mode2_wdt = '2000'
 mode2_block_size = 128 * 2
 mode2_max_request_length = 127  #32 blocks
 mode2_max_ota_file_size = 32768
+
+
+
+##########################################
 
 #medium range
 mode3_pwr = '2'
@@ -91,10 +95,6 @@ mode3_wdt = '3000'
 mode3_block_size = 128 * 2
 mode3_max_request_length = 127  #32 blocks
 mode3_max_ota_file_size = 32768
-
-
-
-##########################################
 
 #long range
 mode4_pwr = '2'

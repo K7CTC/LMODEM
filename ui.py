@@ -36,7 +36,7 @@ def move_cursor(row, column):
 
 def print_static_content():
     console.clear()
-    console.print('[bright_white on deep_sky_blue4]LMODEM by Chris Clement (K7CTC)                                                 [/]')    # 1
+    console.print('[bright_white on deep_sky_blue4]LMODEM - The LoRa File Transfer Protocol                                        [/]')    # 1
     console.print('╭───────────────────────────────── Channel:   ─────────────────────────────────╮')                                       # 2
     console.print('                                                                                ')                                       # 3
     console.print('                             Frequency:                                         ')                                       # 4

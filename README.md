@@ -75,7 +75,7 @@ If there are no missing blocks.  The receiving station reconstitues the file:
 * Max OTA File Size = 32768 bytes
 * Data Rate = 
 * Packet Air Time = 
-* Test File Transfer Time = 
+* Test File Transfer Time = 0:12
 
 
 
@@ -84,7 +84,7 @@ If there are no missing blocks.  The receiving station reconstitues the file:
 
 ### MODE 2 - Short Range
 * PWR = 6
-* BW = 500
+* BW = 250
 * SF = sf10
 * CR = 4/7
 * WDT = 2000                            
@@ -94,6 +94,12 @@ If there are no missing blocks.  The receiving station reconstitues the file:
 * Data Rate = 
 * Packet Air Time = 
 * Test File Transfer Time = 
+
+
+
+
+
+
 
 ### MODE 3 - Medium Range
 * PWR = 12
@@ -106,12 +112,7 @@ If there are no missing blocks.  The receiving station reconstitues the file:
 * Max OTA File Size = 32768 bytes
 * Data Rate = 
 * Packet Air Time = 
-* Test File Transfer Time = 
-
-
-
-
-
+* Test File Transfer Time = 0:52
 
 ### MODE 4 - Long Range
 * PWR = 17
@@ -124,7 +125,7 @@ If there are no missing blocks.  The receiving station reconstitues the file:
 * Max OTA File Size = 16384
 * Data Rate = 
 * Packet Air Time = 
-* Test File Transfer Time = 
+* Test File Transfer Time = 2:05
 
 ### MODE 5 - Maximum Range (Emergency Use Only)
 * PWR = 20
@@ -137,7 +138,7 @@ If there are no missing blocks.  The receiving station reconstitues the file:
 * Max OTA File Size = 8192
 * Data Rate = 
 * Packet Air Time = 
-* Test File Transfer Time = 
+* Test File Transfer Time = 4:45
 
 ## LMODEM Channels
 1. 913 MHz
