@@ -47,70 +47,141 @@ parser.add_argument('-m', '--mode',
 args = parser.parse_args()
 del group, parser
 
+#LMODEM channel constants
+channel1_freq = '913000000'
+channel2_freq = '914000000'
+channel3_freq = '915000000'
+channel4_freq = '916000000'
+channel5_freq = '917000000'
+
+#LMODEM mode constants
+#minimum range (bench testing only)
+mode1_pwr = '2'
+# mode1_pwr = '2'
+mode1_bw = '500'
+mode1_sf = 'sf9'
+mode1_cr = '4/6'
+mode1_wdt = '1000'
+mode1_block_size = 128 * 2
+mode1_max_request_length = 127  #32 blocks
+mode1_max_ota_file_size = 32768
+
+##########################################
+
+
+
+#short range
+mode2_pwr = '2'
+# mode2_pwr = '6'
+mode2_bw = '500'
+mode2_sf = 'sf10'
+mode2_cr = '4/7'
+mode2_wdt = '2000'
+mode2_block_size = 128 * 2
+mode2_max_request_length = 127  #32 blocks
+mode2_max_ota_file_size = 32768
+
+#medium range
+mode3_pwr = '2'
+# mode3_pwr = '12'
+mode3_bw = '250'
+mode3_sf = 'sf11'
+mode3_cr = '4/8'
+mode3_wdt = '3000'
+mode3_block_size = 128 * 2
+mode3_max_request_length = 127  #32 blocks
+mode3_max_ota_file_size = 32768
+
+
+
+##########################################
+
+#long range
+mode4_pwr = '2'
+# mode4_pwr = '17'
+mode4_bw = '250'
+mode4_sf = 'sf12'
+mode4_cr = '4/8'
+mode4_wdt = '5000'
+mode4_block_size = 64 * 2
+mode4_max_request_length = 63   #16 blocks
+mode4_max_ota_file_size = 16384
+
+#maximum range (emergency use only)
+mode5_pwr = '2'
+# mode5_pwr = '20'
+mode5_bw = '125'
+mode5_sf = 'sf12'
+mode5_cr = '4/8'
+mode5_wdt = '7500'
+mode5_block_size = 32 * 2      
+mode5_max_request_length = 31   #8 blocks
+mode5_max_ota_file_size = 8192
+
 #function: set LMODEM communication channel (frequency)
 # accepts: channel number (1, 2, 3, 4 or 5)
 def lmodem_set_channel(channel_number):
     if channel_number == 1:
-        lostik.set_freq('913000000')
+        lostik.set_freq(channel1_freq)
     if channel_number == 2:
-        lostik.set_freq('914000000')
+        lostik.set_freq(channel2_freq)
     if channel_number == 3:
-        lostik.set_freq('915000000')
+        lostik.set_freq(channel3_freq)
     if channel_number == 4:
-        lostik.set_freq('916000000')
+        lostik.set_freq(channel4_freq)
     if channel_number == 5:
-        lostik.set_freq('917000000')
+        lostik.set_freq(channel5_freq)
 
-#function: get LMODEM communication channel (frequency)
+#function: get LMODEM communication channel (LoStik frequency)
 # returns: channel number (1, 2, 3, 4 or 5)
 def lmodem_get_channel():
     freq = lostik.get_freq()
-    if freq == '913000000':
+    if freq == channel1_freq:
         return 1
-    if freq == '914000000':
+    if freq == channel2_freq:
         return 2
-    if freq == '915000000':
+    if freq == channel3_freq:
         return 3
-    if freq == '916000000':
+    if freq == channel4_freq:
         return 4
-    if freq == '917000000':
+    if freq == channel5_freq:
         return 5
     ui.update_status('[red1 on deep_sky_blue4][ERROR][/] Failed to get LMODEM channel!')
     exit(1)
 
-#function: set LMODEM communication mode
+#function: set LMODEM communication mode (LoStik settings)
 # accepts: mode number (1, 2, 3, 4 or 5) 
 def lmodem_set_mode(mode_number): 
-    if mode_number == 1:        #minimum range (bench testing only)     21875 bps   54ms per 128bytes
-        lostik.set_pwr('2')
-        lostik.set_bw('500')
-        lostik.set_sf('sf7')
-        lostik.set_cr('4/5')
-        lostik.set_wdt('1000')
-    if mode_number == 2:        #short range                            10417 bps   112ms per 128bytes
-        lostik.set_pwr('2')
-        lostik.set_bw('500')
-        lostik.set_sf('sf8')
-        lostik.set_cr('4/6')
-        lostik.set_wdt('1000')
-    if mode_number == 3:        #medium range                           2790 bps    414ms per 128bytes
-        lostik.set_pwr('2')
-        lostik.set_bw('500')
-        lostik.set_sf('sf10')
-        lostik.set_cr('4/7')
-        lostik.set_wdt('2000')
-    if mode_number == 4:        #long range (~17.5mi)                   366 bps     2036ms per 64 bytes
-        lostik.set_pwr('2')
-        lostik.set_bw('250')
-        lostik.set_sf('sf12')
-        lostik.set_cr('4/8')
-        lostik.set_wdt('5000')
-    if mode_number == 5:        #maximum range (emergency use only)     183 bps     2499ms per 32 bytes  
-        lostik.set_pwr('2')
-        lostik.set_bw('125')
-        lostik.set_sf('sf12')
-        lostik.set_cr('4/8')
-        lostik.set_wdt('5000')
+    if mode_number == 1:       
+        lostik.set_pwr(mode1_pwr)
+        lostik.set_bw(mode1_bw)
+        lostik.set_sf(mode1_sf)
+        lostik.set_cr(mode1_cr)
+        lostik.set_wdt(mode1_wdt)
+    if mode_number == 2:     
+        lostik.set_pwr(mode2_pwr)
+        lostik.set_bw(mode2_bw)
+        lostik.set_sf(mode2_sf)
+        lostik.set_cr(mode2_cr)
+        lostik.set_wdt(mode2_wdt)
+    if mode_number == 3:       
+        lostik.set_pwr(mode3_pwr)
+        lostik.set_bw(mode3_bw)
+        lostik.set_sf(mode3_sf)
+        lostik.set_cr(mode3_cr)
+        lostik.set_wdt(mode3_wdt)
+    if mode_number == 4:       
+        lostik.set_pwr(mode4_pwr)
+        lostik.set_bw(mode4_bw)
+        lostik.set_sf(mode4_sf)
+        lostik.set_cr(mode4_cr)
+        lostik.set_wdt(mode4_wdt)
+    if mode_number == 5:         
+        lostik.set_pwr(mode5_pwr)
+        lostik.set_bw(mode5_bw)
+        lostik.set_sf(mode5_sf)
+        lostik.set_cr(mode5_cr)
+        lostik.set_wdt(mode5_wdt)
 
 #function: get LMODEM communication mode
 # returns: mode number (1, 2, 3, 4 or 5) 
@@ -120,15 +191,15 @@ def lmodem_get_mode():
     sf = lostik.get_sf()
     cr = lostik.get_cr()
     wdt = lostik.get_wdt()
-    if pwr == '2' and bw == '500' and sf == 'sf7' and cr == '4/5' and wdt == '1000':
+    if pwr == mode1_pwr and bw == mode1_bw and sf == mode1_sf and cr == mode1_cr and wdt == mode1_wdt:
         return 1
-    if pwr == '2' and bw == '500' and sf == 'sf8' and cr == '4/6' and wdt == '1000':
+    if pwr == mode2_pwr and bw == mode2_bw and sf == mode2_sf and cr == mode2_cr and wdt == mode2_wdt:
         return 2
-    if pwr == '2' and bw == '500' and sf == 'sf10' and cr == '4/7' and wdt == '2000':
+    if pwr == mode3_pwr and bw == mode3_bw and sf == mode3_sf and cr == mode3_cr and wdt == mode3_wdt:
         return 3
-    if pwr == '2' and bw == '250' and sf == 'sf12' and cr == '4/8' and wdt == '5000':
+    if pwr == mode4_pwr and bw == mode4_bw and sf == mode4_sf and cr == mode4_cr and wdt == mode4_wdt:
         return 4
-    if pwr == '2' and bw == '125' and sf == 'sf12' and cr == '4/8' and wdt == '5000':
+    if pwr == mode5_pwr and bw == mode5_bw and sf == mode5_sf and cr == mode5_cr and wdt == mode5_wdt:
         return 5
     ui.update_status('[red1 on deep_sky_blue4][ERROR][/] Failed to get LMODEM mode!')
     exit(1)
@@ -198,15 +269,15 @@ try:
         #check if outgoing file size over-the-air exceeds LMODEM maximum for chosen mode
         maximum_ota_file_size = 0
         if args.mode == 1:
-            maximum_ota_file_size = 32768
+            maximum_ota_file_size = mode1_max_ota_file_size
         if args.mode == 2:
-            maximum_ota_file_size = 32768
+            maximum_ota_file_size = mode2_max_ota_file_size
         if args.mode == 3:
-            maximum_ota_file_size = 32768
+            maximum_ota_file_size = mode3_max_ota_file_size
         if args.mode == 4:
-            maximum_ota_file_size = 16384
+            maximum_ota_file_size = mode4_max_ota_file_size
         if args.mode == 5:
-            maximum_ota_file_size = 8192
+            maximum_ota_file_size = mode5_max_ota_file_size
         if outgoing_file_size_ota > maximum_ota_file_size:
             ui.update_status(f'[red1 on deep_sky_blue4][ERROR][/] Size (over the air) exceeds maximum of {maximum_ota_file_size} bytes for mode {args.mode}!')
             exit(1)
@@ -225,15 +296,15 @@ try:
         #split hex encoded base85 encoded compressed outgoing file into blocks sized for chosen mode
         block_size = 0
         if args.mode == 1:
-            block_size = 128 * 2
+            block_size = mode1_block_size
         if args.mode == 2:
-            block_size = 128 * 2
+            block_size = mode2_block_size
         if args.mode == 3:
-            block_size = 128 * 2
+            block_size = mode3_block_size
         if args.mode == 4:
-            block_size = 64 * 2
+            block_size = mode4_block_size
         if args.mode == 5:
-            block_size = 32 * 2
+            block_size = mode5_block_size
 
         blocks = textwrap.wrap(outgoing_file_compressed_b85_hex, block_size)
         del block_size, outgoing_file_compressed_b85_hex
@@ -420,7 +491,7 @@ try:
                         break
                     if incoming_packet == 'TIME-OUT':
                         timeout_counter += 1
-                        if timeout_counter == 3:
+                        if timeout_counter == 5:
                             break
                         continue
                     incoming_block_number_hex = incoming_packet[:6]
@@ -458,15 +529,22 @@ try:
                     resume = True
         if resume == True:
             missing_block_numbers = create_missing_block_numbers_string(received_blocks)
-            if args.mode == 1 or args.mode == 2 or args.mode == 3:
-                if len(missing_block_numbers) > 127:
-                    missing_block_numbers = missing_block_numbers[:127]
+            #trim missing block numbers string based on chosen mode
+            if args.mode == 1:
+                if len(missing_block_numbers) > mode1_max_request_length:
+                    missing_block_numbers = missing_block_numbers[:mode1_max_request_length]
+            if args.mode == 2:
+                if len(missing_block_numbers) > mode2_max_request_length:
+                    missing_block_numbers = missing_block_numbers[:mode2_max_request_length]
+            if args.mode == 3:
+                if len(missing_block_numbers) > mode3_max_request_length:
+                    missing_block_numbers = missing_block_numbers[:mode3_max_request_length]
             if args.mode == 4:
-                if len(missing_block_numbers) > 63:
-                    missing_block_numbers = missing_block_numbers[:63]
+                if len(missing_block_numbers) > mode4_max_request_length:
+                    missing_block_numbers = missing_block_numbers[:mode4_max_request_length]
             if args.mode == 5:
-                if len(missing_block_numbers) > 31:
-                    missing_block_numbers = missing_block_numbers[:31]
+                if len(missing_block_numbers) > mode5_max_request_length:
+                    missing_block_numbers = missing_block_numbers[:mode5_max_request_length]
             received_block_count = str(count_received_blocks()).zfill(3)
             block_request_details = received_block_count + missing_block_numbers
             del received_block_count, missing_block_numbers
