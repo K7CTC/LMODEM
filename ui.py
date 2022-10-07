@@ -421,17 +421,17 @@ def splash_piers():
 def splash_lmodem():
     console.clear()
     move_cursor(10,14)
-    console.print('[light_cyan1]██╗     ███╗   ███╗ ██████╗ ██████╗ ███████╗███╗   ███╗[/]')
+    console.print('[light_cyan1]██[grey37]╗[/]     ███[grey37]╗[/]   ███[grey37]╗[/] ██████[grey37]╗[/] ██████[grey37]╗[/] ███████[grey37]╗[/]███[grey37]╗[/]   ███[grey37]╗[/][/]')
     move_cursor(11,14)
-    console.print('[light_cyan1]██║     ████╗ ████║██╔═══██╗██╔══██╗██╔════╝████╗ ████║[/]')
+    console.print('[light_cyan1]██[grey37]║[/]     ████[grey37]╗[/] ████[grey37]║[/]██[grey37]╔═══[/]██[grey37]╗[/]██[grey37]╔══[/]██[grey37]╗[/]██[grey37]╔════╝[/]████[grey37]╗[/] ████[grey37]║[/][/]')
     move_cursor(12,14)
-    console.print('[light_cyan1]██║     ██╔████╔██║██║   ██║██║  ██║█████╗  ██╔████╔██║[/]')
+    console.print('[light_cyan1]██[grey37]║[/]     ██[grey37]╔[/]████[grey37]╔[/]██[grey37]║[/]██[grey37]║[/]   ██[grey37]║[/]██[grey37]║[/]  ██[grey37]║[/]█████[grey37]╗[/]  ██[grey37]╔[/]████[grey37]╔[/]██[grey37]║[/][/]')
     move_cursor(13,14)
-    console.print('[light_cyan1]██║     ██║╚██╔╝██║██║   ██║██║  ██║██╔══╝  ██║╚██╔╝██║[/]')
+    console.print('[light_cyan1]██[grey37]║[/]     ██[grey37]║╚[/]██[grey37]╔╝[/]██[grey37]║[/]██[grey37]║[/]   ██[grey37]║[/]██[grey37]║  [/]██[grey37]║[/]██[grey37]╔══╝  [/]██[grey37]║╚[/]██[grey37]╔╝[/]██[grey37]║[/][/]')
     move_cursor(14,14)
-    console.print('[light_cyan1]███████╗██║ ╚═╝ ██║╚██████╔╝██████╔╝███████╗██║ ╚═╝ ██║[/]')
+    console.print('[light_cyan1]███████[grey37]╗[/]██[grey37]║ ╚═╝ [/]██[grey37]║╚[/]██████[grey37]╔╝[/]██████[grey37]╔╝[/]███████[grey37]╗[/]██[grey37]║ ╚═╝ [/]██[grey37]║[/][/]')
     move_cursor(15,14)
-    console.print('[light_cyan1]╚══════╝╚═╝     ╚═╝ ╚═════╝ ╚═════╝ ╚══════╝╚═╝     ╚═╝[/]')
+    console.print('[grey37]╚══════╝╚═╝     ╚═╝ ╚═════╝ ╚═════╝ ╚══════╝╚═╝     ╚═╝[/]')
     move_cursor(16,14)
 
     binary_stream = []
