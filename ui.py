@@ -2,13 +2,14 @@
 #                                                                      #
 #          NAME:  LMODEM - UI Functions                                #
 #  DEVELOPED BY:  Chris Clement (K7CTC)                                #
-#       VERSION:  v0.7                                                 #
+#       VERSION:  v0.8                                                 #
 #                                                                      #
 ########################################################################
 
 #standard library imports
 from sys import exit
 from time import sleep
+from random import randint
 
 #related third party imports
 from rich.console import Console
@@ -211,7 +212,7 @@ def splash_k7ctc():
         '▰▰▰▰▰▰▰▰',
         '   ▰▰'
     ]
-    frame_delay = .03
+    frame_delay = .02
     #K
     move_cursor(9, 16)
     console.print(callsign_elements[0], style='color(26)')
@@ -295,7 +296,7 @@ def splash_k7ctc():
     sleep(.5)
     move_cursor(19,30)
     console.print('[grey70]Proudly presents...[/]')
-    sleep(1.5)
+    sleep(1)
     console.clear()
 
 def splash_piers():
