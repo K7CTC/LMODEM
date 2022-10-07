@@ -416,3 +416,43 @@ def splash_piers():
     sleep(frame_delay)
     title_print_line(249)
     sleep(3)
+
+def splash_lmodem():
+    console.clear()
+    move_cursor(10,14)
+    console.print('[light_cyan1]██╗     ███╗   ███╗ ██████╗ ██████╗ ███████╗███╗   ███╗[/]')
+    move_cursor(11,14)
+    console.print('[light_cyan1]██║     ████╗ ████║██╔═══██╗██╔══██╗██╔════╝████╗ ████║[/]')
+    move_cursor(12,14)
+    console.print('[light_cyan1]██║     ██╔████╔██║██║   ██║██║  ██║█████╗  ██╔████╔██║[/]')
+    move_cursor(13,14)
+    console.print('[light_cyan1]██║     ██║╚██╔╝██║██║   ██║██║  ██║██╔══╝  ██║╚██╔╝██║[/]')
+    move_cursor(14,14)
+    console.print('[light_cyan1]███████╗██║ ╚═╝ ██║╚██████╔╝██████╔╝███████╗██║ ╚═╝ ██║[/]')
+    move_cursor(15,14)
+    console.print('[light_cyan1]╚══════╝╚═╝     ╚═╝ ╚═════╝ ╚═════╝ ╚══════╝╚═╝     ╚═╝[/]')
+    move_cursor(16,14)
+
+    binary_stream = []
+    for i in range(60):
+        binary_stream.append(randint(0,1))
+
+    def update_binary_stream():
+        binary_stream
+        move_to_front = binary_stream[59]
+        binary_stream.pop(59)
+        binary_stream.insert(0,move_to_front)
+
+    for i in range(40):
+        move_cursor(17,10)
+        console.print('[blue3]❰[/]')
+        move_cursor(17,11)
+        for digit in binary_stream:
+            if digit == 0:
+                console.print(f'[deep_sky_blue4]{digit}[/]', end='')
+            if digit == 1:
+                console.print(f'[deep_sky_blue1]{digit}[/]', end='')
+        move_cursor(17,71)
+        console.print('[blue3]❱[/]')
+        update_binary_stream()
+        sleep(.06)

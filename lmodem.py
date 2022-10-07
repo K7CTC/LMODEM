@@ -136,6 +136,7 @@ def lmodem_get_mode():
 #initialize user interface
 ui.console.show_cursor(False)
 ui.splash_k7ctc()
+ui.splash_lmodem()
 ui.print_static_content()
 ui.insert_module_version('v0.7')
 
