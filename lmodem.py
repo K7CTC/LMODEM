@@ -607,7 +607,6 @@ try:
             exit(1)
 
 except KeyboardInterrupt:
-    lostik.rxstop()
     lostik.blue_led(False)
     lostik.red_led(False)
     ui.console.show_cursor(True)
