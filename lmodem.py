@@ -57,7 +57,6 @@ channel5_freq = '917000000'
 #LMODEM mode constants
 #minimum range (bench testing only)
 mode1_pwr = '2'
-# mode1_pwr = '2'
 mode1_bw = '500'
 mode1_sf = 'sf9'
 mode1_cr = '4/6'
@@ -65,10 +64,8 @@ mode1_wdt = '1000'
 mode1_block_size = 128 * 2
 mode1_max_request_length = 127  #32 blocks
 mode1_max_ota_file_size = 65536
-
 #short range
-mode2_pwr = '2'
-# mode2_pwr = '6'
+mode2_pwr = '6'
 mode2_bw = '250'
 mode2_sf = 'sf10'
 mode2_cr = '4/7'
@@ -76,9 +73,8 @@ mode2_wdt = '2000'
 mode2_block_size = 128 * 2
 mode2_max_request_length = 127  #32 blocks
 mode2_max_ota_file_size = 32768
-
 #medium range
-mode3_pwr = '2'
+mode3_pwr = '6' #for testing
 # mode3_pwr = '12'
 mode3_bw = '250'
 mode3_sf = 'sf11'
@@ -87,9 +83,8 @@ mode3_wdt = '3000'
 mode3_block_size = 128 * 2
 mode3_max_request_length = 127  #32 blocks
 mode3_max_ota_file_size = 32768
-
 #long range
-mode4_pwr = '2'
+mode4_pwr = '6' #for testing
 # mode4_pwr = '17'
 mode4_bw = '250'
 mode4_sf = 'sf12'
@@ -98,9 +93,8 @@ mode4_wdt = '4000'
 mode4_block_size = 64 * 2
 mode4_max_request_length = 63   #16 blocks
 mode4_max_ota_file_size = 16384
-
 #maximum range (emergency use only)
-mode5_pwr = '2'
+mode5_pwr = '6' #for testing
 # mode5_pwr = '20'
 mode5_bw = '125'
 mode5_sf = 'sf12'
@@ -613,5 +607,8 @@ try:
             exit(1)
 
 except KeyboardInterrupt:
+    lostik.rxstop()
+    lostik.blue_led(False)
+    lostik.red_led(False)
     ui.console.show_cursor(True)
     exit(2)
