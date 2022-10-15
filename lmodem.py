@@ -351,7 +351,7 @@ try:
 
         #await initial reply
         ui.update_status('Awaiting instruction from receive station.')
-        reply = lostik.rx(decode=True)
+        reply = str(lostik.rx(decode=True))
         if reply == 'TIME-OUT':
             ui.update_status('[red1 on deep_sky_blue4][ERROR][/] LoStik watchdog timer time-out!')
             exit(1)
@@ -412,7 +412,7 @@ try:
 
         #listen for incoming file details
         ui.update_status('Awaiting file transfer details.')
-        file_transfer_details_string = lostik.rx(decode=True)
+        file_transfer_details_string = str(lostik.rx(decode=True))
         if file_transfer_details_string == 'TIME-OUT':
             ui.update_status('[red1 on deep_sky_blue4][ERROR][/] LoStik watchdog timer time-out!')
             exit(1)
@@ -472,7 +472,7 @@ try:
                 progress.update(task, completed=count_received_blocks())
                 timeout_counter = 0
                 while True:
-                    incoming_packet = lostik.rx()
+                    incoming_packet = str(lostik.rx())
                     if incoming_packet == '454E445F4F465F5452414E534D495353494F4E': #END_OF_TRANSMISSION
                         break
                     if incoming_packet == 'TIME-OUT':
