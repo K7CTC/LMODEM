@@ -607,6 +607,7 @@ try:
             exit(1)
 
 except KeyboardInterrupt:
+    ui.update_status('[INFO] File transfer process aborted by user.')
     lostik.blue_led(False)
     lostik.red_led(False)
     ui.console.show_cursor(True)
