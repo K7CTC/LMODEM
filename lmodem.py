@@ -607,7 +607,7 @@ try:
             exit(1)
 
 except KeyboardInterrupt:
-    ui.update_status('[green1 on deep_sky_blue4][QUIT][/] LMODEM terminated via CTRL+C. Transfer aborted.')
+    ui.update_status('[green1 on deep_sky_blue4][QUIT][/] File transfer aborted.')
     lostik.blue_led(False)
     lostik.red_led(False)
     ui.console.show_cursor(True)

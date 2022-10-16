@@ -457,3 +457,4 @@ def splash_lmodem():
         console.print('[blue3]❱[/]')
         update_binary_stream()
         sleep(.06)
+
