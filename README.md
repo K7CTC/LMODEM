@@ -2,9 +2,9 @@
 
 LMODEM is the world's first file transfer protocol designed specifically for LoRa.  Its name is a throwback to X, Y, and ZMODEM which I used heavily back when I was a BBS SysOp.
 
-[LoRa](https://en.wikipedia.org/wiki/LoRa)
-[ZMODEM](https://en.wikipedia.org/wiki/ZMODEM)
-[BBS](https://en.wikipedia.org/wiki/Bulletin_board_system)
+*[LoRa](https://en.wikipedia.org/wiki/LoRa)
+*[ZMODEM](https://en.wikipedia.org/wiki/ZMODEM)
+*[BBS](https://en.wikipedia.org/wiki/Bulletin_board_system)
 
 ## Why?
 
@@ -37,22 +37,19 @@ LMODEM serves as a learning exercise in how to design a file transfer protocol f
 
 ## Basic Usage
 
-<code>
-usage: lmodem.py [-h] (-s filename | -r) [-c {1,2,3,4,5}] [-m {1,2,3,4,5}]
+    usage: lmodem.py [-h] (-s filename | -r) [-c {1,2,3,4,5}] [-m {1,2,3,4,5}]
 
-LMODEM
+    LMODEM
 
-optional arguments:
-  -h, --help            show this help message and exit
-  -s filename, --send filename
-                        send the specified file
-  -r, --receive         receive an incoming file
-  -c {1,2,3,4,5}, --channel {1,2,3,4,5}
-                        LMODEM channel (default: 3)
-  -m {1,2,3,4,5}, --mode {1,2,3,4,5}
-                        LMODEM mode (default: 1)
-</code>
-
+    optional arguments:
+    -h, --help            show this help message and exit
+    -s filename, --send filename
+                            send the specified file
+    -r, --receive         receive an incoming file
+    -c {1,2,3,4,5}, --channel {1,2,3,4,5}
+                            LMODEM channel (default: 3)
+    -m {1,2,3,4,5}, --mode {1,2,3,4,5}
+                            LMODEM mode (default: 1)
 
 
 
