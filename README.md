@@ -2,9 +2,11 @@
 
 LMODEM is the world's first file transfer protocol designed specifically for LoRa.  Its name is a throwback to X, Y, and ZMODEM which I used heavily back when I was a BBS SysOp.
 
-*[LoRa](https://en.wikipedia.org/wiki/LoRa)
-*[ZMODEM](https://en.wikipedia.org/wiki/ZMODEM)
-*[BBS](https://en.wikipedia.org/wiki/Bulletin_board_system)
+[LoRa](https://en.wikipedia.org/wiki/LoRa)
+
+[ZMODEM](https://en.wikipedia.org/wiki/ZMODEM)
+
+[BBS](https://en.wikipedia.org/wiki/Bulletin_board_system)
 
 ## Why?
 
@@ -49,7 +51,91 @@ LMODEM serves as a learning exercise in how to design a file transfer protocol f
     -c {1,2,3,4,5}, --channel {1,2,3,4,5}
                             LMODEM channel (default: 3)
     -m {1,2,3,4,5}, --mode {1,2,3,4,5}
-                            LMODEM mode (default: 1)
+                            LMODEM mode (default: 2)
+
+## LMODEM Channels
+
+### Channel 1 - 913 MHz
+### Channel 2 - 914 MHz
+### Channel 3 - 915 MHz
+### Channel 4 - 916 MHz
+### Channel 5 - 917 MHz 
+
+## LMODEM Modes
+
+For details regarding the 
+
+### MODE 1 - Minimum Range (Bench Testing Only)
+* PWR = 2
+* BW = 500
+* SF = sf9
+* CR = 4/6
+* WDT = 1000                            
+* Block Size = 128 bytes
+* Max Request Length = 127 (32 blocks)
+* Max OTA File Size = 65536 bytes
+* Data Rate = 5.86 kbps
+* Packet Air Time = 199 ms
+* Test File Transfer Time = 0:12
+
+### MODE 2 - Short Range
+* PWR = 6
+* BW = 250
+* SF = sf10
+* CR = 4/7
+* WDT = 2000                            
+* Block Size = 128 bytes
+* Max Request Length = 127 (32 blocks)
+* Max OTA File Size = 32768 bytes
+* Data Rate = 1.4 kbps
+* Packet Air Time = 828 ms
+* Test File Transfer Time = 0:29
+
+### MODE 3 - Medium Range
+* PWR = 12
+* BW = 250
+* SF = sf11
+* CR = 4/8
+* WDT = 3000                            
+* Block Size = 128 bytes
+* Max Request Length = 127 (32 blocks)
+* Max OTA File Size = 32768 bytes
+* Data Rate = 671 bps
+* Packet Air Time = 2066 ms
+* Test File Transfer Time = 0:52
+
+### MODE 4 - Long Range
+* PWR = 17
+* BW = 250
+* SF = sf12
+* CR = 4/8
+* WDT = 4000                            
+* Block Size = 64 bytes
+* Max Request Length = 63 (16 blocks)
+* Max OTA File Size = 16384
+* Data Rate = 366 bps
+* Packet Air Time = 2036 ms
+* Test File Transfer Time = 2:05
+
+### MODE 5 - Maximum Range (Emergency Use Only)
+* PWR = 20
+* BW = 125
+* SF = sf12
+* CR = 4/8
+* WDT = 7500                            
+* Block Size = 32 bytes
+* Max Request Length = 31 (8 blocks)
+* Max OTA File Size = 8192
+* Data Rate = 183 bps
+* Packet Air Time = 2499 ms
+* Test File Transfer Time = 4:45
+
+
+
+
+
+
+
 
 
 
@@ -165,10 +251,6 @@ If there are no missing blocks.  The receiving station reconstitues the file:
 * Packet Air Time = 2499 ms
 * Test File Transfer Time = 4:45
 
-## LMODEM Channels
-1. 913 MHz
-2. 914 MHz
-3. 915 MHz
-4. 916 MHz
-5. 917 MHz 
+## Appendix
 
+[]
