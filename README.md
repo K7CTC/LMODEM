@@ -1,23 +1,62 @@
 # LMODEM
 
-LMODEM is the world's first file transfer protocol purpose built for LoRa.  The name is a throwback to X, Y, and ZMODEM that I used heavily back when I was a BBS SysOp.
+LMODEM is the world's first file transfer protocol designed specifically for LoRa.  Its name is a throwback to X, Y, and ZMODEM which I used heavily back when I was a BBS SysOp.
+
+[LoRa](https://en.wikipedia.org/wiki/LoRa)
+[ZMODEM](https://en.wikipedia.org/wiki/ZMODEM)
+[BBS](https://en.wikipedia.org/wiki/Bulletin_board_system)
 
 ## Why?
 
-The short answer, just to see if it was possible.  After completing work on my LoRa chat application I had all the requisite knowledge for sending and receiving ASCII bytes over LoRa.  One day I thought to myself how neat it would be to transfer an arbitrary file over LoRa.  I searched the internet for days looking for any examples of anyone attempting this feat.  Apparenly I was the first person, so I took it as a personal challenge to scratch build a protocol for the sole purpose of proving that I could transfer files over LoRa.
+The short answer, I was just curious to see if it was possible.
 
-## Limitations
+I thought it would be a neat hack to send arbitrary files over LoRa, a technology not intended for such a use case.  After searching the internet I was unable to find any discussion or examples of anyone else attempting this feat.  So, I decided to take up the challenge myself.
 
-* Maximum file name length of 32 characters.
-* Maximim range ~20 miles line of sight.
+LMODEM serves as a learning exercise in how to design a file transfer protocol from scratch.  It is also a fully functional utility for reliably transferring files over LoRa.
 
 ## Features
 
-* File integrity check using BLAKE2b secure hash algorithm provides 100% confidence in transferred files.
+* BLAKE2b secure hash algorithm provides 100% confidence in transferred files.
 * Lempel-Ziv Markov chain Algorithm (LZMA) compression significantly reduces "over the air" file size.
-* Partial transfer resume.  You can reattempt as many times as is necessary to finish an incomplete transfer without having to start over.
-* LMODEM "modes" simplify underlying LoRa settings and provide a user friendly experience.
-* LMODEM "channels" eliminate the need for users to manually specify an operating frequency.
+* Resume partial/interrupted transfers with unlimited retries.
+* LMODEM "channels" simplify frequency selection.
+* LMODEM "modes" simplify LoRa settings selection.
+* Automatic LoStik detection and configutation.
+
+## Constraints
+
+* Maximum file name length of 32 characters.
+* Maximim compressed (over the air) file size of 32,768 bytes.
+
+## Requirements
+
+* [Python 3.10+](https://www.python.org)
+  * [pyserial 3.5+ (via pip)](https://pypi.org/project/pyserial/)
+  * [rich 12.6.0+ (via pip)](https://pypi.org/project/rich/)
+* [Ronoth LoStik](https://ronoth.com/products/lostik)
+
+## Basic Usage
+
+<code>
+usage: lmodem.py [-h] (-s filename | -r) [-c {1,2,3,4,5}] [-m {1,2,3,4,5}]
+
+LMODEM
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -s filename, --send filename
+                        send the specified file
+  -r, --receive         receive an incoming file
+  -c {1,2,3,4,5}, --channel {1,2,3,4,5}
+                        LMODEM channel (default: 3)
+  -m {1,2,3,4,5}, --mode {1,2,3,4,5}
+                        LMODEM mode (default: 1)
+</code>
+
+
+
+
+
 
 ## Operating Principles
 
