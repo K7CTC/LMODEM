@@ -119,10 +119,10 @@ If communication difficulty occurs, it could be due to interference on the selec
 ## Mode Selection
 
 From the Amateur Radio General Class question pool (G1C04 (A) [97.313(a)]):
-Q. Which of the following limitations apply to transmitter power on **every** amateur band?
-A. Only the minimum power necessary to carry out the desired communications should be used.
+- Q. Which of the following limitations apply to transmitter power on **every** amateur band?
+- A. Only the minimum power necessary to carry out the desired communications should be used.
 
-Along those lines, LMODEM modes were crafted with progressively more robust settings, including transmit power.  There is obviously a trade off between range and speed for each mode.  As a best practice (and for optimal transfer speed) choose the lowest mode that ensures reliable communication.  Use your best judgement on which mode to start with, then move higher if necessary.
+Along those lines, I crafted LMODEM modes with progressively more robust settings, including transmit power.  There is obviously a trade off between range and speed for each mode.  As a best practice (and for optimal transfer speed) choose the lowest mode that ensures reliable communication.  Use your best judgement on which mode to start with, then move higher if necessary.
 
 ## Basic Operation Overview
 
@@ -152,7 +152,7 @@ Along those lines, LMODEM modes were crafted with progressively more robust sett
     4. File transfer complete. Integrity check passed. (exit gracefully)
 8. LMODEM execution is concluded on both sending and receiving stations.
 
-Of course, the operational flow noted above assumes an uninterrupted transfer.  When the sending and receiving stations have difficulty communicating, alternate logical flows can occur.  These alternate flows are driven by the watchdog timer time-out setting.
+Of course, the operational flow noted above assumes an uninterrupted transfer.  When the sending and receiving stations have difficulty communicating, alternate logic flows can occur.  These alternate flows are generally driven by the watchdog timer time-out setting.
 
 ## Handling Adverse Conditions
 
@@ -201,61 +201,46 @@ In the absence of an existing matching file, LMODEM initializes an empty [Python
 
 LMODEM then checks for a "partial" file in the current working directory.  Partial files are stored in [prettyprinted](https://en.wikipedia.org/wiki/Prettyprint) [JSON](https://en.wikipedia.org/wiki/JSON) format and have the .json extension appended to the file name.  So a partial file for example.csv would habe the name of example.csv.json.  Partial files contain received blocks in key:value pairs where block index number is the key and the hexadecimal block is the value.  Partial files also contain the secure hash hex digest of the source file.
 
-If a partial file is found, it is parsed.  All available block data as well as secure hash hex digest are placed in the "received blocks" dictionary (initialized earlier).
+If a partial file is found, it is parsed.  All available block data as well as secure hash hex digest are placed in the "received blocks" dictionary (initialized earlier).  Once the data has been transferred from disk to memory, the partial file is deleted from the file system.
 
-LMODEM then determines whether to resume a partial transfer or start fresh.  This is accomplished by comparing the secure has hex digest from the partial file against the incoming file.  If a match occurs, the transfer is resumed.  If a match does not occur, a new 
+LMODEM then determines whether to resume a partial transfer or start fresh.  This is accomplished by comparing the secure has hex digest obatined from the partial file against the incoming file tranfer details.  
 
+#### If a match occurs, request missing blocks.
 
+LMODEM compiles a list of missing block numbers by searching the "received blocks" dictionary for empty values.  When an empty value is found the block index number (key) is retrieved and added to a pipe delimeted string.
 
+The string is then trimmed (from the right) based on the maximum request length (in charactes/bytes) for the chosen mode.  The maximum request length aligns closely with the packet size for the mode.  This is done so that the WDT is not triggered during transmit.  NOTE: This trimming operation limits the number of blocks that can be requested for the transfer operation.  For modes 1-3 the maximum request length is 127 bytes (or characters) which equates to 32 blocks.  For mode 4, the maximum request length is 63 bytes which equates to 16 blocks.  For mode 5, the maximum request length is 31 bytes which equates to 8 blocks.  If the maximum request length is not exceeded, all missing blocks are requested.
 
+Next, LMODEM calculates the number of received blocks and prepends this value the missing block numbers string.  This string now represents the "block request details" and is transmitted to the sending station for processing.  Requested blocks are then received and added to the "received blocks" dictionary.  Rinse and repeat as necessary.
 
+#### If a match does not occur, request all blocks. (start new transfer)
 
+LMODEM purges all existing data from the "received blocks" dictionary.  The dictionary is then initialized by pre-populating keys (block index numbers) with empty values based on the block count from the file transfer details.  To start a new transfer, a special "block request details" packet is formed containing "000000" then transmitted to the sending station for processing.  When the sending station sees that 0 blocks have been received, it knows to send all blocks.
 
+NOTE: The sending station only reads the first three characters (the received block count) and discards the remaining three characters.  LoRa struggles with extremely short packet sizes, so this is a special case where the packet is padded with extra zeros to improve the odds of reception and proper decoding.
 
+One of two conditions will cause LMODEM to stop listening for additional file block packets:
 
+1. An "end of transmission" packet is received.
+2. The LoStik watchdog timer time-out is triggered five times.
 
+At this point the received blocks are processed.  LMODEM counts the number of received blocks and compares it to the block count from the incoming file transfer details.
 
-## Operating Principles
+#### If all blocks have been received, process file.
 
-The sending station takes a file (in the current working directory) as input.  The protocol performs some quick checks on the file first.  It checks that the file exists.  It gets the file size (on disk).  It checks that the filename does not exceed 32 characters.  It generates a secure has for the file with a message digest size of 32 bytes.  The file is then compressed (in memory) using LZMA.  The compressed file undergoes binary to text encoding using the Base85 encoding scheme.  Base85 is more efficient than Base64 and maintains compatibility with LoRa.  LMODEM then checks that the compressed and encoded file does not exceed 32kb.  32kb is the maximum over-the-air file size.  The file is then encoded in hexadecimal.  The file is then divided into 128 byte blocks (with any remainder in the final block).  The block numbers (zero padded) are then prefixed to the blocks themselves, thus creating the packets that will be sent over the air.  The sending station is now ready to present the file to the receiving station.
+1. All hexadecimal block values from the "received blocks" dictionary are concatenated back into a contiguous blob (string).  
+2. Hexadecimal string is converted to base85.
+3. Attempt text to binary conversion from base85.  Exit upon error.
+4. Decompress file (LZMA).
+5. Write file to disk (using file name from transfer details).
+6. Generate secure hash hex digest of received file as it resides in the file system.
+7. Compare the secure hash hex digest from the file transfer details against that of the received file.
+    1. If the secure hash hex digests do not match, the received file is deleted.  LMODEM will exit with an error.
+    2. If the secure hash hex digests do match, the transfer is complete and LMODEM exits gracefully.
 
-Once a basic handshake is performed, both the sending and receiving stations are "synchronized" and the sending station sends the file transfer details packet.  This packet consists of:
+#### If some blocks are missing, process partial file.
 
-* Filename
-* Size on disk (in bytes)
-* Size over the air (in bytes)
-* Block count
-* Secure hash
-
-The receiving station processes the file transfer details packet as follows:
-
-* It displays the file transfer details to the user.
-* It checks to see if the incoming file already exists.
-    - If so, it compares the secure hash to see if the file is a duplicate.
-        + If so, it tells the sending station that the file is a dupe and the transfer is aborted.
-        + If not, the user and the sending station is informed that a file with the same name exists.
-* It checks if a partial file exists.  If so, it is transferred from disk to memory.
-* It checks the secure hash (stored in the partial file) against the incoming file.
-    - If the hash matches, the file transfer is resumed.
-        + Missing blocks are enumerated and requested from the sending station.
-    - If the hash does not match, the partial file is purged from memory and the transfer begins.
-
-The sending station is therefore requested to send all or a subset of file blocks.  When this task is completed, the sending station notifies the receiving station that all requested blocks have been sent.
-
-The receiving station checks for any missing blocks.  If there are missing blocks, the secure hash of the incoming file is appended and a partial file is written to disk.  The users on both ends are instructed to try again.  It is suggested that a more robust LMODEM mode is selected.
-
-If there are no missing blocks.  The receiving station reconstitues the file:
-
-* The hexadecimal encoded blocks are sequentially concatenated into a single blob.
-* The blob is decoded from hexadecimal back into Base85 encoded ASCII bytes.
-* The blob is converted from Base85 back into binary.
-* The binary blob is then decompressed (using LZMA).
-* The decompressed binary is then written to disk (using the file name provided in the file transfer details).
-* The file on disk is then hashed using BLAKE2b.
-* The secure hashes are compared to guarantee file integrity.
-* If the integrity check fails, the file is removed from disk.
-
-
+LMODEM appends the expected secure hash hex digest from the file transfer details to the received blocks dictionary.  The dictionary is then converted into prettyprinted json and written to disk.  The .json file name extension is used to denote a partial file.
 
 ## Appendix
 
