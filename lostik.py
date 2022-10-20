@@ -276,5 +276,3 @@ def rxstop():
         print('[ERROR] Failed to exit receive mode!')
         print('HELP: Disconnect and reconnect LoStik device, then try again.')
         exit(1)
-
-

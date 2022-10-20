@@ -211,7 +211,7 @@ LMODEM compiles a list of missing block numbers by searching the "received block
 
 The string is then trimmed (from the right) based on the maximum request length (in charactes/bytes) for the chosen mode.  The maximum request length aligns closely with the packet size for the mode.  This is done so that the WDT is not triggered during transmit.  NOTE: This trimming operation limits the number of blocks that can be requested for the transfer operation.  For modes 1-3 the maximum request length is 127 bytes (or characters) which equates to 32 blocks.  For mode 4, the maximum request length is 63 bytes which equates to 16 blocks.  For mode 5, the maximum request length is 31 bytes which equates to 8 blocks.  If the maximum request length is not exceeded, all missing blocks are requested.
 
-Next, LMODEM calculates the number of received blocks and prepends this value the missing block numbers string.  This string now represents the "block request details" and is transmitted to the sending station for processing.  Requested blocks are then received and added to the "received blocks" dictionary.  Rinse and repeat as necessary.
+Next, LMODEM calculates the number of received blocks and prepends this value the missing block numbers string.  This string now represents the "block request details" and is transmitted to the sending station for processing.  Requested blocks are then received and added to the received blocks dictionary.  Rinse and repeat as necessary.
 
 #### If a match does not occur, request all blocks. (start new transfer)
 

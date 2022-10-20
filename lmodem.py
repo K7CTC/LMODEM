@@ -97,7 +97,7 @@ mode5_bw = '125'
 mode5_sf = 'sf12'
 mode5_cr = '4/8'
 mode5_wdt = '7500'
-mode5_block_size = 32 * 2      
+mode5_block_size = 32 * 2
 mode5_max_request_length = 31   #8 blocks
 mode5_max_ota_file_size = 8192
 
@@ -133,33 +133,33 @@ def lmodem_get_channel():
     exit(1)
 
 #function: set LMODEM communication mode (LoStik settings)
-# accepts: mode number (1, 2, 3, 4 or 5) 
-def lmodem_set_mode(mode_number): 
-    if mode_number == 1:       
+# accepts: mode number (1, 2, 3, 4 or 5)
+def lmodem_set_mode(mode_number):
+    if mode_number == 1:
         lostik.set_pwr(mode1_pwr)
         lostik.set_bw(mode1_bw)
         lostik.set_sf(mode1_sf)
         lostik.set_cr(mode1_cr)
         lostik.set_wdt(mode1_wdt)
-    if mode_number == 2:     
+    if mode_number == 2:
         lostik.set_pwr(mode2_pwr)
         lostik.set_bw(mode2_bw)
         lostik.set_sf(mode2_sf)
         lostik.set_cr(mode2_cr)
         lostik.set_wdt(mode2_wdt)
-    if mode_number == 3:       
+    if mode_number == 3:
         lostik.set_pwr(mode3_pwr)
         lostik.set_bw(mode3_bw)
         lostik.set_sf(mode3_sf)
         lostik.set_cr(mode3_cr)
         lostik.set_wdt(mode3_wdt)
-    if mode_number == 4:       
+    if mode_number == 4:
         lostik.set_pwr(mode4_pwr)
         lostik.set_bw(mode4_bw)
         lostik.set_sf(mode4_sf)
         lostik.set_cr(mode4_cr)
         lostik.set_wdt(mode4_wdt)
-    if mode_number == 5:         
+    if mode_number == 5:
         lostik.set_pwr(mode5_pwr)
         lostik.set_bw(mode5_bw)
         lostik.set_sf(mode5_sf)
@@ -167,8 +167,8 @@ def lmodem_set_mode(mode_number):
         lostik.set_wdt(mode5_wdt)
 
 #function: get LMODEM communication mode
-# returns: mode number (1, 2, 3, 4 or 5) 
-def lmodem_get_mode(): 
+# returns: mode number (1, 2, 3, 4 or 5)
+def lmodem_get_mode():
     pwr = lostik.get_pwr()
     bw = lostik.get_bw()
     sf = lostik.get_sf()
@@ -609,5 +609,3 @@ except KeyboardInterrupt:
     lostik.red_led(False)
     ui.console.show_cursor(True)
     exit(2)
-
-
