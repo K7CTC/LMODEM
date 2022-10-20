@@ -12,24 +12,24 @@ LMODEM serves as a learning exercise in how to design a file transfer protocol f
 
 ## Features
 
-* [BLAKE2b](http://www.blake2.net) secure hash algorithm provides 100% confidence in transferred files.
-* [Lempel-Ziv Markov chain Algorithm (LZMA)](https://en.wikipedia.org/wiki/Lempel–Ziv–Markov_chain_algorithm) compression significantly reduces "over the air" file size.
-* Resume partial/interrupted transfers with unlimited retries.
-* LMODEM "channels" simplify frequency selection.
-* LMODEM "modes" simplify LoRa settings selection.
-* Automatic LoStik detection and configutation.
+- [BLAKE2b](http://www.blake2.net) secure hash algorithm provides 100% confidence in transferred files.
+- [Lempel-Ziv Markov chain Algorithm (LZMA)](https://en.wikipedia.org/wiki/Lempel–Ziv–Markov_chain_algorithm) compression significantly reduces "over the air" file size.
+- Resume partial/interrupted transfers with unlimited retries.
+- LMODEM "channels" simplify frequency selection.
+- LMODEM "modes" simplify LoRa settings selection.
+- Automatic LoStik detection and configutation.
 
 ## Constraints
 
-* Maximum file name length of 32 characters.
-* Maximim compressed (over the air) file size of 32,768 bytes.
+- Maximum file name length of 32 characters.
+- Maximim compressed (over the air) file size of 32,768 bytes.
 
 ## Requirements
 
-* [Python 3.10+](https://www.python.org)
-  * [pyserial 3.5+ (via pip)](https://pypi.org/project/pyserial/)
-  * [rich 12.6.0+ (via pip)](https://pypi.org/project/rich/)
-* [Ronoth LoStik](https://ronoth.com/products/lostik)
+- [Python 3.10+](https://www.python.org)
+  - [pyserial 3.5+ (via pip)](https://pypi.org/project/pyserial/)
+  - [rich 12.6.0+ (via pip)](https://pypi.org/project/rich/)
+- [Ronoth LoStik](https://ronoth.com/products/lostik)
 
 ## Basic Usage
 
@@ -38,10 +38,10 @@ LMODEM serves as a learning exercise in how to design a file transfer protocol f
     LMODEM
 
     optional arguments:
-    -h, --help            show this help message and exit
+    -h, --help              show this help message and exit
     -s filename, --send filename
                             send the specified file
-    -r, --receive         receive an incoming file
+    -r, --receive           receive an incoming file
     -c {1,2,3,4,5}, --channel {1,2,3,4,5}
                             LMODEM channel (default: 3)
     -m {1,2,3,4,5}, --mode {1,2,3,4,5}
@@ -49,79 +49,161 @@ LMODEM serves as a learning exercise in how to design a file transfer protocol f
 
 ## LMODEM Channels
 
-### Channel 1 - 913 MHz
-### Channel 2 - 914 MHz
-### Channel 3 - 915 MHz
-### Channel 4 - 916 MHz
-### Channel 5 - 917 MHz 
+#### Channel 1 - 913 MHz
+#### Channel 2 - 914 MHz
+#### Channel 3 - 915 MHz
+#### Channel 4 - 916 MHz
+#### Channel 5 - 917 MHz 
+
+## Channel Selection
+
+The 902-928 MHz ISM band (aka [33cm](https://en.wikipedia.org/wiki/33-centimeter_band)) is allocated for amateur radio use on a secondary basis.  As such, it is shared with many unlicensed devices operating with various modulation methods.  Short of having an SDR with waterfall display, monitoring 33cm for a "clear" frequency is simply not an option.  Choosing an operating frequency for LoRa is done blindly.  In my testing, the default channel of 915Mhz (center of band) has worked 100% of the time.  
+
+If there are multiple pairs of LOMODEM stations, perhaps supporting an event.  Then coordination should occur to ensure each station pair uses a dedicated channel.
+
+If communication difficulty occurs, it could be due to interference on the selected channel.  In this case, try again using a different channel.
 
 ## LMODEM Modes
 
-### MODE 1 - Minimum Range (Bench Testing Only)
-* PWR = 2
-* BW = 500
-* SF = sf9
-* CR = 4/6
-* WDT = 1000                            
-* Block Size = 128 bytes
-* Max Request Length = 127 (32 blocks)
-* Max OTA File Size = 65536 bytes
-* Data Rate = 5.86 kbps
-* Packet Air Time = 199 ms
-* Test File Transfer Time = 0:12
+#### Mode 1 - Minimum Range (Bench Testing Only)
+- Transmit Power = 3.0dBm/2.0mW/42.6mA
+- Bandwidth = 500 KHz
+- Spreading Factor = 9
+- Coding Rate = 4/6
+- Watchdog Timer Time-Out = 1000 ms                           
+- Block Size = 128 bytes
+- Max OTA File Size = 32,768 bytes
+- Data Rate = 5.86 kbps
+- Packet Air Time = 199 ms
+#### Mode 2 - Short Range
+- Transmit Power = 7.0dBm/5.0mW/52.0mA
+- Bandwidth = 250 KHz
+- Spreading Factor = 10
+- Coding Rate = 4/7
+- Watchdog Timer Time-Out = 2000 ms                           
+- Block Size = 128 bytes
+- Max OTA File Size = 32,768 bytes
+- Data Rate = 1.4 kbps
+- Packet Air Time = 828 ms
+#### Mode 3 - Medium Range
+- Transmit Power = 13.0dBm/20.0mW/78.0mA
+- Bandwidth = 250 KHz
+- Spreading Factor = 11
+- Coding Rate = 4/8
+- Watchdog Timer Time-Out = 3000 ms                           
+- Block Size = 128 bytes
+- Max OTA File Size = 32,768 bytes
+- Data Rate = 671 bps
+- Packet Air Time = 2066 ms
+#### Mode 4 - Long Range
+- Transmit Power = 17.0dBm/50.1mW/103.6mA
+- Bandwidth = 250 KHz
+- Spreading Factor = 12
+- Coding Rate = 4/8
+- Watchdog Timer Time-Out = 4000 ms                           
+- Block Size = 64 bytes
+- Max OTA File Size = 16,384 bytes
+- Data Rate = 366 bps
+- Packet Air Time = 2036 ms
+#### Mode 5 - Maximum Range (Emergency Use Only)
+- Transmit Power = 18.5dBm/70.8mW/124.4mA
+- Bandwidth = 125 KHz
+- Spreading Factor = 12
+- Coding Rate = 4/8
+- Watchdog Timer Time-Out = 7500 ms                           
+- Block Size = 32 bytes
+- Max OTA File Size = 8,192 bytes
+- Data Rate = 183 bps
+- Packet Air Time = 2499 ms
 
-### MODE 2 - Short Range
-* PWR = 6
-* BW = 250
-* SF = sf10
-* CR = 4/7
-* WDT = 2000                            
-* Block Size = 128 bytes
-* Max Request Length = 127 (32 blocks)
-* Max OTA File Size = 32768 bytes
-* Data Rate = 1.4 kbps
-* Packet Air Time = 828 ms
-* Test File Transfer Time = 0:29
+## Mode Selection
 
-### MODE 3 - Medium Range
-* PWR = 12
-* BW = 250
-* SF = sf11
-* CR = 4/8
-* WDT = 3000                            
-* Block Size = 128 bytes
-* Max Request Length = 127 (32 blocks)
-* Max OTA File Size = 32768 bytes
-* Data Rate = 671 bps
-* Packet Air Time = 2066 ms
-* Test File Transfer Time = 0:52
+From the Amateur Radio General Class question pool (G1C04 (A) [97.313(a)]):
+Q. Which of the following limitations apply to transmitter power on **every** amateur band?
+A. Only the minimum power necessary to carry out the desired communications should be used.
 
-### MODE 4 - Long Range
-* PWR = 17
-* BW = 250
-* SF = sf12
-* CR = 4/8
-* WDT = 4000                            
-* Block Size = 64 bytes
-* Max Request Length = 63 (16 blocks)
-* Max OTA File Size = 16384
-* Data Rate = 366 bps
-* Packet Air Time = 2036 ms
-* Test File Transfer Time = 2:05
+Along those lines, LMODEM modes were crafted with progressively more robust settings, including transmit power.  There is obviously a trade off between range and speed for each mode.  As a best practice (and for optimal transfer speed) choose the lowest mode that ensures reliable communication.  Use your best judgement on which mode to start with, then move higher if necessary.
 
-### MODE 5 - Maximum Range (Emergency Use Only)
-* PWR = 20
-* BW = 125
-* SF = sf12
-* CR = 4/8
-* WDT = 7500                            
-* Block Size = 32 bytes
-* Max Request Length = 31 (8 blocks)
-* Max OTA File Size = 8192
-* Data Rate = 183 bps
-* Packet Air Time = 2499 ms
-* Test File Transfer Time = 4:45
+## Basic Operation Overview
 
+1. LMODEM is launced by both sending and receiving stations.  Order of execution does not matter.
+2. A basic handshake is performed.
+3. The sending station sends the file transfer details consisting of:
+    1. name
+    2. size in bytes (on disk)
+    3. size in bytes (over the air)
+    4. block count
+    5. secure hash hex digest
+4. The receiving station processes the file transfer details then instructs the sending station how to proceed:
+    1. Duplicate file found. Integrity check passed. (exit)
+    2. Duplicate filename found. Integrity check failed! (abort)
+    3. Start file transfer. (send the whole file)
+    4. Resume file transfer. (send only the requested blocks)
+5. The sending station responds accordingly by either...
+    1. exiting gracefully.
+    2. aborting the transfer.
+    3. sending all file blocks.
+    4. sending only the requested file blocks.
+6. The sending station sends an "end of transmission" packet.
+7. The receiving station processes received blocks then responds eith either:
+    1. File transfer incomplete. Try again to resume. (exit with warning)
+    2. File transfer complete. Base85 decode failed! (exit with error)
+    3. File transfer complete. Integrity check failed! (exit eith error)
+    4. File transfer complete. Integrity check passed. (exit gracefully)
+8. LMODEM execution is concluded on both sending and receiving stations.
+
+Of course, the operational flow noted above assumes an uninterrupted transfer.  When the sending and receiving stations have difficulty communicating, alternate logical flows can occur.  These alternate flows are driven by the watchdog timer time-out setting.
+
+## Handling Adverse Conditions
+
+Generally speaking, when a time-out occurs (based on WDT setting), LMODEM will exit.  However, during block reception, up to five time-outs are allowed to occur before exiting.  This allows for minimal packet loss without aborting the entire transfer.
+
+## Sending (file processing)
+
+The file name to be sent (within the current working directory) is specified as a command line argument.  If the file name contains spaces, it must be wrapped in double quotes (e.g. "some file.ext").  If we were sending a file named example.csv using the default mode and channel we would launch LMODEM with the following command:
+
+    lmodem.py -s example.csv
+
+LMODEM then performs some initial checks against the file:
+1. Check that the file actually exists.
+2. Check if the file name exceeds LMODEM maximum of 32 characters.
+
+If either of these checks fail, LMODEM will exit.
+
+LMODEM then processes the file to be sent:
+1. Generate the secure hash hex digest.
+2. Compress the file.
+3. Perform binary to text conversion using base85.
+4. Determine size over the air in bytes.
+5. Check if OTA size exceeds maximum for chosen mode. (exit if exceeds)
+6. Determine size on dish in bytes.
+7. Perform base85 to hexadecimal conversion.
+8. Split resulting hexadecimal file into blocks sized for the chosen mode.
+9. Obtain block count.
+
+LMODEM then transforms the file blocks into packets by prepending the block index number to each block.  The resulting numbered packets are made available to the receiving station.
+
+## Receiving (file processing)
+
+To receive a file using the default mode and channel we would launch LMODEM with the following command:
+
+    lmodem.py -r
+
+The file name to be received is contained within the file transfer details.  LMODEM first uses this incoming file name to check if a file with matching name already exists within the current working directory.  If a file with a matching name is found, an integrity check is performed on it:
+
+1. The secure hash hex digest is generated for the existing file and compared against that of the incoming file (using the file transfer details).
+2. If the secure hash hex digests match, no work is performed and LMODEM exits gracefully.
+3. If the secure hash hex digests do not match:
+    1. Either the existing file is corrupted or a name collision has occurred.
+    2. LMODEM exits with an error status.
+
+In the absence of an existing matching file, LMODEM initializes an empty [Python dictionary](https://www.w3schools.com/python/python_dictionaries.asp) to temporarily store received file blocks.
+
+LMODEM then checks for a "partial" file in the current working directory.  Partial files are stored in [prettyprinted](https://en.wikipedia.org/wiki/Prettyprint) [JSON](https://en.wikipedia.org/wiki/JSON) format and have the .json extension appended to the file name.  So a partial file for example.csv would habe the name of example.csv.json.  Partial files contain received blocks in key:value pairs where block index number is the key and the hexadecimal block is the value.  Partial files also contain the secure hash hex digest of the source file.
+
+If a partial file is found, it is parsed.  All available block data as well as secure hash hex digest are placed in the "received blocks" dictionary (initialized earlier).
+
+LMODEM then determines whether to resume a partial transfer or start fresh.  This is accomplished by comparing the secure has hex digest from the partial file against the incoming file.  If a match occurs, the transfer is resumed.  If a match does not occur, a new 
 
 
 
@@ -177,5 +259,5 @@ If there are no missing blocks.  The receiving station reconstitues the file:
 
 ## Appendix
 
-[Microchip RN2903 LoRa Module - Data Sheet](https://ww1.microchip.com/downloads/aemDocuments/documents/WSG/ProductDocuments/DataSheets/RN2903-Low-Power-Long-Range-LoRa-Technology-Transceiver-Module-DS50002390K.pdf)
-[Microchip RN2903 LoRa Module - Command Reference](https://ww1.microchip.com/downloads/en/DeviceDoc/RN2903%20LoRa%20Technology%20Module%20Command%20Reference%20User%20Guide-40001811B.pdf)
+- [Microchip RN2903 LoRa Module - Data Sheet](https://ww1.microchip.com/downloads/aemDocuments/documents/WSG/ProductDocuments/DataSheets/RN2903-Low-Power-Long-Range-LoRa-Technology-Transceiver-Module-DS50002390K.pdf)
+- [Microchip RN2903 LoRa Module - Command Reference](https://ww1.microchip.com/downloads/en/DeviceDoc/RN2903%20LoRa%20Technology%20Module%20Command%20Reference%20User%20Guide-40001811B.pdf)
