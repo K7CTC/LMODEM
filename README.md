@@ -1,6 +1,6 @@
 # LMODEM
 
-LMODEM is the world's first file transfer protocol designed specifically for [LoRa](https://en.wikipedia.org/wiki/LoRa).  Its name is a throwback to X, Y, and [ZMODEM](https://en.wikipedia.org/wiki/ZMODEM) which I used heavily back when I was a [BBS](https://en.wikipedia.org/wiki/Bulletin_board_system) SysOp.
+LMODEM is the world's first file transfer protocol designed specifically for [LoRa](https://en.wikipedia.org/wiki/LoRa).  Its name is a throwback to X, Y, and [ZMODEM](https://en.wikipedia.org/wiki/ZMODEM) which I used heavily back when I was a [BBS](https://en.wikipedia.org/wiki/Bulletin_board_system) SysOp.  Use it to transfer arbitrary files up to 32kb in size over distances in excess of 20mi.
 
 ## Why?
 
