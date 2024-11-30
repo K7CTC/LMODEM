@@ -1,8 +1,8 @@
 ########################################################################
 #                                                                      #
-#          NAME:  LMODEM                                               #
-#  DEVELOPED BY:  Chris Clement (K7CTC)                                #
-#       VERSION:  v0.9                                                 #
+#       NAME:  LMODEM                                                  #
+#  COPYRIGHT:  2021-2025 Chris Clement (K7CTC)                         #
+#    VERSION:  v0.9.1                                                  #
 #                                                                      #
 ########################################################################
 
@@ -14,7 +14,6 @@ import argparse
 import json
 from sys import exit
 from hashlib import blake2b
-from base64 import b85encode, b85decode
 from pathlib import Path
 
 #related third party imports
@@ -239,12 +238,8 @@ try:
         with open(outgoing_file, 'rb') as file:
             outgoing_file_compressed = lzma.compress(file.read())
 
-        #base85 encode compressed outgoing file
-        outgoing_file_compressed_b85 = b85encode(outgoing_file_compressed)
-        del outgoing_file_compressed
-
-        #determine outgoing file size over the air in bytes
-        outgoing_file_size_ota = len(outgoing_file_compressed_b85)
+        # #determine outgoing file size over the air in bytes
+        outgoing_file_size_ota = len(outgoing_file_compressed)
 
         #display outgoing file size over the air
         ui.insert_file_size_ota(outgoing_file_size_ota)
@@ -272,9 +267,9 @@ try:
         #display outgoing file size on disk
         ui.insert_file_size_on_disk(outgoing_file_size_on_disk)
 
-        #hex encode base85 encoded compressed outgoing file
-        outgoing_file_compressed_b85_hex = outgoing_file_compressed_b85.hex()
-        del outgoing_file_compressed_b85
+        #convert compressed outgoing file to hex
+        outgoing_file_compressed_hex = outgoing_file_compressed.hex()
+        del outgoing_file_compressed
 
         #split hex encoded base85 encoded compressed outgoing file into blocks sized for chosen mode
         block_size = 0
@@ -289,8 +284,8 @@ try:
         if args.mode == 5:
             block_size = mode5_block_size
 
-        blocks = textwrap.wrap(outgoing_file_compressed_b85_hex, block_size)
-        del block_size, outgoing_file_compressed_b85_hex
+        blocks = textwrap.wrap(outgoing_file_compressed_hex, block_size)
+        del block_size, outgoing_file_compressed_hex
 
         #obtain block count
         block_count = len(blocks)
@@ -556,21 +551,13 @@ try:
             del incoming_file_block_count
             ui.update_status('All blocks received. Processing file...')
             #concatenate blocks
-            incoming_file_compressed_b85_hex = ''
+            incoming_file_compressed_hex = ''
             for block in received_blocks.values():
-                incoming_file_compressed_b85_hex = incoming_file_compressed_b85_hex + block
+                incoming_file_compressed_hex = incoming_file_compressed_hex + block
             del received_blocks
             #decode from hex
-            incoming_file_compressed_b85 = bytes.fromhex(incoming_file_compressed_b85_hex)
-            del incoming_file_compressed_b85_hex
-            #decode from b85
-            try:
-                incoming_file_compressed = b85decode(incoming_file_compressed_b85)
-            except:
-                ui.update_status('[red1 on deep_sky_blue4][ERROR][/] File transfer complete. Base85 decode failed!')
-                lostik.tx('COMPLETE_BASE85_FAIL')
-                exit(1)
-            del incoming_file_compressed_b85
+            incoming_file_compressed = bytes.fromhex(incoming_file_compressed_hex)
+            del incoming_file_compressed_hex
             #decompress
             incoming_file = lzma.decompress(incoming_file_compressed)
             del incoming_file_compressed
