@@ -1,8 +1,8 @@
 ########################################################################
 #                                                                      #
-#          NAME:  LMODEM - UI Functions                                #
-#  DEVELOPED BY:  Chris Clement (K7CTC)                                #
-#       VERSION:  v0.9                                                 #
+#       NAME:  LMODEM - UI Functions                                   #
+#  COPYRIGHT:  2021-2025 Chris Clement (K7CTC)                         #
+#    VERSION:  v0.9.1                                                  #
 #                                                                      #
 ########################################################################
 
@@ -15,20 +15,16 @@ from random import randint
 from rich.console import Console
 from rich.theme import Theme
 
-if __name__ == '__main__':
-    print('[ERROR] ui.py is not intended for direct execution!')
-    exit(1)
-
 console = Console(theme=Theme(inherit=False))
 
-if console.width < 80:
-    print('[ERROR] Terminal width is less than 80 columns!')
-    print('HELP: LMODEM minimal terminal size is 80x24. Resize and try again.')
+if __name__ == '__main__':
+    console.print('[red1][ERROR][/] ui.py is not intended for direct execution!')
+    console.print('HELP: Run lmodem.py instead.')
     exit(1)
 
-if console.height < 24:
-    print('[ERROR] Terminal height is less than 24 rows!')
-    print('HELP: LMODEM minimal terminal size is 80x24. Resize and try again.')
+if (console.width < 66) or (console.height < 16):
+    console.print('[red1][ERROR][/] Terminal window is too small!')
+    console.print('HELP: LMODEM minimum terminal size is 66x16. Resize and try again.')
     exit(1)
 
 def move_cursor(row, column):
@@ -36,44 +32,53 @@ def move_cursor(row, column):
 
 def print_static_content():
     console.clear()
-    console.print('[bright_white on deep_sky_blue4]LMODEM - The LoRa File Transfer Protocol                          [/]')    # 1
-    console.print('╭────────────────────────── Channel:   ──────────────────────────╮')                                                     # 2
-    console.print('                      Frequency:                                  ')                                                     # 3
-    console.print('╭──────────────────────────── Mode:   ───────────────────────────╮')                                                     # 4
-    console.print('                      Bandwidth:                                  ')                                                     # 5
-    console.print('                       TX Power:                                  ')                                                     # 6
-    console.print('               Spreading Factor:                                  ')                                                     # 7
-    console.print('                    Coding Rate:                                  ')                                                     # 8
-    console.print('╭───────────────────────── File Details ─────────────────────────╮')                                                     # 9
-    console.print('                           Name:                                  ')                                                     # 10
-    console.print('                 Size (on disk):                                  ')                                                     # 11
-    console.print('            Size (over the air):                                  ')                                                     # 12
-    console.print('╭──────────────────── File Transfer Progress ────────────────────╮')                                                     # 13
-    console.print('[grey23]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━   0% 0:00:00 0:00:00[/]')                                          # 14
+    console.print('[bright_white on deep_sky_blue4]LMODEM - The LoRa File Transfer Protocol                    v0.9.2[/]')    # 1
+    console.print('╭────────────────────────── Channel:   ──────────────────────────╮')                                       # 2
+    console.print('                      Frequency:                                  ')                                       # 3
+    console.print('╭──────────────────────────── Mode:   ───────────────────────────╮')                                       # 4
+    console.print('                      Bandwidth:                                  ')                                       # 5
+    console.print('                       TX Power:                                  ')                                       # 6
+    console.print('               Spreading Factor:                                  ')                                       # 7
+    console.print('                    Coding Rate:                                  ')                                       # 8
+    console.print('╭───────────────────────── File Details ─────────────────────────╮')                                       # 9
+    console.print('                           Name:                                  ')                                       # 10
+    console.print('                 Size (on disk):                                  ')                                       # 11
+    console.print('            Size (over the air):                                  ')                                       # 12
+    console.print('╭──────────────────── File Transfer Progress ────────────────────╮')                                       # 13
+    console.print('[grey23]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━   0% 0:00:00 0:00:00[/]')                            # 14
     console.print('[grey15 on deep_sky_blue4]                                             Press CTRL+C to quit.[/]')          # 15
 
-def insert_module_version(module_version):
-    move_cursor(1,77)
-    console.print(f'[bright_white on deep_sky_blue4]{module_version}[/]')
-
 def insert_lmodem_channel(lmodem_channel):
-    move_cursor(2,45)
+    move_cursor(2,38)
     console.print(lmodem_channel)
 
-def insert_frequency(frequency):
-    move_cursor(4,42)
-    console.print(f'{frequency[:3]}.{frequency[3:]} MHz')
-
 def insert_lmodem_mode(lmodem_mode):
-    move_cursor(6,44)
+    move_cursor(4,37)
     console.print(lmodem_mode)
 
+def update_status(status):
+    move_cursor(15,1)
+    console.print(f'[bright_white on deep_sky_blue4]                                             [/]')
+    move_cursor(15,1)
+    console.print(f'[bright_white on deep_sky_blue4]{status}[/]')
+
+
+
+
+
+
+
+
+def insert_frequency(frequency):
+    move_cursor(3,35)
+    console.print(f'{frequency[:3]}.{frequency[3:]} MHz')
+
 def insert_bandwidth(bandwidth):
-    move_cursor(8,42)
+    move_cursor(5,35)
     console.print(f'{bandwidth} KHz')
 
 def insert_power(power):
-    move_cursor(9,42)
+    move_cursor(6,35)
     label = 'NULL'
     dbm = '0.0dBm'
     mw = '0.0mW'
@@ -161,31 +166,40 @@ def insert_power(power):
     console.print(f'{label} ({dbm}/{mw}/{ma})')
 
 def insert_spreading_factor(spreading_factor):
-    move_cursor(10,42)
+    move_cursor(7,35)
     console.print(spreading_factor)
 
 def insert_coding_rate(coding_rate):
-    move_cursor(11,42)
+    move_cursor(8,35)
     console.print(coding_rate)
 
+
+
+
 def insert_file_name(file_name):
-    move_cursor(15,42)
+    move_cursor(10,35)
     console.print(file_name)
 
 def insert_file_size_on_disk(file_size):
-    move_cursor(16,42)
+    move_cursor(11,35)
     console.print(f'{file_size} bytes')
 
 def insert_file_size_ota(file_size_ota):
-    move_cursor(17,42)
+    move_cursor(12,35)
     console.print(f'{file_size_ota} bytes')
 
-def update_status(status):
-    move_cursor(23,1)
-    console.print('[bright_white on deep_sky_blue4]                                                           [/]')
-    move_cursor(23,1)
-    console.print(f'[bright_white on deep_sky_blue4]{status}[/]')
-    move_cursor(24,1)
+
+
+
+
+
+
+
+
+
+
+
+
 
 def splash_k7ctc():
     console.clear()

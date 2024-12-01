@@ -1,8 +1,8 @@
 ########################################################################
 #                                                                      #
-#          NAME:  Ronoth LoStik Device Driver                          #
-#  DEVELOPED BY:  Chris Clement (K7CTC)                                #
-#       VERSION:  v0.9                                                 #
+#       NAME:  Ronoth LoStik Device Driver                             #
+#  COPYRIGHT:  2021-2025 Chris Clement (K7CTC)                         #
+#    VERSION:  v0.9.1                                                  #
 #                                                                      #
 ########################################################################
 

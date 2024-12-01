@@ -20,12 +20,12 @@ from pathlib import Path
 import rich.progress
 
 #local application/library specific imports
-import lostik
 import ui
+import lostik
 
 #establish and parse command line arguments
-parser = argparse.ArgumentParser(description='LMODEM v0.9',
-                                 epilog='Created by Chris Clement (K7CTC).')
+parser = argparse.ArgumentParser(description='LMODEM v0.9.2',
+                                 epilog='Copyright © 2021-2025 Chris Clement (K7CTC).')
 group = parser.add_mutually_exclusive_group(required=True)
 group.add_argument('-s', '--send',
                    help='send the specified file',
@@ -191,7 +191,6 @@ ui.console.show_cursor(False)
 ui.splash_k7ctc()
 ui.splash_lmodem()
 ui.print_static_content()
-ui.insert_module_version('v0.9')
 
 #initialize LoStik
 lmodem_set_channel(args.channel)

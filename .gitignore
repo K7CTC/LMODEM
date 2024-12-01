@@ -1,4 +1,5 @@
 test.*
+test_ui.py
 .DS_Store
 .vscode/
 
